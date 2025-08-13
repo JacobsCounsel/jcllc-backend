@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024, files: 6 } // 5MB each, max 6 files
+  limits: { fileSize: 15 * 1024 * 1024, files: 10 } // 15MB each, up to 10 files
 });
 
 // -------------------- Microsoft Graph helpers --------------------

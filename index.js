@@ -1,197 +1,299 @@
-// index.js — Microsoft Graph email + AI summaries (client welcome packet + internal brief). Always returns 200 OK.
+// index.js — Jacobs Counsel Estate Intake (Squarespace → Render)
+// Features: MS365 email (client + internal), OpenAI summaries, Clio Grow Lead Inbox push.
 
 import express from 'express';
+import cors from 'cors';
 import multer from 'multer';
-import axios from 'axios';
 
+// -------------------- Config --------------------
+const PORT = process.env.PORT || 3000;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini'; // set to 'gpt-5' if enabled in your account
+
+const MS_TENANT_ID = process.env.MS_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '';
+const MS_CLIENT_ID = process.env.MS_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '';
+const MS_CLIENT_SECRET = process.env.MS_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '';
+const MS_GRAPH_SENDER = process.env.MS_GRAPH_SENDER || process.env.MICROSOFT_SENDER || ''; // user email or UPN
+
+const INTAKE_NOTIFY_TO = process.env.INTAKE_NOTIFY_TO || 'intake@jacobscounsellaw.com';
+
+const CLIO_GROW_BASE = process.env.CLIO_GROW_BASE || 'https://grow.clio.com';
+const CLIO_GROW_INBOX_TOKEN = process.env.CLIO_GROW_INBOX_TOKEN || '';
+
+// -------------------- App basics --------------------
 const app = express();
-const upload = multer({ limits: { fileSize: 20 * 1024 * 1024 } }); // 20MB
+app.use(cors());
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// --- CORS ---
-const ALLOWED = process.env.ALLOWED_ORIGIN || '*';
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', ALLOWED);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
-  res.setHeader('Access-Control-Max-Age', '86400');
-  if (req.method === 'OPTIONS') return res.sendStatus(204);
-  next();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 6 } // 5MB each, max 6 files
 });
 
-app.get('/', (_req, res) => res.status(200).send('Estate intake system: OK'));
-app.get('/health', (_req, res) => res.status(200).json({ ok: true }));
-
-// Helpers
-function pick(obj, keys){ return keys.reduce((o,k)=> (o[k]=obj?.[k]||'', o), {}); }
-function now(){ return new Date().toISOString().replace('T',' ').replace('Z',''); }
-function log(id, msg, extra={}){ console.log(`[${now()}][${id}] ${msg}`, extra); }
-
-// ---------- AI Prompts ----------
-function buildAISummaryPrompt(d){
-  return [
-    'You are a paralegal drafting a concise internal summary for an estate-planning attorney.',
-    'Output 4–6 short bullets, then ONE sentence recommending Will vs. RLT. Plain English.',
-    'No personal opinions, no extra fluff.',
-    '',
-    `Client: ${d.firstName} ${d.lastName} (${d.state})`,
-    `Marital: ${d.maritalStatus}; Minor children: ${d.hasMinorChildren}`,
-    `Executors: ${d.executorPrimary} | Alt1 ${d.executorAlt1} | Alt2 ${d.executorAlt2}`,
-    `Guardians: ${d.guardianPrimary} | Alt1 ${d.guardianAlt1} | Alt2 ${d.guardianAlt2}`,
-    `Financial POA: ${d.poaPrimary} | Alt1 ${d.poaAlt1} | Alt2 ${d.poaAlt2}`,
-    `Health Care POA: ${d.hcpoaPrimary} | Alt1 ${d.hcpoaAlt1} | Alt2 ${d.hcpoaAlt2}`,
-    `HIPAA recipients: ${d.hipaaRecipients}`,
-    `Trust roles: Initial ${d.initialTrustees}; Disability ${d.disabilityTrusteePrimary}/${d.disabilityTrusteeAlt1}/${d.disabilityTrusteeAlt2}; Death ${d.deathTrusteePrimary}/${d.deathTrusteeAlt1}/${d.deathTrusteeAlt2}`,
-    `Assets flags: Home=${d.ownHome}, Other RE=${d.otherRealEstate}, Retirement=${d.retirementAccounts}, LifeIns=${d.lifeInsurance}, Bank/Invest=${d.bankInvestment}, Business=${d.ownBusiness}, Other=${d.otherAssets}`,
-    `Concerns: ${d.concerns}`,
-    `Wishes: Disposition=${d.disposition}; Gifts=${d.specificGifts}; Notes=${d.notes}`,
-    `Package preference: ${d.packagePreference}`
-  ].join('\n');
-}
-
-function buildClientPrompt(d){
-  return [
-    'You are writing to a new estate planning client.',
-    'Write a short, clear welcome email with three sections:',
-    '',
-    '1) What estate planning is and why it matters (3–4 sentences, plain English).',
-    '2) What their answers mean for their situation — summarize key factors from their intake form in a way that is reassuring and easy to understand.',
-    '3) What happens next in the process — outline the steps we will take, from reviewing their intake to sending them a draft engagement letter, drafting documents, and scheduling a signing meeting.',
-    '',
-    'Tone: warm, professional, confident. Avoid legal jargon. No prices.',
-    '',
-    `Client's key answers: State=${d.state}; Marital=${d.maritalStatus}; Minor children=${d.hasMinorChildren}; Package preference=${d.packagePreference}`,
-    `Executors: ${d.executorPrimary}, ${d.executorAlt1}, ${d.executorAlt2}`,
-    `Guardians: ${d.guardianPrimary}, ${d.guardianAlt1}, ${d.guardianAlt2}`,
-    `Financial POA: ${d.poaPrimary}, ${d.poaAlt1}, ${d.poaAlt2}`,
-    `Health Care POA: ${d.hcpoaPrimary}, ${d.hcpoaAlt1}, ${d.hcpoaAlt2}`,
-    `Assets: Home=${d.ownHome}, Other RE=${d.otherRealEstate}, Retirement=${d.retirementAccounts}, Life Insurance=${d.lifeInsurance}, Bank/Invest=${d.bankInvestment}, Business=${d.ownBusiness}, Other=${d.otherAssets}`,
-    `Concerns: ${d.concerns || 'None noted'}`,
-    '',
-    'End with a friendly invitation to reach out with questions.'
-  ].join('\n');
-}
-
-async function getAISummary(prompt){
-  if (!process.env.OPENAI_API_KEY) return null;
-  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-  const body = { model, messages: [{ role: 'user', content: prompt }], temperature: 0.2 };
-  const r = await axios.post('https://api.openai.com/v1/chat/completions', body, {
-    headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-    timeout: 12000
+// -------------------- Microsoft Graph helpers --------------------
+async function getGraphToken() {
+  if (!MS_TENANT_ID || !MS_CLIENT_ID || !MS_CLIENT_SECRET) {
+    throw new Error('MS Graph credentials missing');
+  }
+  const body = new URLSearchParams({
+    client_id: MS_CLIENT_ID,
+    client_secret: MS_CLIENT_SECRET,
+    scope: 'https://graph.microsoft.com/.default',
+    grant_type: 'client_credentials'
   });
-  return r.data?.choices?.[0]?.message?.content?.trim() || null;
+  const resp = await fetch(`https://login.microsoftonline.com/${MS_TENANT_ID}/oauth2/v2.0/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body
+  });
+  if (!resp.ok) throw new Error(`Token error ${resp.status}`);
+  const json = await resp.json();
+  return json.access_token;
 }
 
-// ---------- Microsoft Graph (app-only) ----------
-async function getGraphToken(){
-  const url = `https://login.microsoftonline.com/${process.env.MS_TENANT_ID}/oauth2/v2.0/token`;
-  const params = new URLSearchParams();
-  params.append('client_id', process.env.MS_CLIENT_ID);
-  params.append('client_secret', process.env.MS_CLIENT_SECRET);
-  params.append('scope', 'https://graph.microsoft.com/.default');
-  params.append('grant_type', 'client_credentials');
-  const r = await axios.post(url, params, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 10000 });
-  return r.data.access_token;
-}
+async function sendGraphMail({ to, subject, text, html, attachments = [] }) {
+  if (!MS_GRAPH_SENDER) throw new Error('MS_GRAPH_SENDER not set');
+  const token = await getGraphToken();
 
-async function sendGraphMail({ accessToken, from, to, subject, text }) {
-  const url = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(from)}/sendMail`;
-  const payload = {
+  // keep total attachment size modest to avoid Graph chunking
+  let total = 0;
+  const atts = [];
+  for (const a of attachments) {
+    if (!a?.content) continue;
+    total += a.content.length || 0;
+    if (total > 10 * 1024 * 1024) break; // cap ~10MB
+    atts.push({
+      '@odata.type': '#microsoft.graph.fileAttachment',
+      name: a.filename || 'attachment',
+      contentType: a.contentType || 'application/octet-stream',
+      contentBytes: Buffer.isBuffer(a.content) ? a.content.toString('base64') : Buffer.from(a.content).toString('base64')
+    });
+  }
+
+  const mail = {
     message: {
       subject,
-      body: { contentType: 'Text', content: text },
-      toRecipients: [{ emailAddress: { address: to } }],
-      from: { emailAddress: { address: from } }
+      body: { contentType: html ? 'HTML' : 'Text', content: html || text || '' },
+      toRecipients: (to || []).map(address => ({ emailAddress: { address } })),
+      attachments: atts
     },
     saveToSentItems: true
   };
-  await axios.post(url, payload, { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 12000 });
+
+  const resp = await fetch(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MS_GRAPH_SENDER)}/sendMail`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(mail)
+  });
+  if (!resp.ok) {
+    const errTxt = await resp.text().catch(() => '');
+    throw new Error(`sendMail failed ${resp.status} ${errTxt}`);
+  }
 }
 
-// ---- MAIN INTAKE ----
-app.post('/estate-intake', upload.array('document'), async (req, res) => {
-  const reqId = Math.random().toString(36).slice(2,8);
+// -------------------- OpenAI summary helper --------------------
+async function buildSummaries(form) {
+  if (!OPENAI_API_KEY) return { internal: null, client: null };
 
-  // Intake snapshot
-  const d = pick(req.body || {}, [
-    'firstName','lastName','email','phone','address1','address2','city','county','zip','state','maritalStatus','hasMinorChildren',
-    'spouseName','spouseEmail','children',
-    'executorPrimary','executorAlt1','executorAlt2','guardianPrimary','guardianAlt1','guardianAlt2',
-    'poaPrimary','poaAlt1','poaAlt2','hcpoaPrimary','hcpoaAlt1','hcpoaAlt2','hipaaRecipients',
-    'initialTrustees','disabilityTrusteePrimary','disabilityTrusteeAlt1','disabilityTrusteeAlt2','deathTrusteePrimary','deathTrusteeAlt1','deathTrusteeAlt2',
-    'ownHome','otherRealEstate','retirementAccounts','lifeInsurance','bankInvestment','ownBusiness','otherAssets','concerns','disposition','specificGifts','notes',
-    'packagePreference'
-  ]);
+  const sys = `You are an estate-planning attorney for Jacobs Counsel. 
+Write crisp, liability-aware summaries. 
+Jurisdictions: NY, NJ, OH. 
+Avoid legal advice; this intake is preliminary.`;
 
-  const sender   = process.env.MS_SENDER || 'intake@jacobscounsellaw.com';
-  const notifyTo = process.env.NOTIFY_TO || sender;
-  const booking  = process.env.MOTION_LINK || 'https://app.usemotion.com/meet/';
+  const user = `
+Create two pieces from the client's intake (use plain language, no PII beyond what they provided):
 
-  // 1) AI (best-effort)
-  let internalAI = null, clientAI = null;
-  try { internalAI = await getAISummary(buildAISummaryPrompt(d)); }
-  catch(e){ log(reqId, 'AI internal error', { status: e.response?.status, data: e.response?.data || e.message }); }
-  try { clientAI = await getAISummary(buildClientPrompt(d)); }
-  catch(e){ log(reqId, 'AI client error', { status: e.response?.status, data: e.response?.data || e.message }); }
+1) INTERNAL_SUMMARY:
+- One-paragraph snapshot (who, where, marital, minors)
+- Key people: executor + alternates; POA; HC POA; guardians; HIPAA recipients
+- Assets & flags (home, other RE, retirement, LI, business, special notes)
+- Package lean (Will vs RLT) with 1–2 sentence rationale; mark "Tentative"
+- Follow-ups: any missing decision-makers or conflicts
 
-  // 2) Email via Graph (best-effort)
-  try{
-    if (process.env.MS_TENANT_ID && process.env.MS_CLIENT_ID && process.env.MS_CLIENT_SECRET) {
-      const token = await getGraphToken();
+2) CLIENT_EMAIL:
+- Warm explanation of what estate planning is (short)
+- Based on their answers, what their choices mean (executor, POAs, guardians)
+- What happens next in our process (review → plan recommendation → engagement → signing)
+- Price range language using: Will (single $2,250 / married $2,950), RLT (single $3,800 / married $4,800) — say “we’ll confirm after review”
+- Close with reassurance: secure systems, AI used for quality control and efficiency, attorney review.
 
-      // Client email
-      if (d.email) {
-        const clientText = [
-          clientAI || `Thanks ${d.firstName || ''}, we received your Estate Planning intake. We’ll review and recommend the best path for you.`,
-          '',
-          `Book next steps: ${booking}`,
-          '',
-          'We use secure systems and may use AI to speed drafting. An attorney reviews every plan.'
-        ].join('\n');
-        await sendGraphMail({
-          accessToken: token,
-          from: sender,
-          to: d.email,
-          subject: 'We received your Estate Planning intake',
-          text: clientText
-        });
-      }
+Client intake JSON:
+${JSON.stringify(form, null, 2)}
+`;
 
-      // Internal email
-      const internalLines = [
-        `New intake received: ${d.firstName} ${d.lastName}`,
-        `Email: ${d.email}  Phone: ${d.phone}`,
-        `State: ${d.state}  Marital: ${d.maritalStatus}  Minors: ${d.hasMinorChildren}`,
-        `Executors: ${d.executorPrimary} | ${d.executorAlt1} | ${d.executorAlt2}`,
-        `Guardians: ${d.guardianPrimary} | ${d.guardianAlt1} | ${d.guardianAlt2}`,
-        `POA: ${d.poaPrimary} | ${d.poaAlt1} | ${d.poaAlt2}`,
-        `HCPOA: ${d.hcpoaPrimary} | ${d.hcpoaAlt1} | ${d.hcpoaAlt2}`,
-        `Package Pref: ${d.packagePreference}`,
-        '',
-        'AI Summary:',
-        internalAI || '(unavailable)'
-      ];
-      await sendGraphMail({
-        accessToken: token,
-        from: sender,
-        to: notifyTo,
-        subject: `New Estate Intake — ${d.firstName} ${d.lastName}`,
-        text: internalLines.join('\n')
-      });
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      temperature: 0.3,
+      messages: [
+        { role: 'system', content: sys },
+        { role: 'user', content: user }
+      ]
+    })
+  });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(`OpenAI ${resp.status} ${JSON.stringify(data)}`);
 
-      log(reqId, 'Graph emails sent', { client: !!d.email, toClient: d.email, toInternal: notifyTo, ai: !!internalAI });
-    } else {
-      log(reqId, 'Graph env not set — skipping email');
-    }
-  } catch (e) {
-    const status = e.response?.status;
-    const data = e.response?.data || e.message;
-    log(reqId, 'Graph email error', { status, data });
+  const out = data.choices?.[0]?.message?.content || '';
+  const iTag = 'INTERNAL_SUMMARY:';
+  const cTag = 'CLIENT_EMAIL:';
+  const iIdx = out.indexOf(iTag);
+  const cIdx = out.indexOf(cTag);
+
+  let internal = null, client = null;
+  if (iIdx !== -1 && cIdx !== -1) {
+    internal = out.slice(iIdx + iTag.length, cIdx).trim();
+    client = out.slice(cIdx + cTag.length).trim();
+  } else {
+    // fallback: single body
+    internal = out;
+    client = out;
   }
+  return { internal, client };
+}
 
-  // 3) Always return success to browser
-  return res.status(200).json({ ok: true, id: reqId });
+// -------------------- Clio Grow Lead Inbox helpers --------------------
+function buildClioLeadMessage(b = {}) {
+  return [
+    'Matter: Estate Planning',
+    `State: ${b.state || '-'}`,
+    `Marital: ${b.maritalStatus || '-'}`,
+    `Minors: ${b.hasMinorChildren || '-'}`,
+    `Spouse: ${b.spouseName || '-'}`,
+    `Package: ${b.packagePreference || 'Not sure'}`,
+    `Executor: ${b.executorPrimary || '-'} | Alts: ${b.executorAlt1 || '-'}, ${b.executorAlt2 || '-'}`,
+    `Fin. POA: ${b.poaPrimary || '-'}`,
+    `HC POA: ${b.hcpoaPrimary || '-'}`,
+    `Guardians: ${b.guardianPrimary || '-'}`,
+    `Concerns: ${b.concerns || '-'}`,
+    `Notes: ${b.notes || '-'}`,
+    `Submitted: ${new Date().toISOString()}`
+  ].join('\n');
+}
+
+async function pushToClioGrow(form, referringUrl) {
+  if (!CLIO_GROW_INBOX_TOKEN) return { skipped: 'No CLIO_GROW_INBOX_TOKEN set' };
+
+  const payload = {
+    inbox_lead: {
+      from_first: form.firstName || '',
+      from_last:  form.lastName || '',
+      from_email: form.email || '',
+      from_phone: form.phone || '',
+      from_message: buildClioLeadMessage(form),
+      referring_url: referringUrl || 'https://jacobscounsellaw.com/intake',
+      from_source: 'JacobsCounsel Intake'
+    },
+    inbox_lead_token: CLIO_GROW_INBOX_TOKEN
+  };
+
+  const res = await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  // 201 Created on success
+  let data = {};
+  try { data = await res.json(); } catch {}
+  if (!res.ok && res.status !== 201) {
+    throw new Error(`Clio Grow ${res.status} ${res.statusText} ${JSON.stringify(data)}`);
+  }
+  return data;
+}
+
+// -------------------- Routes --------------------
+app.get('/', (_req, res) => res.json({ ok: true, service: 'estate-intake-system' }));
+
+app.post('/estate-intake', upload.array('document'), async (req, res) => {
+  try {
+    const form = req.body || {};
+    const files = req.files || [];
+    const submissionId = form.submissionId || `${Date.now()}`;
+
+    // Attachments (safe caps to avoid Graph chunk upload)
+    let total = 0;
+    const attachments = [];
+    for (const f of files) {
+      if (!f?.buffer) continue;
+      if (f.size > 3 * 1024 * 1024) continue;         // skip single files >3MB
+      if (total + f.size > 10 * 1024 * 1024) break;   // cap total ~10MB
+      attachments.push({ filename: f.originalname, contentType: f.mimetype, content: f.buffer });
+      total += f.size;
+    }
+
+    // Estimated pricing (matches site logic)
+    const marital = (form.maritalStatus || '').toLowerCase();
+    const pkg = (form.packagePreference || '').toLowerCase();
+    const married = marital === 'married';
+    let price = null;
+    if (pkg.includes('rlt')) price = married ? 4800 : 3800;
+    else if (pkg.includes('will')) price = married ? 2950 : 2250;
+
+    // Build AI summaries (safe if key missing)
+    let internalSummary = null, clientSummary = null;
+    try {
+      const sums = await buildSummaries(form);
+      internalSummary = sums.internal;
+      clientSummary = sums.client;
+    } catch (e) {
+      console.error('OpenAI summary failed:', e.message);
+    }
+
+    // Compose emails
+    const clientEmail = (form.email || '').trim();
+    const adminSubject = `New Estate Intake — ${form.firstName || ''} ${form.lastName || ''} (${form.state || ''})`;
+    const adminHtml = `
+      <h2>New Estate Intake</h2>
+      <p><b>Name:</b> ${form.firstName || ''} ${form.lastName || ''}</p>
+      <p><b>Email:</b> ${form.email || ''} — <b>Phone:</b> ${form.phone || ''}</p>
+      <p><b>State:</b> ${form.state || ''}; <b>Marital:</b> ${form.maritalStatus || ''}; <b>Minors:</b> ${form.hasMinorChildren || ''}</p>
+      <p><b>Package:</b> ${form.packagePreference || 'Not sure'}; <b>Est. Price:</b> ${price ? `$${price.toLocaleString()}` : '—'}</p>
+      ${internalSummary ? `<hr/><pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas;font-size:13px">${internalSummary}</pre>` : ''}
+      <hr/>
+      <details><summary>Raw Form</summary><pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas;font-size:12px">${JSON.stringify(form, null, 2)}</pre></details>
+    `;
+
+    const clientSubject = `We received your Jacobs Counsel estate planning intake`;
+    const clientHtml = `
+      <p>Thanks for completing your intake. We’ve started our review.</p>
+      <p><b>What happens next</b></p>
+      <ol>
+        <li>We review your details and confirm the right plan (Will vs. RLT).</li>
+        <li>We send a preliminary engagement draft and schedule your call.</li>
+        <li>We finalize documents and sign.</li>
+      </ol>
+      ${clientSummary ? `<hr/><div>${clientSummary}</div>` : ''}
+      <p style="margin-top:12px;color:#475467"><i>We use secure systems and may use AI for quality control and efficiency. An attorney reviews every plan.</i></p>
+    `;
+
+    // Send emails
+    try {
+      await sendGraphMail({ to: [INTAKE_NOTIFY_TO], subject: adminSubject, html: adminHtml, attachments });
+    } catch (e) { console.error('Internal mail failed:', e.message); }
+    if (clientEmail) {
+      try { await sendGraphMail({ to: [clientEmail], subject: clientSubject, html: clientHtml }); }
+      catch (e) { console.error('Client mail failed:', e.message); }
+    }
+
+    // Push to Clio Grow
+    try {
+      const referringUrl = form.referringUrl || req.headers.referer || 'https://jacobscounsellaw.com/intake';
+      const clioResp = await pushToClioGrow(form, referringUrl);
+      console.log('Clio Grow push OK', clioResp?.id || '');
+    } catch (e) {
+      console.error('Clio Grow push failed:', e.message);
+    }
+
+    // Respond to the browser
+    res.json({ ok: true, price, submissionId });
+  } catch (err) {
+    console.error('Intake error:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log('Server listening on', PORT));
+app.listen(PORT, () => console.log(`estate-intake-system listening on ${PORT}`));

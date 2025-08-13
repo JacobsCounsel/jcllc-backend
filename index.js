@@ -295,5 +295,21 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
+// ----- Global error handler (Multer-friendly) -----
+app.use((err, req, res, next) => {
+  if (err && err.code) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ ok:false, error:'One or more files are too large (max 15MB each). Try again without the oversized file(s).' });
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(413).json({ ok:false, error:'Too many files (max 10). Remove some and try again.' });
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({ ok:false, error:'Unexpected file field. Please use the file picker in the form.' });
+    }
+  }
+  console.error('Unhandled error:', err);
+  res.status(500).json({ ok:false, error:'Server error. Please try again or email us.' });
+});
 
 app.listen(PORT, () => console.log(`estate-intake-system listening on ${PORT}`));

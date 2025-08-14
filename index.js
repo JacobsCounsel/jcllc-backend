@@ -214,18 +214,18 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     const files = req.files || [];
     const submissionId = form.submissionId || `${Date.now()}`;
 
-    // Attachments (safe caps to avoid Graph chunk upload)
+    // ----- Attachments (safe caps) -----
     let total = 0;
     const attachments = [];
     for (const f of files) {
       if (!f?.buffer) continue;
-      if (f.size > 3 * 1024 * 1024) continue;         // skip single files >3MB
-      if (total + f.size > 10 * 1024 * 1024) break;   // cap total ~10MB
+      if (f.size > 3 * 1024 * 1024) continue; // skip single files >3MB
+      if (total + f.size > 10 * 1024 * 1024) break; // cap total ~10MB
       attachments.push({ filename: f.originalname, contentType: f.mimetype, content: f.buffer });
       total += f.size;
     }
 
-    // Estimated pricing (matches site logic)
+    // ----- Price logic -----
     const marital = (form.maritalStatus || '').toLowerCase();
     const pkg = (form.packagePreference || '').toLowerCase();
     const married = marital === 'married';
@@ -233,7 +233,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     if (pkg.includes('rlt')) price = married ? 4800 : 3800;
     else if (pkg.includes('will')) price = married ? 2950 : 2250;
 
-    // Build AI summaries (safe if key missing)
+    // ----- AI summaries -----
     let internalSummary = null, clientSummary = null;
     try {
       const sums = await buildSummaries(form);
@@ -243,7 +243,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       console.error('OpenAI summary failed:', e.message);
     }
 
-    // Compose emails
+    // ----- Email content -----
     const clientEmail = (form.email || '').trim();
     const adminSubject = `New Estate Intake — ${form.firstName || ''} ${form.lastName || ''} (${form.state || ''})`;
     const adminHtml = `
@@ -258,61 +258,93 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     `;
 
     const clientSubject = `Jacobs Counsel — Your Estate Planning Intake & Next Steps`;
+    const clientHtml = `
+      <p>Hi ${form.firstName || ''},</p>
 
-const clientHtml = `
-  <p>Hi ${form.firstName || ''},</p>
+      <p>Thank you for completing your estate planning intake. We’ve received your information and will now begin our review.</p>
 
-  <p>Thank you for completing your estate planning intake. We’ve received your information and will now begin our review.</p>
+      <h3 style="margin-top:18px;color:#0b1f1e">What Happens Next</h3>
+      <ol style="margin:12px 0 18px;padding-left:20px">
+        <li><b>Initial Review & Engagement Letter</b> — We will review your intake and prepare a tailored engagement letter outlining the scope, flat fee, and next steps. You’ll receive this by email within <b>1–2 business days</b>. The engagement letter can be reviewed and <b>e-signed</b> from any device.</li>
+        <li><b>Plan Drafting</b> — Once the engagement letter is signed and the initial payment is processed, we begin drafting your estate plan. This step generally takes about <b>1 week</b>.</li>
+        <li><b>Attorney Review Call</b> — Please schedule a 45–60 minute call with us for about 1 week from today. During this call, an attorney will walk you through your draft documents, explain key provisions, and answer questions.</li>
+        <li><b>Revisions</b> — After your review call, we’ll incorporate any changes you request to bring the documents to final form.</li>
+        <li><b>Final Draft Delivery</b> — We will send you final drafts for your approval before signing.</li>
+        <li><b>Signing & Execution</b> — You will schedule a signing session. Depending on your state:
+          <ul>
+            <li><b>New York & New Jersey</b> — We coordinate in-person or remote notarization and witnesses per state law.</li>
+            <li><b>Ohio</b> — We arrange appropriate witness/notary procedures based on your plan type.</li>
+          </ul>
+        </li>
+        <li><b>Funding (for RLT Plans)</b> — If your plan includes a Revocable Living Trust, we will provide a <b>funding guide</b> showing how to retitle assets into your trust to ensure it is effective.</li>
+      </ol>
 
-  <h3 style="margin-top:18px;color:#0b1f1e">What Happens Next</h3>
-  <ol style="margin:12px 0 18px;padding-left:20px">
-    <li><b>Initial Review & Engagement Letter</b> — We will review your intake and prepare a tailored engagement letter outlining the scope, flat fee, and next steps. You’ll receive this by email within <b>1–2 business days</b>. The engagement letter can be reviewed and <b>e-signed</b> from any device.</li>
-    <li><b>Plan Drafting</b> — Once the engagement letter is signed and the initial payment is processed, we begin drafting your estate plan. This step generally takes about <b>1 week</b>.</li>
-    <li><b>Attorney Review Call</b> — Please schedule a 45–60 minute call with us for about 1 week from today. During this call, an attorney will walk you through your draft documents, explain key provisions, and answer questions.</li>
-    <li><b>Revisions</b> — After your review call, we’ll incorporate any changes you request to bring the documents to final form.</li>
-    <li><b>Final Draft Delivery</b> — We will send you final drafts for your approval before signing.</li>
-    <li><b>Signing & Execution</b> — You will schedule a signing session. Depending on your state:
-      <ul>
-        <li><b>New York & New Jersey</b> — We coordinate in-person or remote notarization and witnesses per state law.</li>
-        <li><b>Ohio</b> — We arrange appropriate witness/notary procedures based on your plan type.</li>
+      <h3 style="margin-top:18px;color:#0b1f1e">Your Role</h3>
+      <ul style="margin:12px 0 18px;padding-left:20px">
+        <li>Review and e-sign the engagement letter promptly so we can begin.</li>
+        <li>Schedule your review call for about 1 week from now.</li>
+        <li>Gather any additional information or documents we may request.</li>
       </ul>
-    </li>
-    <li><b>Funding (for RLT Plans)</b> — If your plan includes a Revocable Living Trust, we will provide a <b>funding guide</b> showing how to retitle assets into your trust to ensure it is effective.</li>
-  </ol>
 
-  <h3 style="margin-top:18px;color:#0b1f1e">Your Role</h3>
-  <ul style="margin:12px 0 18px;padding-left:20px">
-    <li>Review and e-sign the engagement letter promptly so we can begin.</li>
-    <li>Schedule your review call for about 1 week from now.</li>
-    <li>Gather any additional information or documents we may request.</li>
-  </ul>
+      <p>Our goal is to make this process as smooth and efficient as possible. If you have questions at any time, just reply to this email or call our office.</p>
 
-  <p>Our goal is to make this process as smooth and efficient as possible. If you have questions at any time, just reply to this email or call our office.</p>
+      <p>We look forward to working with you to complete a plan that protects your family, your assets, and your legacy.</p>
 
-  <p>We look forward to working with you to complete a plan that protects your family, your assets, and your legacy.</p>
+      <p>— The Jacobs Counsel Team</p>
 
-  <p>— The Jacobs Counsel Team</p>
+      <p style="margin-top:12px;color:#475467;font-size:0.9em"><i>We use secure systems and may use AI for quality control and efficiency. An attorney reviews every plan before it is finalized. Your information is kept confidential and never sold.</i></p>
+    `;
 
-  <p style="margin-top:12px;color:#475467;font-size:0.9em"><i>We use secure systems and may use AI for quality control and efficiency. An attorney reviews every plan before it is finalized. Your information is kept confidential and never sold.</i></p>
-`;
-
-
-    // Push to Clio Grow
+    // ----- Send internal email -----
     try {
-      const referringUrl = form.referringUrl || req.headers.referer || 'https://jacobscounsellaw.com/intake';
-      const clioResp = await pushToClioGrow(form, referringUrl);
-      console.log('Clio Grow push OK', clioResp?.id || '');
+      console.log('📧 Sending internal email to', INTAKE_NOTIFY_TO);
+      await sendGraphMail({
+        to: [INTAKE_NOTIFY_TO],
+        subject: adminSubject,
+        html: adminHtml,
+        attachments
+      });
+      console.log('✅ Internal email sent');
     } catch (e) {
-      console.error('Clio Grow push failed:', e.message);
+      console.error('❌ Internal mail failed:', e.message);
     }
 
-    // Respond to the browser
+    // ----- Send client email + copy to you -----
+    if (clientEmail) {
+      try {
+        console.log('📧 Sending client email to', clientEmail, 'and copy to', INTAKE_NOTIFY_TO);
+        await sendGraphMail({
+          to: [clientEmail, INTAKE_NOTIFY_TO],
+          subject: clientSubject,
+          html: clientHtml
+        });
+        console.log('✅ Client email sent');
+      } catch (e) {
+        console.error('❌ Client mail failed:', e.message);
+      }
+    } else {
+      console.warn('⚠️ No client email provided; skipping client email send.');
+    }
+
+    // ----- Push to Clio Grow -----
+    try {
+      console.log('📤 Pushing lead to Clio Grow');
+      const referringUrl = form.referringUrl || req.headers.referer || 'https://jacobscounsellaw.com/intake';
+      const clioResp = await pushToClioGrow(form, referringUrl);
+      console.log('✅ Clio Grow push OK', clioResp?.id || '');
+    } catch (e) {
+      console.error('❌ Clio Grow push failed:', e.message);
+    }
+
+    // ----- Respond to browser -----
     res.json({ ok: true, price, submissionId });
+
   } catch (err) {
-    console.error('Intake error:', err);
+    console.error('💥 Intake error:', err);
     res.status(500).json({ ok: false, error: err.message });
   }
 });
+
 // ----- Global error handler (Multer-friendly) -----
 app.use((err, req, res, next) => {
   if (err && err.code) {

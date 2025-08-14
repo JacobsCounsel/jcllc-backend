@@ -309,22 +309,20 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       console.error('❌ Internal mail failed:', e.message);
     }
 
-    // ----- Send client email + copy to you -----
-    if (clientEmail) {
-      try {
-        console.log('📧 Sending client email to', clientEmail, 'and copy to', INTAKE_NOTIFY_TO);
-        await sendGraphMail({
-          to: [clientEmail, INTAKE_NOTIFY_TO],
-          subject: clientSubject,
-          html: clientHtml
-        });
-        console.log('✅ Client email sent');
-      } catch (e) {
-        console.error('❌ Client mail failed:', e.message);
-      }
-    } else {
-      console.warn('⚠️ No client email provided; skipping client email send.');
-    }
+    // Send client email + always copy to intake@
+if (clientEmail) {
+  try {
+    console.log('📧 Sending client email to', clientEmail, 'and copy to intake@jacobscounsellaw.com');
+    await sendGraphMail({
+      to: [clientEmail, 'intake@jacobscounsellaw.com'],
+      subject: clientSubject,
+      html: clientHtml
+    });
+    console.log('✅ Client email sent (client + intake@)');
+  } catch (e) {
+    console.error('❌ Client mail failed:', e.message);
+  }
+}
 
     // ----- Push to Clio Grow -----
     try {

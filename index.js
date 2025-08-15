@@ -230,8 +230,8 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     const pkg = (form.packagePreference || '').toLowerCase();
     const married = marital === 'married';
     let price = null;
-    if (pkg.includes('rlt')) price = married ? 4800 : 3800;
-    else if (pkg.includes('will')) price = married ? 2950 : 2250;
+    if (pkg.includes('rlt') || pkg.includes('trust')) price = married ? 3650 : 2900;
+else if (pkg.includes('will')) price = married ? 1900 : 1500;
 
     // ----- AI summaries -----
     let internalSummary = null, clientSummary = null;

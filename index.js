@@ -259,41 +259,82 @@ else if (pkg.includes('will')) price = married ? 1900 : 1500;
 
     const clientSubject = `Jacobs Counsel — Your Estate Planning Intake & Next Steps`;
     const clientHtml = `
-      <p>Hi ${form.firstName || ''},</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Your Estate Planning Intake - Next Steps</title>
+</head>
+<body style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <!-- Header -->
+        <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px; border-radius: 3px; margin-bottom: 24px;"></div>
+        
+        <h1 style="color: #ff4d00; font-size: 28px; margin: 0 0 16px; font-weight: 700;">Thank you for starting your estate plan with Jacobs Counsel</h1>
+        
+        <p style="font-size: 16px; margin: 16px 0;">Hi <strong>${form.firstName || ''}</strong>,</p>
+        
+        <p style="font-size: 16px; margin: 16px 0;">We've received your estate planning intake and will review it within <strong>1 business day</strong>. Here's what happens next:</p>
+        
+        <!-- Process Steps -->
+        <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px solid #e2e8f0;">
+            <h3 style="margin: 0 0 16px; color: #0b1f1e; font-size: 20px;">Our Process:</h3>
+            <ol style="margin: 0; padding-left: 20px; color: #64748b;">
+                <li style="margin: 8px 0;"><strong style="color: #0f172a;">Review & Quote (1-2 days):</strong> We'll send you a personalized flat-fee quote and engagement letter</li>
+                <li style="margin: 8px 0;"><strong style="color: #0f172a;">Engagement:</strong> If you decide to proceed, sign the engagement letter and pay the retainer</li>
+                <li style="margin: 8px 0;"><strong style="color: #0f172a;">Drafting (1 week):</strong> We'll prepare your custom documents based on your responses</li>
+                <li style="margin: 8px 0;"><strong style="color: #0f172a;">Attorney Review (30 min):</strong> Schedule a video call to review your documents and make any adjustments</li>
+                <li style="margin: 8px 0;"><strong style="color: #0f172a;">Execution:</strong> Sign your final documents with notary/witnesses (we provide instructions)</li>
+                <li style="margin: 8px 0;"><strong style="color: #0f172a;">Funding (if trust):</strong> Transfer assets to your trust using our detailed checklist</li>
+            </ol>
+        </div>
 
-      <p>Thank you for completing your estate planning intake. We’ve received your information and will now begin our review.</p>
-
-      <h3 style="margin-top:18px;color:#0b1f1e">What Happens Next</h3>
-      <ol style="margin:12px 0 18px;padding-left:20px">
-        <li><b>Initial Review & Engagement Letter</b> — We will review your intake and prepare a tailored engagement letter outlining the scope, flat fee, and next steps. You’ll receive this by email within <b>1–2 business days</b>. The engagement letter can be reviewed and <b>e-signed</b> from any device.</li>
-        <li><b>Plan Drafting</b> — Once the engagement letter is signed and the initial payment is processed, we begin drafting your estate plan. This step generally takes about <b>1 week</b>.</li>
-        <li><b>Attorney Review Call</b> — Please schedule a 45–60 minute call with us for about 1 week from today. During this call, an attorney will walk you through your draft documents, explain key provisions, and answer questions.</li>
-        <li><b>Revisions</b> — After your review call, we’ll incorporate any changes you request to bring the documents to final form.</li>
-        <li><b>Final Draft Delivery</b> — We will send you final drafts for your approval before signing.</li>
-        <li><b>Signing & Execution</b> — You will schedule a signing session. Depending on your state:
-          <ul>
-            <li><b>New York & New Jersey</b> — We coordinate in-person or remote notarization and witnesses per state law.</li>
-            <li><b>Ohio</b> — We arrange appropriate witness/notary procedures based on your plan type.</li>
-          </ul>
-        </li>
-        <li><b>Funding (for RLT Plans)</b> — If your plan includes a Revocable Living Trust, we will provide a <b>funding guide</b> showing how to retitle assets into your trust to ensure it is effective.</li>
-      </ol>
-
-      <h3 style="margin-top:18px;color:#0b1f1e">Your Role</h3>
-      <ul style="margin:12px 0 18px;padding-left:20px">
-        <li>Review and e-sign the engagement letter promptly so we can begin.</li>
-        <li>Schedule your review call for about 1 week from now.</li>
-        <li>Gather any additional information or documents we may request.</li>
-      </ul>
-
-      <p>Our goal is to make this process as smooth and efficient as possible. If you have questions at any time, just reply to this email or call our office.</p>
-
-      <p>We look forward to working with you to complete a plan that protects your family, your assets, and your legacy.</p>
-
-      <p>— The Jacobs Counsel Team</p>
-
-      <p style="margin-top:12px;color:#475467;font-size:0.9em"><i>We use secure systems and may use AI for quality control and efficiency. An attorney reviews every plan before it is finalized. Your information is kept confidential and never sold.</i></p>
-    `;
+        ${price ? `
+        <!-- Pricing -->
+        <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 24px 0; border: 2px solid #bbf7d0; text-align: center;">
+            <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">Estimated Investment: $${price.toLocaleString()}</p>
+            <p style="margin: 8px 0 0; font-size: 14px; color: #059669;">Final pricing confirmed after review • Includes $350 self-signing credit</p>
+        </div>
+        ` : ''}
+        
+        <!-- Call to Action -->
+        <div style="background: #e3f2fd; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center; border: 2px solid #7dd3fc;">
+            <p style="margin: 0 0 16px; font-weight: 600; color: #0369a1; font-size: 16px;">Ready to schedule your consultation now?</p>
+            <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
+               style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: 600; font-size: 16px;">
+               📅 Book Your Attorney Review Session
+            </a>
+            <p style="margin: 12px 0 0; font-size: 14px; color: #0369a1;">30-minute consultation to review your custom estate plan</p>
+        </div>
+        
+        <!-- What's Included -->
+        <div style="margin: 24px 0;">
+            <h3 style="color: #0b1f1e; font-size: 18px; margin: 0 0 12px;">What's Included in Your Package:</h3>
+            <ul style="margin: 0; padding-left: 20px; color: #64748b;">
+                <li style="margin: 6px 0;">Custom document drafting based on your responses</li>
+                <li style="margin: 6px 0;">30-minute attorney review session via video call</li>
+                <li style="margin: 6px 0;">Detailed signing instructions with notary/witness coordination</li>
+                <li style="margin: 6px 0;">Funding checklist and bank letters (for trusts)</li>
+                <li style="margin: 6px 0;">Ongoing document storage and annual check-ins</li>
+                <li style="margin: 6px 0;">Electronic notarization available (additional fee)</li>
+            </ul>
+        </div>
+        
+        <p style="font-size: 16px; margin: 24px 0 16px;">Questions? Simply reply to this email or call us at <strong>(XXX) XXX-XXXX</strong>.</p>
+        
+        <p style="font-size: 16px; margin: 16px 0;">Best regards,<br>
+        <strong style="color: #0b1f1e;">The Jacobs Counsel Team</strong></p>
+        
+        <!-- Footer -->
+        <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
+        <p style="font-size: 13px; color: #64748b; margin: 0;">
+            This email was sent because you completed an estate planning intake at jacobscounsellaw.com. 
+            Your information is confidential and this does not create an attorney-client relationship.
+        </p>
+    </div>
+</body>
+</html>
+`;
 
     // ----- Send internal email -----
     try {

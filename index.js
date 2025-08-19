@@ -215,19 +215,144 @@ function extractSection(content, marker) {
     : afterMarker.slice(0, nextMarker).trim();
 }
 
+// ==================== SMART MAILCHIMP FUNCTIONS ====================
+
+function generateSmartTags(formData, leadScore, submissionType) {
+  const tags = [
+    `intake-${submissionType}`,
+    `date-${new Date().toISOString().split('T')[0]}`
+  ];
+  
+  // Smart score tags (like VIP vs regular customer)
+  if (leadScore.score >= 70) tags.push('high-priority');
+  else if (leadScore.score >= 50) tags.push('medium-priority');
+  else tags.push('standard-priority');
+  
+  // BRAND PROTECTION - Remember what they want
+  if (submissionType === 'brand-protection') {
+    // What's their main goal?
+    if (formData.protectionGoal?.includes('enforcement')) tags.push('needs-enforcement');
+    if (formData.protectionGoal?.includes('registration')) tags.push('wants-trademark');
+    if (formData.protectionGoal?.includes('clearance')) tags.push('needs-search');
+    if (formData.protectionGoal?.includes('unsure')) tags.push('needs-education');
+    
+    // What industry? (affects what we talk about)
+    if (formData.industry?.includes('Technology')) tags.push('tech-business');
+    if (formData.industry?.includes('Healthcare')) tags.push('healthcare-business');
+    if (formData.industry?.includes('Fashion')) tags.push('fashion-business');
+    
+    // Are they urgent?
+    if (formData.urgency?.includes('Immediate')) tags.push('urgent-help');
+    
+    // What's their budget level?
+    if (formData.servicePreference?.includes('5000') || formData.servicePreference?.includes('Portfolio')) {
+      tags.push('high-budget');
+    } else if (formData.servicePreference?.includes('1950') || formData.servicePreference?.includes('Single')) {
+      tags.push('medium-budget');
+    } else if (formData.servicePreference?.includes('750')) {
+      tags.push('budget-conscious');
+    }
+  }
+  
+  // ESTATE PLANNING - Remember their wealth level and needs
+  if (submissionType === 'estate-intake') {
+    // How much money do they have?
+    const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
+    if (estate > 5000000) tags.push('very-wealthy');
+    else if (estate > 2000000) tags.push('wealthy');
+    else if (estate > 1000000) tags.push('comfortable');
+    else tags.push('modest-assets');
+    
+    // What do they prefer?
+    if (formData.packagePreference?.includes('trust')) tags.push('wants-trust');
+    if (formData.packagePreference?.includes('will')) tags.push('wants-will');
+    if (!formData.packagePreference || formData.packagePreference.includes('sure')) tags.push('needs-guidance');
+    
+    // Do they own a business?
+    if (formData.ownBusiness === 'Yes') tags.push('business-owner');
+    
+    // Are they married with kids?
+    if (formData.maritalStatus === 'Married') tags.push('married');
+    if (formData.hasMinorChildren === 'Yes') tags.push('has-kids');
+  }
+  
+  // BUSINESS FORMATION - Remember their startup type
+  if (submissionType === 'business-formation') {
+    // Are they trying to raise money?
+    if (formData.investmentPlan?.includes('vc')) tags.push('vc-startup');
+    if (formData.investmentPlan?.includes('angel')) tags.push('angel-startup');
+    if (formData.investmentPlan?.includes('self')) tags.push('bootstrap-startup');
+    
+    // What industry?
+    if (formData.businessType?.includes('Technology')) tags.push('tech-startup');
+    if (formData.businessType?.includes('Healthcare')) tags.push('health-startup');
+    
+    // Experience level?
+    if (formData.founderExperience?.includes('first')) tags.push('first-timer');
+    if (formData.founderExperience?.includes('Serial')) tags.push('experienced');
+  }
+  
+  return tags;
+}
+
+function buildSmartFields(formData, leadScore, submissionType) {
+  const fields = {
+    // Basic info
+    FNAME: formData.firstName || formData.fullName?.split(' ')[0] || '',
+    LNAME: formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || '',
+    EMAIL: formData.email,
+    PHONE: formData.phone || '',
+    BUSINESS: formData.businessName || '',
+    
+    // Smart info that makes emails personal
+    LEAD_SCORE: leadScore.score,
+    PRIORITY: leadScore.score >= 70 ? 'High Priority' : 'Standard',
+    SERVICE_TYPE: submissionType.replace('-', ' '),
+  };
+  
+  // BRAND PROTECTION - Remember their specific situation
+  if (submissionType === 'brand-protection') {
+    fields.BP_GOAL = formData.protectionGoal || 'trademark protection';
+    fields.BP_INDUSTRY = formData.industry || 'your industry';
+    fields.BP_BUSINESS = formData.businessName || 'your business';
+    fields.BP_STAGE = formData.businessStage || '';
+    fields.BP_URGENT = formData.urgency?.includes('Immediate') ? 'Yes' : 'No';
+  }
+  
+  // ESTATE PLANNING - Remember their wealth and family
+  if (submissionType === 'estate-intake') {
+    const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
+    fields.ESTATE_AMOUNT = estate > 0 ? '$' + estate.toLocaleString() : 'your estate';
+    fields.ESTATE_LEVEL = estate > 2000000 ? 'substantial' : 'moderate';
+    fields.PACKAGE_WANT = formData.packagePreference || 'estate planning';
+    fields.HAS_BUSINESS = formData.ownBusiness === 'Yes' ? 'Yes' : 'No';
+    fields.HAS_KIDS = formData.hasMinorChildren === 'Yes' ? 'Yes' : 'No';
+    fields.MARRIED = formData.maritalStatus === 'Married' ? 'Yes' : 'No';
+  }
+  
+  // BUSINESS FORMATION - Remember their startup dreams
+  if (submissionType === 'business-formation') {
+    fields.STARTUP_TYPE = formData.investmentPlan || 'startup';
+    fields.FOUNDER_EXP = formData.founderExperience?.includes('first') ? 'first-time' : 'experienced';
+    fields.BUSINESS_TYPE = formData.businessType || 'business';
+  }
+  
+  return fields;
+}
+
 // ==================== MAILCHIMP AUTOMATION ====================
 
-async function addToMailchimpWithAutomation(contactData, leadScore, submissionType, aiAnalysis) {
+async function addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis) {
   if (!MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
     console.log('Mailchimp not configured, skipping');
     return { skipped: true };
   }
 
-  const tags = generateMailchimpTags(leadScore, submissionType, aiAnalysis);
-  const mergeFields = buildMergeFields(contactData, leadScore, submissionType);
+  const tags = generateSmartTags(formData, leadScore, submissionType);
+  const mergeFields = buildSmartFields(formData, leadScore, submissionType);
 
   const memberData = {
-    email_address: contactData.email,
+    email_address: formData.email,
     status: 'subscribed',
     merge_fields: mergeFields,
     tags: tags,
@@ -249,7 +374,7 @@ async function addToMailchimpWithAutomation(contactData, leadScore, submissionTy
 
     if (response.status === 400) {
       // Member might already exist, try to update
-      const hashedEmail = await hashEmail(contactData.email);
+      const hashedEmail = await hashEmail(formData.email);
       const updateResponse = await fetch(
         `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}`,
         {
@@ -272,38 +397,6 @@ async function addToMailchimpWithAutomation(contactData, leadScore, submissionTy
     console.error('Mailchimp error:', error);
     return { error: error.message };
   }
-}
-
-function generateMailchimpTags(leadScore, submissionType, aiAnalysis) {
-  const tags = [
-    `intake-${submissionType}`,
-    `score-${leadScore.score >= 80 ? 'very-high' : leadScore.score >= 60 ? 'high' : leadScore.score >= 40 ? 'medium' : 'low'}`,
-    `date-${new Date().toISOString().split('T')[0]}`
-  ];
-
-  // Add AI-derived tags
-  if (aiAnalysis?.lifetimeValue?.toLowerCase().includes('high')) {
-    tags.push('ltv-high');
-  }
-  
-  if (aiAnalysis?.riskFlags && aiAnalysis.riskFlags.toLowerCase().includes('urgent')) {
-    tags.push('urgent');
-  }
-
-  return tags;
-}
-
-function buildMergeFields(contactData, leadScore, submissionType) {
-  return {
-    FNAME: contactData.firstName || contactData.fullName?.split(' ')[0] || '',
-    LNAME: contactData.lastName || contactData.fullName?.split(' ').slice(1).join(' ') || '',
-    PHONE: contactData.phone || '',
-    LEADSCORE: leadScore.score,
-    INTAKE_TYPE: submissionType,
-    SUBMIT_DATE: new Date().toISOString().split('T')[0],
-    BUSINESS: contactData.businessName || '',
-    STATE: contactData.state || contactData.businessState || ''
-  };
 }
 
 async function hashEmail(email) {
@@ -582,7 +675,7 @@ app.get('/', (req, res) => {
     service: 'jacobs-counsel-unified-intake',
     version: '2.0.0',
     endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/add-subscriber'],
-    features: ['AI Analysis', 'Lead Scoring', 'Mailchimp Automation', 'Motion Integration']
+    features: ['AI Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration']
   });
 });
 
@@ -642,10 +735,10 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       console.error('❌ Internal email failed:', e.message);
     }
 
-    // Add to Mailchimp with automation
+    // Add to Smart Mailchimp
     try {
       await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
-      console.log('✅ Added to Mailchimp automation');
+      console.log('✅ Added to Smart Mailchimp automation');
     } catch (e) {
       console.error('❌ Mailchimp failed:', e.message);
     }
@@ -764,10 +857,10 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
       console.error('❌ Internal email failed:', e.message);
     }
 
-    // Mailchimp and other integrations
+    // Smart Mailchimp and other integrations
     try {
       await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
-      console.log('✅ Added to Mailchimp automation');
+      console.log('✅ Added to Smart Mailchimp automation');
     } catch (e) {
       console.error('❌ Mailchimp failed:', e.message);
     }
@@ -858,10 +951,10 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
       console.error('❌ Internal email failed:', e.message);
     }
 
-    // Mailchimp and other integrations
+    // Smart Mailchimp and other integrations
     try {
       await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
-      console.log('✅ Added to Mailchimp automation');
+      console.log('✅ Added to Smart Mailchimp automation');
     } catch (e) {
       console.error('❌ Mailchimp failed:', e.message);
     }
@@ -1002,7 +1095,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Jacobs Counsel Unified Intake System running on port ${PORT}`);
-  console.log(`📊 Features: AI Analysis, Lead Scoring, Mailchimp Automation, Motion Integration`);
+  console.log(`📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp Automation, Motion Integration`);
   console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
   console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
   console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);

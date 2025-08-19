@@ -223,28 +223,55 @@ function generateSmartTags(formData, leadScore, submissionType) {
     `date-${new Date().toISOString().split('T')[0]}`
   ];
   
-  // Smart score tags (like VIP vs regular customer)
-  if (leadScore.score >= 70) tags.push('high-priority');
-  else if (leadScore.score >= 50) tags.push('medium-priority');
-  else tags.push('standard-priority');
+  // Smart score tags + Automation triggers
+  if (leadScore.score >= 70) {
+    tags.push('high-priority');    // Triggers VIP automation
+    tags.push('score-high');
+  } else if (leadScore.score >= 50) {
+    tags.push('medium-priority');  // Triggers standard automation
+    tags.push('score-medium');
+  } else {
+    tags.push('standard-priority');
+    tags.push('score-low');
+  }
   
-  // BRAND PROTECTION - Remember what they want
+  // BRAND PROTECTION - Automation triggers
   if (submissionType === 'brand-protection') {
-    // What's their main goal?
-    if (formData.protectionGoal?.includes('enforcement')) tags.push('needs-enforcement');
-    if (formData.protectionGoal?.includes('registration')) tags.push('wants-trademark');
-    if (formData.protectionGoal?.includes('clearance')) tags.push('needs-search');
-    if (formData.protectionGoal?.includes('unsure')) tags.push('needs-education');
+    // Protection goal automation triggers
+    if (formData.protectionGoal?.includes('enforcement')) {
+      tags.push('needs-enforcement');  // Triggers enforcement automation
+    }
+    if (formData.protectionGoal?.includes('registration')) {
+      tags.push('wants-trademark');
+    }
+    if (formData.protectionGoal?.includes('clearance')) {
+      tags.push('needs-search');
+    }
+    if (formData.protectionGoal?.includes('unsure')) {
+      tags.push('needs-education');   // Triggers education automation
+    }
     
-    // What industry? (affects what we talk about)
-    if (formData.industry?.includes('Technology')) tags.push('tech-business');
-    if (formData.industry?.includes('Healthcare')) tags.push('healthcare-business');
-    if (formData.industry?.includes('Fashion')) tags.push('fashion-business');
+    // Industry automation triggers
+    if (formData.industry?.includes('Technology')) {
+      tags.push('tech-business');     // Triggers tech automation
+      tags.push('industry-tech');
+    }
+    if (formData.industry?.includes('Healthcare')) {
+      tags.push('healthcare-business');
+      tags.push('industry-healthcare');
+    }
+    if (formData.industry?.includes('Fashion')) {
+      tags.push('fashion-business');
+      tags.push('industry-fashion');
+    }
     
-    // Are they urgent?
-    if (formData.urgency?.includes('Immediate')) tags.push('urgent-help');
+    // Urgency automation triggers
+    if (formData.urgency?.includes('Immediate')) {
+      tags.push('urgent-help');       // Triggers urgent automation
+      tags.push('timeline-immediate');
+    }
     
-    // What's their budget level?
+    // Budget level automation triggers
     if (formData.servicePreference?.includes('5000') || formData.servicePreference?.includes('Portfolio')) {
       tags.push('high-budget');
     } else if (formData.servicePreference?.includes('1950') || formData.servicePreference?.includes('Single')) {
@@ -254,42 +281,80 @@ function generateSmartTags(formData, leadScore, submissionType) {
     }
   }
   
-  // ESTATE PLANNING - Remember their wealth level and needs
+  // ESTATE PLANNING - Automation triggers
   if (submissionType === 'estate-intake') {
-    // How much money do they have?
+    // Wealth level automation triggers
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
-    if (estate > 5000000) tags.push('very-wealthy');
-    else if (estate > 2000000) tags.push('wealthy');
-    else if (estate > 1000000) tags.push('comfortable');
-    else tags.push('modest-assets');
+    if (estate > 5000000) {
+      tags.push('very-wealthy');      // Triggers ultra-high-net-worth automation
+    } else if (estate > 2000000) {
+      tags.push('wealthy');           // Triggers high-net-worth automation
+    } else if (estate > 1000000) {
+      tags.push('comfortable');
+    } else {
+      tags.push('modest-assets');
+    }
     
-    // What do they prefer?
-    if (formData.packagePreference?.includes('trust')) tags.push('wants-trust');
-    if (formData.packagePreference?.includes('will')) tags.push('wants-will');
-    if (!formData.packagePreference || formData.packagePreference.includes('sure')) tags.push('needs-guidance');
+    // Package preference automation triggers
+    if (formData.packagePreference?.includes('trust')) {
+      tags.push('wants-trust');       // Triggers trust education automation
+    }
+    if (formData.packagePreference?.includes('will')) {
+      tags.push('wants-will');
+    }
+    if (!formData.packagePreference || formData.packagePreference.includes('sure')) {
+      tags.push('needs-guidance');    // Triggers education automation
+    }
     
-    // Do they own a business?
-    if (formData.ownBusiness === 'Yes') tags.push('business-owner');
+    // Business owner automation triggers
+    if (formData.ownBusiness === 'Yes') {
+      tags.push('business-owner');    // Triggers business owner automation
+      tags.push('has-business');
+    }
     
-    // Are they married with kids?
-    if (formData.maritalStatus === 'Married') tags.push('married');
-    if (formData.hasMinorChildren === 'Yes') tags.push('has-kids');
+    // Family automation triggers
+    if (formData.maritalStatus === 'Married') {
+      tags.push('married');
+      tags.push('family-married');
+    }
+    if (formData.hasMinorChildren === 'Yes') {
+      tags.push('has-kids');          // Triggers family planning automation
+      tags.push('family-children');
+    }
   }
   
-  // BUSINESS FORMATION - Remember their startup type
+  // BUSINESS FORMATION - Automation triggers
   if (submissionType === 'business-formation') {
-    // Are they trying to raise money?
-    if (formData.investmentPlan?.includes('vc')) tags.push('vc-startup');
-    if (formData.investmentPlan?.includes('angel')) tags.push('angel-startup');
-    if (formData.investmentPlan?.includes('self')) tags.push('bootstrap-startup');
+    // Investment plan automation triggers
+    if (formData.investmentPlan?.includes('vc')) {
+      tags.push('vc-startup');        // Triggers VC-focused automation
+    }
+    if (formData.investmentPlan?.includes('angel')) {
+      tags.push('angel-startup');     // Triggers angel-focused automation
+    }
+    if (formData.investmentPlan?.includes('self')) {
+      tags.push('bootstrap-startup');
+    }
     
-    // What industry?
-    if (formData.businessType?.includes('Technology')) tags.push('tech-startup');
-    if (formData.businessType?.includes('Healthcare')) tags.push('health-startup');
+    // Industry automation triggers
+    if (formData.businessType?.includes('Technology')) {
+      tags.push('tech-startup');      // Triggers tech startup automation
+      tags.push('industry-tech');
+    }
+    if (formData.businessType?.includes('Healthcare')) {
+      tags.push('health-startup');
+      tags.push('industry-healthcare');
+    }
     
-    // Experience level?
-    if (formData.founderExperience?.includes('first')) tags.push('first-timer');
-    if (formData.founderExperience?.includes('Serial')) tags.push('experienced');
+    // Experience automation triggers
+    if (formData.founderExperience?.includes('first')) {
+      tags.push('first-timer');       // Triggers first-time founder automation
+      tags.push('founder-beginner');
+    }
+    if (formData.founderExperience?.includes('Serial')) {
+      tags.push('experienced');
+      tags.push('founder-veteran');
+    }
   }
   
   return tags;

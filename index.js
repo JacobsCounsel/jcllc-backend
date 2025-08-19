@@ -20,10 +20,10 @@ const MS_GRAPH_SENDER = process.env.MS_GRAPH_SENDER || '';
 
 // Mailchimp
 const MAILCHIMP_API_KEY = process.env.MAILCHIMP_API_KEY || '';
-const MAILCHIMP_SERVER = process.env.MAILCHIMP_SERVER || 'us21'; // e.g., us21 from your API key
+const MAILCHIMP_SERVER = process.env.MAILCHIMP_SERVER || 'us21';
 const MAILCHIMP_AUDIENCE_ID = process.env.MAILCHIMP_AUDIENCE_ID || '';
 
-// Motion (if available)
+// Motion (optional)
 const MOTION_API_KEY = process.env.MOTION_API_KEY || '';
 const MOTION_WORKSPACE_ID = process.env.MOTION_WORKSPACE_ID || '';
 
@@ -324,7 +324,7 @@ async function createMotionProject(formData, leadScore, submissionType, aiAnalys
     description: buildProjectDescription(formData, leadScore, aiAnalysis),
     priority: leadScore.score >= 80 ? 'HIGH' : 'MEDIUM',
     workspace_id: MOTION_WORKSPACE_ID,
-    due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+    due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     labels: [submissionType, `score-${Math.floor(leadScore.score/10)*10}`]
   };
 
@@ -362,7 +362,7 @@ Engagement Strategy: ${aiAnalysis?.engagementStrategy || 'Standard approach'}
 `.trim();
 }
 
-// ==================== MICROSOFT GRAPH (Enhanced) ====================
+// ==================== MICROSOFT GRAPH ====================
 
 async function getGraphToken() {
   if (!MS_TENANT_ID || !MS_CLIENT_ID || !MS_CLIENT_SECRET) {
@@ -431,7 +431,7 @@ async function sendEnhancedEmail({ to, subject, html, priority = 'normal', attac
   }
 }
 
-// ==================== INTELLIGENT EMAIL TEMPLATES ====================
+// ==================== EMAIL TEMPLATES ====================
 
 function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId) {
   const isHighValue = leadScore.score >= 70;
@@ -518,6 +518,62 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
 `;
 }
 
+function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Your ${submissionType.replace('-', ' ')} Intake - Next Steps</title>
+</head>
+<body style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px; border-radius: 3px; margin-bottom: 24px;"></div>
+        
+        <h1 style="color: #ff4d00; font-size: 28px; margin: 0 0 16px; font-weight: 700;">Thank you for choosing Jacobs Counsel</h1>
+        
+        <p style="font-size: 16px; margin: 16px 0;">Hi <strong>${formData.firstName || formData.fullName?.split(' ')[0] || 'there'}</strong>,</p>
+        
+        <p style="font-size: 16px; margin: 16px 0;">We've received your ${submissionType.replace('-', ' ')} intake and will review it within <strong>1 business day</strong>. Our AI analysis has identified key opportunities for your situation.</p>
+        
+        ${leadScore >= 70 ? `
+        <div style="background: #fef2f2; border: 2px solid #fecaca; padding: 20px; border-radius: 12px; margin: 24px 0;">
+            <h3 style="color: #dc2626; margin: 0 0 12px;">Priority Review</h3>
+            <p style="margin: 0; color: #7f1d1d;">Based on your responses, we've marked your intake for priority review. You can expect to hear from us within a few hours.</p>
+        </div>
+        ` : ''}
+        
+        ${price ? `
+        <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 24px 0; border: 2px solid #bbf7d0; text-align: center;">
+            <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">Estimated Investment: $${typeof price === 'number' ? price.toLocaleString() : price}</p>
+            <p style="margin: 8px 0 0; font-size: 14px; color: #059669;">Final pricing confirmed after review</p>
+        </div>
+        ` : ''}
+        
+        <div style="background: #e3f2fd; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center; border: 2px solid #7dd3fc;">
+            <p style="margin: 0 0 16px; font-weight: 600; color: #0369a1; font-size: 16px;">Ready to schedule your consultation?</p>
+            <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
+               style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: 600; font-size: 16px;">
+               📅 Book Your Consultation
+            </a>
+        </div>
+        
+        <p style="font-size: 16px; margin: 24px 0 16px;">Questions? Simply reply to this email or call us directly.</p>
+        
+        <p style="font-size: 16px; margin: 16px 0;">Best regards,<br>
+        <strong style="color: #0b1f1e;">The Jacobs Counsel Team</strong></p>
+        
+        <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
+        <p style="font-size: 13px; color: #64748b; margin: 0;">
+            This email was sent because you completed an intake at jacobscounsellaw.com. 
+            Your information is confidential and this does not create an attorney-client relationship.
+        </p>
+    </div>
+</body>
+</html>
+`;
+}
+
 // ==================== ROUTES ====================
 
 app.get('/', (req, res) => {
@@ -525,12 +581,12 @@ app.get('/', (req, res) => {
     ok: true, 
     service: 'jacobs-counsel-unified-intake',
     version: '2.0.0',
-    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake'],
+    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/add-subscriber'],
     features: ['AI Analysis', 'Lead Scoring', 'Mailchimp Automation', 'Motion Integration']
   });
 });
 
-// Estate Planning Intake (Enhanced version of your existing code)
+// Estate Planning Intake
 app.post('/estate-intake', upload.array('document'), async (req, res) => {
   try {
     const formData = req.body || {};
@@ -602,7 +658,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       console.error('❌ Motion integration failed:', e.message);
     }
 
-    // Push to Clio Grow (your existing logic)
+    // Push to Clio Grow
     try {
       if (CLIO_GROW_INBOX_TOKEN) {
         const clioPayload = {
@@ -611,14 +667,14 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
             from_last: formData.lastName || '',
             from_email: formData.email || '',
             from_phone: formData.phone || '',
-            from_message: `Estate Planning Lead (Score: ${leadScore.score}/100)\n${buildClioMessage(formData, submissionType)}`,
+            from_message: `Estate Planning Lead (Score: ${leadScore.score}/100)\nState: ${formData.state || '-'}\nMarital: ${formData.maritalStatus || '-'}\nMinors: ${formData.hasMinorChildren || '-'}\nPackage: ${formData.packagePreference || 'Not sure'}`,
             referring_url: req.headers.referer || 'https://jacobscounsellaw.com/intake',
             from_source: 'Jacobs Counsel Unified Intake'
           },
           inbox_lead_token: CLIO_GROW_INBOX_TOKEN
         };
 
-        const clioResponse = await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
+        await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(clioPayload)
@@ -630,7 +686,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       console.error('❌ Clio Grow failed:', e.message);
     }
 
-    // Send client confirmation email (enhanced)
+    // Send client confirmation email
     if (formData.email) {
       try {
         const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore.score);
@@ -656,545 +712,300 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
   } catch (error) {
     console.error('💥 Estate intake error:', error);
     res.status(500).json({ ok: false, error: error.message });
- }
+  }
 });
 
-// Business Formation Intake (New)
+// Business Formation Intake
 app.post('/business-formation-intake', upload.array('documents'), async (req, res) => {
- try {
-   const formData = req.body || {};
-   const files = req.files || [];
-   const submissionId = formData.submissionId || `business-${Date.now()}`;
-   const submissionType = 'business-formation';
+  try {
+    const formData = req.body || {};
+    const files = req.files || [];
+    const submissionId = formData.submissionId || `business-${Date.now()}`;
+    const submissionType = 'business-formation';
 
-   console.log(`📥 New ${submissionType} submission:`, formData.email);
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
 
-   // Calculate lead score
-   const leadScore = calculateLeadScore(formData, submissionType);
-   console.log(`📊 Lead score: ${leadScore.score}/100`);
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
-   // AI analysis
-   const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+    const attachments = files
+      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
+      .slice(0, 10)
+      .map(f => ({
+        filename: f.originalname,
+        contentType: f.mimetype,
+        content: f.buffer
+      }));
 
-   // Process attachments
-   const attachments = files
-     .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
-     .slice(0, 10)
-     .map(f => ({
-       filename: f.originalname,
-       contentType: f.mimetype,
-       content: f.buffer
-     }));
+    // Calculate pricing
+    let price = null;
+    const packageType = (formData.selectedPackage || '').toLowerCase();
+    if (packageType.includes('bronze')) price = 2995;
+    else if (packageType.includes('silver')) price = 4995;
+    else if (packageType.includes('gold')) price = 7995;
 
-   // Calculate pricing
-   let price = null;
-   const packageType = (formData.selectedPackage || '').toLowerCase();
-   if (packageType.includes('bronze')) price = 2995;
-   else if (packageType.includes('silver')) price = 4995;
-   else if (packageType.includes('gold')) price = 7995;
+    // Send internal alert
+    const alertRecipients = leadScore.score >= 70 
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
+      : [INTAKE_NOTIFY_TO];
 
-   // Send internal alert
-   const alertRecipients = leadScore.score >= 70 
-     ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
-     : [INTAKE_NOTIFY_TO];
+    const internalSubject = `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Business Formation — ${formData.founderName || formData.businessName || 'New Lead'} (Score: ${leadScore.score})`;
+    
+    try {
+      await sendEnhancedEmail({
+        to: alertRecipients,
+        subject: internalSubject,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal',
+        attachments
+      });
+      console.log('✅ Internal alert sent');
+    } catch (e) {
+      console.error('❌ Internal email failed:', e.message);
+    }
 
-   const internalSubject = `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Business Formation — ${formData.founderName || formData.businessName || 'New Lead'} (Score: ${leadScore.score})`;
-   
-   try {
-     await sendEnhancedEmail({
-       to: alertRecipients,
-       subject: internalSubject,
-       html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
-       priority: leadScore.score >= 70 ? 'high' : 'normal',
-       attachments
-     });
-     console.log('✅ Internal alert sent');
-   } catch (e) {
-     console.error('❌ Internal email failed:', e.message);
-   }
+    // Mailchimp and other integrations
+    try {
+      await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Added to Mailchimp automation');
+    } catch (e) {
+      console.error('❌ Mailchimp failed:', e.message);
+    }
 
-   // Mailchimp automation
-   try {
-     await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
-     console.log('✅ Added to Mailchimp automation');
-   } catch (e) {
-     console.error('❌ Mailchimp failed:', e.message);
-   }
+    try {
+      await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Motion project created');
+    } catch (e) {
+      console.error('❌ Motion integration failed:', e.message);
+    }
 
-   // Motion project
-   try {
-     await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
-     console.log('✅ Motion project created');
-   } catch (e) {
-     console.error('❌ Motion integration failed:', e.message);
-   }
+    // Client confirmation
+    if (formData.email) {
+      try {
+        const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore.score);
+        await sendEnhancedEmail({
+          to: [formData.email, INTAKE_NOTIFY_TO],
+          subject: 'Jacobs Counsel — Your Business Formation Intake & Next Steps',
+          html: clientEmailHtml
+        });
+        console.log('✅ Client confirmation sent');
+      } catch (e) {
+        console.error('❌ Client email failed:', e.message);
+      }
+    }
 
-   // Clio Grow
-   try {
-     if (CLIO_GROW_INBOX_TOKEN) {
-       const clioPayload = {
-         inbox_lead: {
-           from_first: formData.founderName?.split(' ')[0] || '',
-           from_last: formData.founderName?.split(' ').slice(1).join(' ') || '',
-           from_email: formData.email || '',
-           from_phone: formData.phone || '',
-           from_message: `Business Formation Lead (Score: ${leadScore.score}/100)\n${buildClioMessage(formData, submissionType)}`,
-           referring_url: req.headers.referer || 'https://jacobscounsellaw.com/business-formation',
-           from_source: 'Jacobs Counsel Business Formation'
-         },
-         inbox_lead_token: CLIO_GROW_INBOX_TOKEN
-       };
+    res.json({ 
+      ok: true, 
+      submissionId, 
+      leadScore: leadScore.score,
+      price,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis
+    });
 
-       await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify(clioPayload)
-       });
-
-       console.log('✅ Pushed to Clio Grow');
-     }
-   } catch (e) {
-     console.error('❌ Clio Grow failed:', e.message);
-   }
-
-   // Client confirmation
-   if (formData.email) {
-     try {
-       const clientEmailHtml = generateBusinessConfirmationEmail(formData, price, submissionType, leadScore.score);
-       await sendEnhancedEmail({
-         to: [formData.email, INTAKE_NOTIFY_TO],
-         subject: 'Jacobs Counsel — Your Business Formation Intake & Next Steps',
-         html: clientEmailHtml
-       });
-       console.log('✅ Client confirmation sent');
-     } catch (e) {
-       console.error('❌ Client email failed:', e.message);
-     }
-   }
-
-   res.json({ 
-     ok: true, 
-     submissionId, 
-     leadScore: leadScore.score,
-     price,
-     aiAnalysisAvailable: !!aiAnalysis?.analysis
-   });
-
- } catch (error) {
-   console.error('💥 Business formation error:', error);
-   res.status(500).json({ ok: false, error: error.message });
- }
+  } catch (error) {
+    console.error('💥 Business formation error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
 });
 
-// Brand Protection Intake (New)
+// Brand Protection Intake
 app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, res) => {
- try {
-   const formData = req.body || {};
-   const files = req.files || [];
-   const submissionId = formData.submissionId || `brand-${Date.now()}`;
-   const submissionType = 'brand-protection';
+  try {
+    const formData = req.body || {};
+    const files = req.files || [];
+    const submissionId = formData.submissionId || `brand-${Date.now()}`;
+    const submissionType = 'brand-protection';
 
-   console.log(`📥 New ${submissionType} submission:`, formData.email);
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
 
-   // Calculate lead score
-   const leadScore = calculateLeadScore(formData, submissionType);
-   console.log(`📊 Lead score: ${leadScore.score}/100`);
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
-   // AI analysis
-   const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+    const attachments = files
+      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
+      .slice(0, 10)
+      .map(f => ({
+        filename: f.originalname,
+        contentType: f.mimetype,
+        content: f.buffer
+      }));
 
-   // Process attachments
-   const attachments = files
-     .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
-     .slice(0, 10)
-     .map(f => ({
-       filename: f.originalname,
-       contentType: f.mimetype,
-       content: f.buffer
-     }));
+    // Calculate pricing estimate
+    let priceEstimate = 'Custom Quote';
+    const service = (formData.servicePreference || '').toLowerCase();
+    if (service.includes('clearance')) priceEstimate = '$750+';
+    else if (service.includes('single trademark')) priceEstimate = '$1,950+';
+    else if (service.includes('multiple')) priceEstimate = '$3,500+';
+    else if (service.includes('portfolio')) priceEstimate = '$5,000+';
 
-   // Calculate pricing estimate
-   let priceEstimate = 'Custom Quote';
-   const service = (formData.servicePreference || '').toLowerCase();
-   if (service.includes('clearance')) priceEstimate = '$750+';
-   else if (service.includes('single trademark')) priceEstimate = '$1,950+';
-   else if (service.includes('multiple')) priceEstimate = '$3,500+';
-   else if (service.includes('portfolio')) priceEstimate = '$5,000+';
+    // Send internal alert
+    const alertRecipients = leadScore.score >= 70 
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
+      : [INTAKE_NOTIFY_TO];
 
-   // Send internal alert
-   const alertRecipients = leadScore.score >= 70 
-     ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
-     : [INTAKE_NOTIFY_TO];
+    const internalSubject = `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Brand Protection — ${formData.businessName || formData.fullName || 'New Lead'} (Score: ${leadScore.score})`;
+    
+    try {
+      await sendEnhancedEmail({
+        to: alertRecipients,
+        subject: internalSubject,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal',
+        attachments
+      });
+      console.log('✅ Internal alert sent');
+    } catch (e) {
+      console.error('❌ Internal email failed:', e.message);
+    }
 
-   const internalSubject = `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Brand Protection — ${formData.businessName || formData.fullName || 'New Lead'} (Score: ${leadScore.score})`;
-   
-   try {
-     await sendEnhancedEmail({
-       to: alertRecipients,
-       subject: internalSubject,
-       html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
-       priority: leadScore.score >= 70 ? 'high' : 'normal',
-       attachments
-     });
-     console.log('✅ Internal alert sent');
-   } catch (e) {
-     console.error('❌ Internal email failed:', e.message);
-   }
+    // Mailchimp and other integrations
+    try {
+      await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Added to Mailchimp automation');
+    } catch (e) {
+      console.error('❌ Mailchimp failed:', e.message);
+    }
 
-   // Mailchimp automation
-   try {
-     await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
-     console.log('✅ Added to Mailchimp automation');
-   } catch (e) {
-     console.error('❌ Mailchimp failed:', e.message);
-   }
+    try {
+      await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Motion project created');
+    } catch (e) {
+      console.error('❌ Motion integration failed:', e.message);
+    }
 
-   // Motion project
-   try {
-     await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
-     console.log('✅ Motion project created');
-   } catch (e) {
-     console.error('❌ Motion integration failed:', e.message);
-   }
+    // Client confirmation
+    if (formData.email) {
+      try {
+        const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore.score);
+        await sendEnhancedEmail({
+          to: [formData.email, INTAKE_NOTIFY_TO],
+          subject: 'Jacobs Counsel — Your Brand Protection Intake & Next Steps',
+          html: clientEmailHtml
+        });
+        console.log('✅ Client confirmation sent');
+      } catch (e) {
+        console.error('❌ Client email failed:', e.message);
+      }
+    }
 
-   // Clio Grow
-   try {
-     if (CLIO_GROW_INBOX_TOKEN) {
-       const clioPayload = {
-         inbox_lead: {
-           from_first: formData.fullName?.split(' ')[0] || '',
-           from_last: formData.fullName?.split(' ').slice(1).join(' ') || '',
-           from_email: formData.email || '',
-           from_phone: formData.phone || '',
-           from_message: `Brand Protection Lead (Score: ${leadScore.score}/100)\n${buildClioMessage(formData, submissionType)}`,
-           referring_url: req.headers.referer || 'https://jacobscounsellaw.com/brand-protection',
-           from_source: 'Jacobs Counsel Brand Protection'
-         },
-         inbox_lead_token: CLIO_GROW_INBOX_TOKEN
-       };
+    res.json({ 
+      ok: true, 
+      submissionId, 
+      leadScore: leadScore.score,
+      priceEstimate,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis
+    });
 
-       await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify(clioPayload)
-       });
-
-       console.log('✅ Pushed to Clio Grow');
-     }
-   } catch (e) {
-     console.error('❌ Clio Grow failed:', e.message);
-   }
-
-   // Client confirmation
-   if (formData.email) {
-     try {
-       const clientEmailHtml = generateBrandConfirmationEmail(formData, priceEstimate, submissionType, leadScore.score);
-       await sendEnhancedEmail({
-         to: [formData.email, INTAKE_NOTIFY_TO],
-         subject: 'Jacobs Counsel — Your Brand Protection Intake & Next Steps',
-         html: clientEmailHtml
-       });
-       console.log('✅ Client confirmation sent');
-     } catch (e) {
-       console.error('❌ Client email failed:', e.message);
-     }
-   }
-
-   res.json({ 
-     ok: true, 
-     submissionId, 
-     leadScore: leadScore.score,
-     priceEstimate,
-     aiAnalysisAvailable: !!aiAnalysis?.analysis
-   });
-
- } catch (error) {
-   console.error('💥 Brand protection error:', error);
-   res.status(500).json({ ok: false, error: error.message });
- }
+  } catch (error) {
+    console.error('💥 Brand protection error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
 });
 
-// ==================== HELPER FUNCTIONS ====================
-
-function buildClioMessage(formData, submissionType) {
- switch (submissionType) {
-   case 'estate-intake':
-     return [
-       `State: ${formData.state || '-'}`,
-       `Marital: ${formData.maritalStatus || '-'}`,
-       `Minors: ${formData.hasMinorChildren || '-'}`,
-       `Package: ${formData.packagePreference || 'Not sure'}`,
-       `Executor: ${formData.executorPrimary || '-'}`,
-       `Concerns: ${formData.concerns || '-'}`
-     ].join('\n');
-     
-   case 'business-formation':
-     return [
-       `Business: ${formData.businessName || '-'}`,
-       `Goal: ${formData.businessGoal || '-'}`,
-       `Investment: ${formData.investmentPlan || '-'}`,
-       `Revenue: ${formData.projectedRevenue || '-'}`,
-       `Package: ${formData.selectedPackage || '-'}`
-     ].join('\n');
-     
-   case 'brand-protection':
-     return [
-       `Business: ${formData.businessName || '-'}`,
-       `Industry: ${formData.industry || '-'}`,
-       `Goal: ${formData.protectionGoal || '-'}`,
-       `Service: ${formData.servicePreference || '-'}`,
-       `Urgency: ${formData.urgency || '-'}`
-     ].join('\n');
-     
-   default:
-     return 'New intake submission';
- }
-}
-
-function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
- return `
-<!DOCTYPE html>
-<html>
-<head>
-   <meta charset="utf-8">
-   <title>Your Estate Planning Intake - Next Steps</title>
-</head>
-<body style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0;">
-   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-       <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px; border-radius: 3px; margin-bottom: 24px;"></div>
-       
-       <h1 style="color: #ff4d00; font-size: 28px; margin: 0 0 16px; font-weight: 700;">Thank you for starting your estate plan with Jacobs Counsel</h1>
-       
-       <p style="font-size: 16px; margin: 16px 0;">Hi <strong>${formData.firstName || ''}</strong>,</p>
-       
-       <p style="font-size: 16px; margin: 16px 0;">We've received your estate planning intake and will review it within <strong>1 business day</strong>. Our AI analysis has identified key opportunities for your plan.</p>
-       
-       ${leadScore >= 70 ? `
-       <div style="background: #fef2f2; border: 2px solid #fecaca; padding: 20px; border-radius: 12px; margin: 24px 0;">
-           <h3 style="color: #dc2626; margin: 0 0 12px;">Priority Review</h3>
-           <p style="margin: 0; color: #7f1d1d;">Based on your responses, we've marked your intake for priority review. You can expect to hear from us within a few hours.</p>
-       </div>
-       ` : ''}
-       
-       <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px solid #e2e8f0;">
-           <h3 style="margin: 0 0 16px; color: #0b1f1e; font-size: 20px;">Our Process:</h3>
-           <ol style="margin: 0; padding-left: 20px; color: #64748b;">
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Review & Quote (1-2 days):</strong> We'll send you a personalized flat-fee quote and engagement letter</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Engagement:</strong> If you decide to proceed, sign the engagement letter and pay the retainer</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Drafting (1 week):</strong> We'll prepare your custom documents based on your responses</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Attorney Review (30 min):</strong> Schedule a video call to review your documents and make any adjustments</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Execution:</strong> Sign your final documents with notary/witnesses (we provide instructions)</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Funding (if trust):</strong> Transfer assets to your trust using our detailed checklist</li>
-           </ol>
-       </div>
-
-       ${price ? `
-       <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 24px 0; border: 2px solid #bbf7d0; text-align: center;">
-           <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">Estimated Investment: $${price.toLocaleString()}</p>
-           <p style="margin: 8px 0 0; font-size: 14px; color: #059669;">Final pricing confirmed after review • Includes $350 self-signing credit</p>
-       </div>
-       ` : ''}
-       
-       <div style="background: #e3f2fd; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center; border: 2px solid #7dd3fc;">
-           <p style="margin: 0 0 16px; font-weight: 600; color: #0369a1; font-size: 16px;">Ready to schedule your consultation now?</p>
-           <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
-              style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: 600; font-size: 16px;">
-              📅 Book Your Attorney Review Session
-           </a>
-           <p style="margin: 12px 0 0; font-size: 14px; color: #0369a1;">30-minute consultation to review your custom estate plan</p>
-       </div>
-       
-       <p style="font-size: 16px; margin: 24px 0 16px;">Questions? Simply reply to this email or call us at <strong>(XXX) XXX-XXXX</strong>.</p>
-       
-       <p style="font-size: 16px; margin: 16px 0;">Best regards,<br>
-       <strong style="color: #0b1f1e;">The Jacobs Counsel Team</strong></p>
-       
-       <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
-       <p style="font-size: 13px; color: #64748b; margin: 0;">
-           This email was sent because you completed an estate planning intake at jacobscounsellaw.com. 
-           Your information is confidential and this does not create an attorney-client relationship.
-       </p>
-   </div>
-</body>
-</html>
-`;
-}
-
-function generateBusinessConfirmationEmail(formData, price, submissionType, leadScore) {
- return `
-<!DOCTYPE html>
-<html>
-<head>
-   <meta charset="utf-8">
-   <title>Your Business Formation Intake - Next Steps</title>
-</head>
-<body style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0;">
-   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-       <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px; border-radius: 3px; margin-bottom: 24px;"></div>
-       
-       <h1 style="color: #ff4d00; font-size: 28px; margin: 0 0 16px; font-weight: 700;">Your Business Formation Journey Starts Here</h1>
-       
-       <p style="font-size: 16px; margin: 16px 0;">Hi <strong>${formData.founderName?.split(' ')[0] || 'there'}</strong>,</p>
-       
-       <p style="font-size: 16px; margin: 16px 0;">We've received your business formation intake for <strong>${formData.businessName || 'your venture'}</strong> and will review it within <strong>1 business day</strong>.</p>
-       
-       ${leadScore >= 70 ? `
-       <div style="background: #fef2f2; border: 2px solid #fecaca; padding: 20px; border-radius: 12px; margin: 24px 0;">
-           <h3 style="color: #dc2626; margin: 0 0 12px;">High-Priority Formation</h3>
-           <p style="margin: 0; color: #7f1d1d;">Based on your growth plans and investment timeline, we've prioritized your business formation. Expect to hear from us within a few hours.</p>
-       </div>
-       ` : ''}
-       
-       <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px solid #e2e8f0;">
-           <h3 style="margin: 0 0 16px; color: #0b1f1e; font-size: 20px;">Formation Process:</h3>
-           <ol style="margin: 0; padding-left: 20px; color: #64748b;">
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Strategic Review:</strong> We analyze your structure needs and provide entity recommendations</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Document Preparation:</strong> Custom articles, operating agreements, and governance documents</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">State Filing:</strong> We handle all secretary of state filings and registrations</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Compliance Setup:</strong> EIN, registered agent, initial resolutions, and ongoing requirements</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Investor Readiness:</strong> Cap table setup, vesting schedules, and IP assignments</li>
-           </ol>
-       </div>
-
-       ${price ? `
-       <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 24px 0; border: 2px solid #bbf7d0; text-align: center;">
-           <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">Estimated Investment: $${price.toLocaleString()}</p>
-           <p style="margin: 8px 0 0; font-size: 14px; color: #059669;">Includes state filing fees and ongoing support</p>
-       </div>
-       ` : ''}
-       
-       <div style="background: #e3f2fd; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center; border: 2px solid #7dd3fc;">
-           <p style="margin: 0 0 16px; font-weight: 600; color: #0369a1; font-size: 16px;">Ready to discuss your business structure?</p>
-           <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
-              style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: 600; font-size: 16px;">
-              📅 Schedule Formation Consultation
-           </a>
-           <p style="margin: 12px 0 0; font-size: 14px; color: #0369a1;">30-minute strategy session to finalize your structure</p>
-       </div>
-       
-       <p style="font-size: 16px; margin: 24px 0 16px;">Questions about your formation? Reply to this email or call us directly.</p>
-       
-       <p style="font-size: 16px; margin: 16px 0;">Best regards,<br>
-       <strong style="color: #0b1f1e;">The Jacobs Counsel Team</strong></p>
-       
-       <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
-       <p style="font-size: 13px; color: #64748b; margin: 0;">
-           This email was sent because you completed a business formation intake at jacobscounsellaw.com.
-       </p>
-   </div>
-</body>
-</html>
-`;
-}
-
-function generateBrandConfirmationEmail(formData, priceEstimate, submissionType, leadScore) {
- return `
-<!DOCTYPE html>
-<html>
-<head>
-   <meta charset="utf-8">
-   <title>Your Brand Protection Strategy - Next Steps</title>
-</head>
-<body style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0;">
-   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-       <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px; border-radius: 3px; margin-bottom: 24px;"></div>
-       
-       <h1 style="color: #ff4d00; font-size: 28px; margin: 0 0 16px; font-weight: 700;">Your Brand Protection Strategy Awaits</h1>
-       
-       <p style="font-size: 16px; margin: 16px 0;">Hi <strong>${formData.fullName?.split(' ')[0] || 'there'}</strong>,</p>
-       
-       <p style="font-size: 16px; margin: 16px 0;">We've received your brand protection request for <strong>${formData.businessName || 'your brand'}</strong> and will analyze your trademark opportunities within <strong>1 business day</strong>.</p>
-       
-       ${leadScore >= 70 ? `
-       <div style="background: #fef2f2; border: 2px solid #fecaca; padding: 20px; border-radius: 12px; margin: 24px 0;">
-           <h3 style="color: #dc2626; margin: 0 0 12px;">Priority Brand Protection</h3>
-           <p style="margin: 0; color: #7f1d1d;">Your brand profile indicates high value and potential conflicts. We're prioritizing your trademark analysis for immediate review.</p>
-       </div>
-       ` : ''}
-       
-       <div style="background: #fff8e1; border: 2px solid #ffd54f; padding: 20px; border-radius: 12px; margin: 24px 0;">
-           <h3 style="color: #f57c00; margin: 0 0 12px;">⏰ Time-Sensitive Protection</h3>
-           <p style="margin: 0; color: #e65100;">Trademark rights are first-come, first-served. Every day you wait is a day someone else could file for your brand name.</p>
-       </div>
-       
-       <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px solid #e2e8f0;">
-           <h3 style="margin: 0 0 16px; color: #0b1f1e; font-size: 20px;">Protection Process:</h3>
-           <ol style="margin: 0; padding-left: 20px; color: #64748b;">
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Comprehensive Search:</strong> We analyze federal, state, and common law trademark conflicts</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Strategic Filing:</strong> USPTO application preparation with optimal classification strategy</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Prosecution:</strong> We handle all office actions and USPTO correspondence</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Registration:</strong> Secure your federal trademark certificate</li>
-               <li style="margin: 8px 0;"><strong style="color: #0f172a;">Ongoing Protection:</strong> Monitoring and enforcement services</li>
-           </ol>
-       </div>
-
-       <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 24px 0; border: 2px solid #bbf7d0; text-align: center;">
-           <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">Estimated Investment: ${priceEstimate}</p>
-           <p style="margin: 8px 0 0; font-size: 14px; color: #059669;">Includes comprehensive search, USPTO filing, and prosecution</p>
-       </div>
-       
-       <div style="background: #e3f2fd; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center; border: 2px solid #7dd3fc;">
-           <p style="margin: 0 0 16px; font-weight: 600; color: #0369a1; font-size: 16px;">Ready to secure your brand?</p>
-           <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/brand-protection" 
-              style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: 600; font-size: 16px;">
-              🛡️ Schedule Brand Strategy Session
-           </a>
-           <p style="margin: 12px 0 0; font-size: 14px; color: #0369a1;">30-minute consultation to finalize your protection strategy</p>
-       </div>
-       
-       <p style="font-size: 16px; margin: 24px 0 16px;">Questions about brand protection? Reply to this email or call us directly.</p>
-       
-       <p style="font-size: 16px; margin: 16px 0;">Best regards,<br>
-       <strong style="color: #0b1f1e;">The Jacobs Counsel Team</strong></p>
-       
-       <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
-       <p style="font-size: 13px; color: #64748b; margin: 0;">
-           This email was sent because you completed a brand protection intake at jacobscounsellaw.com.
-       </p>
-   </div>
-</body>
-</html>
-`;
-}
+// Lead Magnet Subscriber Endpoint
+app.post('/add-subscriber', async (req, res) => {
+  try {
+    const { email, source, tags = [], merge_fields = {} } = req.body;
+    
+    if (!email || !MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
+      return res.status(400).json({ ok: false, error: 'Missing required data' });
+    }
+    
+    console.log(`📧 New subscriber: ${email} from ${source}`);
+    
+    const memberData = {
+      email_address: email,
+      status: 'subscribed',
+      tags: [...tags, source, `date-${new Date().toISOString().split('T')[0]}`],
+      merge_fields: {
+        LEAD_SOURCE: source,
+        SIGNUP_DATE: new Date().toISOString(),
+        ...merge_fields
+      }
+    };
+    
+    const response = await fetch(
+      `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(memberData)
+      }
+    );
+    
+    if (response.status === 400) {
+      // Member might already exist, try to update tags
+      const crypto = await import('crypto');
+      const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+      
+      await fetch(
+        `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            tags: tags.map(tag => ({ name: tag, status: 'active' }))
+          })
+        }
+      );
+      
+      console.log('✅ Updated existing subscriber tags');
+    } else {
+      console.log('✅ New subscriber added to Mailchimp');
+    }
+    
+    res.json({ ok: true, message: 'Subscriber added successfully' });
+    
+  } catch (error) {
+    console.error('❌ Mailchimp subscription error:', error);
+    res.status(500).json({ ok: false, error: 'Subscription failed' });
+  }
+});
 
 // ==================== ERROR HANDLING ====================
 
 app.use((err, req, res, next) => {
- if (err && err.code) {
-   if (err.code === 'LIMIT_FILE_SIZE') {
-     return res.status(413).json({ 
-       ok: false, 
-       error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).' 
-     });
-   }
-   if (err.code === 'LIMIT_FILE_COUNT') {
-     return res.status(413).json({ 
-       ok: false, 
-       error: 'Too many files (max 15). Remove some and try again.' 
-     });
-   }
-   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-     return res.status(400).json({ 
-       ok: false, 
-       error: 'Unexpected file field. Please use the file picker in the form.' 
-     });
-   }
- }
- console.error('Unhandled error:', err);
- res.status(500).json({ 
-   ok: false, 
-   error: 'Server error. Please try again or contact us directly.' 
- });
+  if (err && err.code) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ 
+        ok: false, 
+        error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).' 
+      });
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(413).json({ 
+        ok: false, 
+        error: 'Too many files (max 15). Remove some and try again.' 
+      });
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Unexpected file field. Please use the file picker in the form.' 
+      });
+    }
+  }
+  console.error('Unhandled error:', err);
+  res.status(500).json({ 
+    ok: false, 
+    error: 'Server error. Please try again or contact us directly.' 
+  });
 });
 
 // ==================== SERVER STARTUP ====================
 
 app.listen(PORT, () => {
- console.log(`🚀 Jacobs Counsel Unified Intake System running on port ${PORT}`);
- console.log(`📊 Features: AI Analysis, Lead Scoring, Mailchimp Automation, Motion Integration`);
- console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
- console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
- console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
- console.log(`⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
- console.log(`⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`🚀 Jacobs Counsel Unified Intake System running on port ${PORT}`);
+  console.log(`📊 Features: AI Analysis, Lead Scoring, Mailchimp Automation, Motion Integration`);
+  console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'}`);
 });

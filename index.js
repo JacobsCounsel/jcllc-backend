@@ -1125,7 +1125,9 @@ app.post('/add-subscriber', async (req, res) => {
     res.status(500).json({ ok: false, error: 'Subscription failed' });
   }
 
-  // ============== LEGAL GUIDE DOWNLOAD ENDPOINT ==============
+  The syntax looks correct in that snippet. The issue is likely that the file is missing a closing brace somewhere else.
+Quick fix - add this complete, properly formatted endpoint:
+javascript// ============== LEGAL GUIDE DOWNLOAD ENDPOINT ==============
 app.post('/legal-guide', upload.none(), async (req, res) => {
   try {
     console.log('📖 Legal guide request:', req.body);
@@ -1158,33 +1160,23 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
     <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        
-        <!-- Header -->
         <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
             <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
         </div>
-        
-        <!-- Main Content -->
         <div style="padding: 40px 30px;">
             <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>
-            
             <p style="color: #475569; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
                 Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
             </p>
-            
-            <!-- Download Button -->
             <div style="text-align: center; margin: 30px 0;">
                 <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
                     📥 Download Your Guide Now
                 </a>
             </div>
-            
             <p style="color: #475569; line-height: 1.6; margin-bottom: 25px; font-size: 16px;">
                 Inside this guide, you'll discover strategies for building investor-ready business foundations, protecting your brand, and creating wealth protection systems that actually work.
             </p>
-            
-            <!-- Call to Action -->
             <div style="background: #f1f5f9; padding: 25px; border-radius: 8px; border-left: 4px solid #ff4d00; margin: 25px 0;">
                 <h3 style="color: #0b1f1e; margin: 0 0 12px 0; font-size: 18px;">Ready to Take Action?</h3>
                 <p style="color: #475569; margin: 0 0 15px 0; line-height: 1.5;">
@@ -1194,7 +1186,6 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
                     Book Your Free Legal Edge Call
                 </a>
             </div>
-            
             <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 25px 0 0 0;">
                 Best regards,<br>
                 <strong>Drew Jacobs, Esq.</strong><br>
@@ -1202,8 +1193,6 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
                 <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00;">drew@jacobscounsellaw.com</a>
             </p>
         </div>
-        
-        <!-- Footer -->
         <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
             <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
                 This email does not create an attorney-client relationship.
@@ -1211,22 +1200,9 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
         </div>
     </div>
 </body>
-</html>
-    `;
+</html>`;
 
-    // Internal notification
-    const adminSubject = `🎯 New Legal Guide Download: ${name}`;
-    const adminHtml = `
-<h2>New Legal Guide Download</h2>
-<p><strong>Email:</strong> ${email}</p>
-<p><strong>Name:</strong> ${name}</p>
-<p><strong>Source:</strong> ${source}</p>
-<p><strong>Page:</strong> ${referringUrl || 'Unknown'}</p>
-<p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-<p><strong>ID:</strong> ${submissionId}</p>
-    `;
-
-    // Send emails
+    // Send guide email
     try {
       console.log('📧 Sending guide to', email);
       await sendEnhancedEmail({
@@ -1239,8 +1215,11 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
       console.error('❌ Client mail failed:', e.message);
     }
 
+    // Send internal notification
     try {
-      console.log('📧 Sending notification to', INTAKE_NOTIFY_TO);
+      const adminSubject = `🎯 New Legal Guide Download: ${name}`;
+      const adminHtml = `<h2>New Legal Guide Download</h2><p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p><p><strong>Source:</strong> ${source}</p><p><strong>Time:</strong> ${new Date().toLocaleString()}</p>`;
+      
       await sendEnhancedEmail({
         to: [INTAKE_NOTIFY_TO],
         subject: adminSubject,
@@ -1249,17 +1228,6 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
       console.log('✅ Internal notification sent');
     } catch (e) {
       console.error('❌ Internal mail failed:', e.message);
-    }
-
-    // Add to Mailchimp with smart tags
-    try {
-      await addToMailchimpWithAutomation({
-        email: email,
-        firstName: name
-      }, { score: 50, factors: ['Legal guide download'] }, 'legal-guide-download');
-      console.log('✅ Added to Mailchimp automation');
-    } catch (e) {
-      console.error('❌ Mailchimp failed:', e.message);
     }
 
     res.json({ success: true, message: 'Guide sent successfully!', submissionId });

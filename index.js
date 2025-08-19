@@ -1125,8 +1125,6 @@ app.post('/add-subscriber', async (req, res) => {
     res.status(500).json({ ok: false, error: 'Subscription failed' });
   }
 
-  The syntax looks correct in that snippet. The issue is likely that the file is missing a closing brace somewhere else.
-Quick fix - add this complete, properly formatted endpoint:
 javascript// ============== LEGAL GUIDE DOWNLOAD ENDPOINT ==============
 app.post('/legal-guide', upload.none(), async (req, res) => {
   try {

@@ -739,7 +739,7 @@ app.get('/', (req, res) => {
     ok: true, 
     service: 'jacobs-counsel-unified-intake',
     version: '2.0.0',
-    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/add-subscriber'],
+    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/add-subscriber', '/legal-guide'],
     features: ['AI Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration']
   });
 });
@@ -1124,8 +1124,9 @@ app.post('/add-subscriber', async (req, res) => {
     console.error('❌ Mailchimp subscription error:', error);
     res.status(500).json({ ok: false, error: 'Subscription failed' });
   }
+});
 
-javascript// ============== LEGAL GUIDE DOWNLOAD ENDPOINT ==============
+// ============== LEGAL GUIDE DOWNLOAD ENDPOINT ==============
 app.post('/legal-guide', upload.none(), async (req, res) => {
   try {
     console.log('📖 Legal guide request:', req.body);

@@ -1148,8 +1148,6 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
     }
 
     // Client email with PDF link
-    const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
-    // Client email with PDF link
 const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
 const clientHtml = `
 <!DOCTYPE html>

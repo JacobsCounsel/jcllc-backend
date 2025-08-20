@@ -783,7 +783,7 @@ app.get('/', (req, res) => {
     ok: true, 
     service: 'jacobs-counsel-unified-intake',
     version: '2.0.1',
-    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/outside-counsel', '/add-subscriber', '/legal-guide'],
+    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/outside-counsel', '/add-subscriber', '/legal-guide', '/api/download-primary-guide', '/api/download-specialized-guide'],
     features: ['AI Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration', 'Clio Grow Integration']
   });
 });

@@ -1405,6 +1405,245 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
  }
 });
 
+// ==================== GUIDE DOWNLOAD ENDPOINTS ====================
+
+// Primary Guide Download with Lead Capture
+app.post('/api/download-primary-guide', async (req, res) => {
+  try {
+    const { name, email, role, guideType, guideName, pdfUrl } = req.body;
+    const submissionId = `guide-primary-${Date.now()}`;
+
+    console.log(`📚 Primary guide download: ${email} (${role})`);
+
+    // Generate lead analysis for guide downloads
+    const leadScore = { 
+      score: 45, 
+      factors: ['Primary guide download: +30', 'Email provided: +15'] 
+    };
+
+    // AI analysis for guide downloads
+    let aiAnalysis = null;
+    if (OPENAI_API_KEY) {
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: OPENAI_MODEL,
+            temperature: 0.3,
+            max_tokens: 300,
+            messages: [
+              { 
+                role: 'system', 
+                content: "You are Drew Jacobs' legal assistant. Analyze this guide download lead and provide insights."
+              },
+              { 
+                role: 'user', 
+                content: `Guide download analysis:
+                Name: ${name}
+                Email: ${email}
+                Role: ${role}
+                Guide: ${guideName}
+                
+                Provide brief analysis of potential legal needs and follow-up approach.`
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        aiAnalysis = {
+          analysis: data.choices?.[0]?.message?.content || 'Analysis not available'
+        };
+      } catch (error) {
+        console.error('AI analysis failed:', error);
+      }
+    }
+
+    // Send confirmation email to client
+    const clientEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Your Legal Strategy Guide - Jacobs Counsel</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        
+        <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
+        </div>
+        
+        <div style="padding: 40px 30px;">
+            <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
+                Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
+            </p>
+            
+            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
+                <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
+                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3);">
+                   📥 DOWNLOAD YOUR GUIDE NOW
+               </a>
+           </div>
+           
+           <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
+               <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
+               <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
+                   This guide gives you the framework. Now let's build your specific legal strategy.
+               </p>
+               <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px;">
+                   📅 Book Your Strategy Session
+               </a>
+           </div>
+           
+           <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
+               Best regards,<br>
+               <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
+               Jacobs Counsel LLC
+           </p>
+       </div>
+   </div>
+</body>
+</html>`;
+
+    // Send client confirmation
+    try {
+      await sendEnhancedEmail({
+        to: [email],
+        subject: 'Your Legal Strategy Guide - Jacobs Counsel',
+        html: clientEmailHtml
+      });
+      console.log('✅ Client guide email sent');
+    } catch (e) {
+      console.error('❌ Client email failed:', e.message);
+    }
+
+    // Send internal notification
+    try {
+      const internalSubject = `📚 Primary Guide Download: ${name} (${role})`;
+      const internalHtml = `
+        <h2>New Primary Guide Download</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+        <p><strong>Role:</strong> ${role}</p>
+        <p><strong>Guide:</strong> ${guideName}</p>
+        <p><strong>Lead Score:</strong> ${leadScore.score}/100</p>
+        ${aiAnalysis ? `<p><strong>AI Analysis:</strong> ${aiAnalysis.analysis}</p>` : ''}
+        <p><strong>Recommended Action:</strong> Follow up within 24 hours with role-specific content</p>
+        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+      `;
+      
+      await sendEnhancedEmail({
+        to: [INTAKE_NOTIFY_TO],
+        subject: internalSubject,
+        html: internalHtml
+      });
+      console.log('✅ Internal notification sent');
+    } catch (e) {
+      console.error('❌ Internal email failed:', e.message);
+    }
+
+    // Add to Mailchimp with smart tags
+    try {
+      const tags = ['primary-guide-download', `role-${role}`, `date-${new Date().toISOString().split('T')[0]}`];
+      
+      await addToMailchimpWithAutomation(
+        { email, firstName: name, role }, 
+        leadScore, 
+        'primary-guide-download', 
+        aiAnalysis
+      );
+      console.log('✅ Added to Mailchimp automation');
+    } catch (e) {
+      console.error('❌ Mailchimp failed:', e.message);
+    }
+
+    // Add to Clio Grow
+    try {
+      await createClioLead(
+        { 
+          email, 
+          firstName: name.split(' ')[0], 
+          lastName: name.split(' ').slice(1).join(' '),
+          role 
+        }, 
+        'primary-guide-download', 
+        leadScore
+      );
+    } catch (e) {
+      console.error('❌ Clio Grow failed:', e.message);
+    }
+
+    res.json({ 
+      success: true, 
+      submissionId,
+      downloadUrl: pdfUrl,
+      message: 'Guide download processed successfully'
+    });
+
+  } catch (error) {
+    console.error('💥 Primary guide download error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Download processing failed, but guide should be available' 
+    });
+  }
+});
+
+// Specialized Guide Download Tracker
+app.post('/api/download-specialized-guide', async (req, res) => {
+  try {
+    const { guideType, guideName, pdfUrl, timestamp } = req.body;
+    const submissionId = `guide-${guideType}-${Date.now()}`;
+
+    console.log(`📖 Specialized guide download: ${guideName}`);
+
+    // Send internal notification for specialized downloads
+    try {
+      const internalSubject = `📖 Specialized Guide Download: ${guideName}`;
+      const internalHtml = `
+        <h2>Specialized Guide Downloaded</h2>
+        <p><strong>Guide:</strong> ${guideName}</p>
+        <p><strong>Type:</strong> ${guideType}</p>
+        <p><strong>PDF URL:</strong> <a href="${pdfUrl}">${pdfUrl}</a></p>
+        <p><strong>Time:</strong> ${timestamp}</p>
+        <p><strong>Action:</strong> Consider following up with targeted content for ${guideType} topics</p>
+        <hr>
+        <p><em>This was an anonymous download. No lead capture performed.</em></p>
+      `;
+      
+      await sendEnhancedEmail({
+        to: [INTAKE_NOTIFY_TO],
+        subject: internalSubject,
+        html: internalHtml
+      });
+      console.log('✅ Internal notification sent');
+    } catch (e) {
+      console.error('❌ Internal email failed:', e.message);
+    }
+
+    res.json({ 
+      success: true, 
+      submissionId,
+      message: 'Specialized guide download tracked'
+    });
+
+  } catch (error) {
+    console.error('💥 Specialized guide download error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Tracking failed'
+    });
+  }
+});
+
 // ==================== ERROR HANDLING ====================
 
 app.use((err, req, res, next) => {

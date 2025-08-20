@@ -1149,7 +1149,9 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
 
     // Client email with PDF link
     const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
-    const clientHtml = `
+    // Client email with PDF link
+const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
+const clientHtml = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -1159,42 +1161,80 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
     <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        
+        <!-- Header -->
         <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
-            <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600; text-shadow: none;">Your Legal Strategy Guide</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
         </div>
+        
+        <!-- Main Content -->
         <div style="padding: 40px 30px;">
             <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>
-            <p style="color: #475569; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
                 Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
             </p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
-                    📥 Download Your Guide Now
+            
+            <!-- PROMINENT Download Button -->
+            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 2px solid #ff4d00;">
+                <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
+                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+                    📥 DOWNLOAD YOUR GUIDE NOW
                 </a>
+                <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
             </div>
-            <p style="color: #475569; line-height: 1.6; margin-bottom: 25px; font-size: 16px;">
-                Inside this guide, you'll discover strategies for building investor-ready business foundations, protecting your brand, and creating wealth protection systems that actually work.
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
+                Inside this guide, you'll discover:
             </p>
-            <div style="background: #f1f5f9; padding: 25px; border-radius: 8px; border-left: 4px solid #ff4d00; margin: 25px 0;">
-                <h3 style="color: #0b1f1e; margin: 0 0 12px 0; font-size: 18px;">Ready to Take Action?</h3>
-                <p style="color: #475569; margin: 0 0 15px 0; line-height: 1.5;">
+            
+            <!-- Benefits List -->
+            <div style="background: #f0fdf4; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #059669;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
+                        <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Investor-ready business foundations</strong> that attract funding</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
+                        <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Brand protection strategies</strong> that actually work</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
+                        <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Wealth protection systems</strong> for high achievers</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
+                        <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Contract strategies</strong> for creators & athletes</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
+                <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
+                <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
                     This guide gives you the framework. Now let's build your specific legal strategy.
                 </p>
-                <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">
-                    Book Your Free Legal Edge Call
+                <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
+                    📅 Book Your Free Legal Edge Call
                 </a>
             </div>
-            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 25px 0 0 0;">
+            
+            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
                 Best regards,<br>
-                <strong>Drew Jacobs, Esq.</strong><br>
+                <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
                 Jacobs Counsel LLC<br>
-                <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00;">drew@jacobscounsellaw.com</a>
+                <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">drew@jacobscounsellaw.com</a>
             </p>
         </div>
+        
+        <!-- Footer -->
         <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
             <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
-                This email does not create an attorney-client relationship.
+                This email does not create an attorney-client relationship.<br>
+                If you can't see the download button, <a href="${pdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
             </p>
         </div>
     </div>

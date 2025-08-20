@@ -1147,7 +1147,7 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
       return res.status(500).json({ success: false, error: 'PDF not configured' });
     }
 
-    // Client email with PDF link
+// Client email with PDF link
 const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
 const clientHtml = `
 <!DOCTYPE html>
@@ -1156,14 +1156,21 @@ const clientHtml = `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Legal Strategy Guide</title>
+    <style>
+        /* Fallback styles for email clients that don't support gradients */
+        .header-fallback {
+            background-color: #ff4d00 !important;
+            color: #ffffff !important;
+        }
+    </style>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
     <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600; text-shadow: none;">Your Legal Strategy Guide</h1>
-            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
+        <!-- Header with fallback background -->
+        <div class="header-fallback" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); background-color: #ff4d00; padding: 40px 30px; text-align: center;">
+            <h1 style="color: #ffffff !important; margin: 0; font-size: 28px; font-weight: 600; text-shadow: none;">Your Legal Strategy Guide</h1>
+            <p style="color: #ffffff !important; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
         </div>
         
         <!-- Main Content -->
@@ -1175,9 +1182,9 @@ const clientHtml = `
             </p>
             
             <!-- PROMINENT Download Button -->
-            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 2px solid #ff4d00;">
+            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
                 <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
-                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); background-color: #ff4d00; color: #ffffff !important; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
                     📥 DOWNLOAD YOUR GUIDE NOW
                 </a>
                 <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
@@ -1215,7 +1222,7 @@ const clientHtml = `
                 <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
                     This guide gives you the framework. Now let's build your specific legal strategy.
                 </p>
-                <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
+                <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff !important; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
                     📅 Book Your Free Legal Edge Call
                 </a>
             </div>

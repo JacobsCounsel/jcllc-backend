@@ -1060,6 +1060,246 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
   }
 });
 
+// Outside Counsel Intake Route
+app.post('/outside-counsel', async (req, res) => {
+  try {
+    const formData = req.body;
+    
+    // Generate submission ID if not provided
+    const submissionId = formData.submissionId || `OC-${Date.now()}`;
+    
+    // Prepare email content
+    const emailHtml = `
+      <div style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px;"></div>
+        <div style="padding: 32px; background: #ffffff;">
+          <h1 style="color: #0f172a; margin: 0 0 24px;">New Outside Counsel Request</h1>
+          <p style="color: #64748b; font-size: 16px;">Submission ID: ${submissionId}</p>
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Company Information</h2>
+            <p><strong>Company:</strong> ${formData.companyName}</p>
+            <p><strong>Contact:</strong> ${formData.contactName}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
+            <p><strong>Industry:</strong> ${formData.industry}</p>
+            <p><strong>Stage:</strong> ${formData.stage}</p>
+            <p><strong>Team Size:</strong> ${formData.teamSize || 'Not specified'}</p>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Business Description</h2>
+            <p>${formData.businessDescription || 'Not provided'}</p>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Legal Services Needed</h2>
+            <ul>
+              ${formData.services && formData.services.length > 0 
+                ? formData.services.map(service => `<li>${service}</li>`).join('')
+                : '<li>No specific services selected</li>'}
+            </ul>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Current Situation</h2>
+            <p><strong>Current Legal Setup:</strong> ${formData.hasLawyer || 'Not specified'}</p>
+            <p><strong>Challenges:</strong> ${Array.isArray(formData.challenges) ? formData.challenges.join(', ') : 'None specified'}</p>
+            <p><strong>Priorities:</strong> ${formData.priorities || 'None specified'}</p>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Service Requirements</h2>
+            <p><strong>Service Level:</strong> ${formData.level || 'Not selected'}</p>
+            <p><strong>Timeline:</strong> ${formData.timeline || 'Not specified'}</p>
+            <p><strong>Budget Range:</strong> ${formData.budget || 'Not specified'}/month</p>
+            <p><strong>Engagement Model:</strong> ${formData.engagement || 'Not specified'}</p>
+          </div>
+          
+          ${formData.customNeeds ? `
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Custom Needs</h2>
+            <p>${formData.customNeeds}</p>
+          </div>
+          ` : ''}
+          
+          ${formData.additionalInfo ? `
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Additional Information</h2>
+            <p>${formData.additionalInfo}</p>
+          </div>
+          ` : ''}
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <p><strong>Referral Source:</strong> ${formData.referralSource || 'Not specified'}</p>
+            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+          
+          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #64748b; font-size: 14px;">
+              This is an automated submission from the Outside Counsel intake form.
+              Please respond within 24 hours with a custom proposal.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Send internal notification email
+    await sendEmail(
+      'drew@jacobscounsellaw.com',
+      `New Outside Counsel Request - ${formData.companyName}`,
+      emailHtml
+    );
+    
+    // Send confirmation email to client
+    const clientEmailHtml = `
+      <div style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px;"></div>
+        <div style="padding: 32px; background: #ffffff;">
+          <h1 style="color: #0f172a; margin: 0 0 24px;">Thank You for Your Outside Counsel Request</h1>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #0f172a;">
+            Dear ${formData.contactName},
+          </p>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #0f172a;">
+            We've received your request for outside counsel services for ${formData.companyName}. 
+            Our team is reviewing your needs and will prepare a custom proposal tailored to your requirements.
+          </p>
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
+            <h2 style="color: #0f172a; font-size: 18px; margin: 0 0 16px;">What Happens Next?</h2>
+            <ol style="line-height: 1.8; color: #0f172a;">
+              <li>We'll analyze your requirements and prepare a custom proposal</li>
+              <li>You'll receive a detailed proposal within 24 hours</li>
+              <li>We'll schedule a call to discuss your specific needs</li>
+              <li>Once agreed, we can begin supporting you immediately</li>
+            </ol>
+          </div>
+          
+          <div style="background: #fff4ed; border-left: 4px solid #ff4d00; padding: 16px; margin: 24px 0;">
+            <p style="margin: 0; color: #0f172a;">
+              <strong>Your Submission ID:</strong> ${submissionId}<br>
+              Please reference this ID in any communications about your request.
+            </p>
+          </div>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #0f172a;">
+            If you have any immediate questions or concerns, please don't hesitate to reach out:
+          </p>
+          
+          <ul style="line-height: 1.8; color: #0f172a;">
+            <li>Email: drew@jacobscounsellaw.com</li>
+            <li>Phone: (973) 796-4310</li>
+            <li>Schedule a call: <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="color: #ff4d00;">Book directly here</a></li>
+          </ul>
+          
+          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #64748b; font-size: 14px; margin: 0;">
+              Best regards,<br>
+              Drew Jacobs<br>
+              Jacobs Counsel LLC
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    await sendEmail(
+      formData.email,
+      'Your Outside Counsel Request - Jacobs Counsel',
+      clientEmailHtml
+    );
+    
+    // Create lead in Clio Grow if configured
+    if (process.env.CLIO_SUBDOMAIN && process.env.CLIO_ACCESS_TOKEN) {
+      try {
+        const leadData = {
+          data: {
+            type: 'leads',
+            attributes: {
+              name: formData.contactName,
+              email: formData.email,
+              phone_number: formData.phone,
+              company_name: formData.companyName,
+              referring_url: formData.referringUrl || 'outside-counsel-intake',
+              custom_fields: {
+                industry: formData.industry,
+                company_stage: formData.stage,
+                team_size: formData.teamSize,
+                services_needed: formData.services?.join(', '),
+                budget: formData.budget,
+                timeline: formData.timeline,
+                service_level: formData.level
+              },
+              tags: ['outside-counsel', formData.industry, formData.stage].filter(Boolean)
+            }
+          }
+        };
+        
+        await createClioLead(leadData);
+      } catch (clioError) {
+        console.error('Clio Grow error:', clioError);
+        // Don't fail the whole request if Clio fails
+      }
+    }
+    
+    // Add to Mailchimp if configured
+    if (formData.email) {
+      try {
+        await addToMailchimp({
+          email: formData.email,
+          firstName: formData.contactName?.split(' ')[0] || '',
+          source: 'outside-counsel-intake',
+          tags: ['outside-counsel', formData.industry, formData.stage].filter(Boolean),
+          merge_fields: {
+            COMPANY: formData.companyName,
+            INDUSTRY: formData.industry,
+            BUDGET: formData.budget
+          }
+        });
+      } catch (mailchimpError) {
+        console.error('Mailchimp error:', mailchimpError);
+        // Don't fail the whole request if Mailchimp fails
+      }
+    }
+    
+    // Calculate lead score
+    let leadScore = 50; // Base score
+    
+    // Adjust based on timeline
+    if (formData.timeline === 'Immediately') leadScore += 20;
+    else if (formData.timeline === 'Soon') leadScore += 15;
+    else if (formData.timeline === 'This Month') leadScore += 10;
+    
+    // Adjust based on budget
+    if (formData.budget?.includes('10K+')) leadScore += 20;
+    else if (formData.budget?.includes('5K-10K')) leadScore += 15;
+    else if (formData.budget?.includes('2.5K-5K')) leadScore += 10;
+    
+    // Adjust based on company stage
+    if (formData.stage === 'growth' || formData.stage === 'scale') leadScore += 10;
+    
+    // Adjust based on services needed
+    if (formData.services && formData.services.length > 3) leadScore += 10;
+    
+    res.json({
+      success: true,
+      submissionId: submissionId,
+      leadScore: leadScore,
+      message: 'Outside counsel request submitted successfully'
+    });
+    
+  } catch (error) {
+    console.error('Outside counsel intake error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process outside counsel request'
+    });
+  }
+});
+
 // Lead Magnet Subscriber Endpoint
 app.post('/add-subscriber', async (req, res) => {
   try {

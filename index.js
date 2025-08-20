@@ -57,7 +57,8 @@ function calculateLeadScore(formData, submissionType) {
   const baseScores = {
     'estate-intake': 40,
     'business-formation': 50,
-    'brand-protection': 35
+    'brand-protection': 35,
+    'outside-counsel': 45
   };
   score += baseScores[submissionType] || 30;
   scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
@@ -94,7 +95,7 @@ function calculateLeadScore(formData, submissionType) {
 
   // Brand Protection Scoring
   if (submissionType === 'brand-protection') {
-    if (formData.servicePreference?.includes('Portfolio') || formData.servicePreference?.includes('5000')) {
+    if (formData.servicePreference?.includes('Portfolio') || formData.servicePreference?.includes('7500')) {
       score += 40; scoreFactors.push('Comprehensive portfolio: +40');
     }
     
@@ -104,6 +105,17 @@ function calculateLeadScore(formData, submissionType) {
     }
     
     if (formData.protectionGoal === 'enforcement') { score += 35; scoreFactors.push('Enforcement need: +35'); }
+  }
+
+  // Outside Counsel Scoring
+  if (submissionType === 'outside-counsel') {
+    if (formData.budget?.includes('10K+')) { score += 40; scoreFactors.push('High budget (>$10K): +40'); }
+    else if (formData.budget?.includes('5K-10K')) { score += 25; scoreFactors.push('Substantial budget: +25'); }
+    
+    if (formData.timeline === 'Immediately') { score += 30; scoreFactors.push('Immediate need: +30'); }
+    if (formData.stage === 'growth' || formData.stage === 'scale') { score += 20; scoreFactors.push('Scaling company: +20'); }
+    
+    if (formData.services && formData.services.length > 3) { score += 15; scoreFactors.push('Multiple services: +15'); }
   }
 
   // Universal scoring factors
@@ -139,7 +151,7 @@ Your role: Analyze client intakes to provide strategic insights, identify opport
 Context:
 - This is a ${submissionType} submission
 - Lead score: ${leadScore.score}/100 (factors: ${leadScore.factors.join(', ')})
-- Practice focus: Business formation, estate planning, brand protection
+- Practice focus: Business formation, estate planning, brand protection, outside counsel
 - Client types: High-performing entrepreneurs, professional athletes, content creators
 
 Provide analysis in this exact format:
@@ -225,10 +237,10 @@ function generateSmartTags(formData, leadScore, submissionType) {
   
   // Smart score tags + Automation triggers
   if (leadScore.score >= 70) {
-    tags.push('high-priority');    // Triggers VIP automation
+    tags.push('high-priority');
     tags.push('score-high');
   } else if (leadScore.score >= 50) {
-    tags.push('medium-priority');  // Triggers standard automation
+    tags.push('medium-priority');
     tags.push('score-medium');
   } else {
     tags.push('standard-priority');
@@ -237,9 +249,8 @@ function generateSmartTags(formData, leadScore, submissionType) {
   
   // BRAND PROTECTION - Automation triggers
   if (submissionType === 'brand-protection') {
-    // Protection goal automation triggers
     if (formData.protectionGoal?.includes('enforcement')) {
-      tags.push('needs-enforcement');  // Triggers enforcement automation
+      tags.push('needs-enforcement');
     }
     if (formData.protectionGoal?.includes('registration')) {
       tags.push('wants-trademark');
@@ -248,112 +259,69 @@ function generateSmartTags(formData, leadScore, submissionType) {
       tags.push('needs-search');
     }
     if (formData.protectionGoal?.includes('unsure')) {
-      tags.push('needs-education');   // Triggers education automation
+      tags.push('needs-education');
     }
     
-    // Industry automation triggers
     if (formData.industry?.includes('Technology')) {
-      tags.push('tech-business');     // Triggers tech automation
+      tags.push('tech-business');
       tags.push('industry-tech');
     }
-    if (formData.industry?.includes('Healthcare')) {
-      tags.push('healthcare-business');
-      tags.push('industry-healthcare');
-    }
-    if (formData.industry?.includes('Fashion')) {
-      tags.push('fashion-business');
-      tags.push('industry-fashion');
-    }
-    
-    // Urgency automation triggers
     if (formData.urgency?.includes('Immediate')) {
-      tags.push('urgent-help');       // Triggers urgent automation
+      tags.push('urgent-help');
       tags.push('timeline-immediate');
-    }
-    
-    // Budget level automation triggers
-    if (formData.servicePreference?.includes('5000') || formData.servicePreference?.includes('Portfolio')) {
-      tags.push('high-budget');
-    } else if (formData.servicePreference?.includes('1950') || formData.servicePreference?.includes('Single')) {
-      tags.push('medium-budget');
-    } else if (formData.servicePreference?.includes('750')) {
-      tags.push('budget-conscious');
     }
   }
   
   // ESTATE PLANNING - Automation triggers
   if (submissionType === 'estate-intake') {
-    // Wealth level automation triggers
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
     if (estate > 5000000) {
-      tags.push('very-wealthy');      // Triggers ultra-high-net-worth automation
+      tags.push('very-wealthy');
     } else if (estate > 2000000) {
-      tags.push('wealthy');           // Triggers high-net-worth automation
+      tags.push('wealthy');
     } else if (estate > 1000000) {
       tags.push('comfortable');
     } else {
       tags.push('modest-assets');
     }
     
-    // Package preference automation triggers
     if (formData.packagePreference?.includes('trust')) {
-      tags.push('wants-trust');       // Triggers trust education automation
+      tags.push('wants-trust');
     }
-    if (formData.packagePreference?.includes('will')) {
-      tags.push('wants-will');
-    }
-    if (!formData.packagePreference || formData.packagePreference.includes('sure')) {
-      tags.push('needs-guidance');    // Triggers education automation
-    }
-    
-    // Business owner automation triggers
     if (formData.ownBusiness === 'Yes') {
-      tags.push('business-owner');    // Triggers business owner automation
+      tags.push('business-owner');
       tags.push('has-business');
     }
-    
-    // Family automation triggers
-    if (formData.maritalStatus === 'Married') {
-      tags.push('married');
-      tags.push('family-married');
-    }
     if (formData.hasMinorChildren === 'Yes') {
-      tags.push('has-kids');          // Triggers family planning automation
+      tags.push('has-kids');
       tags.push('family-children');
     }
   }
   
   // BUSINESS FORMATION - Automation triggers
   if (submissionType === 'business-formation') {
-    // Investment plan automation triggers
     if (formData.investmentPlan?.includes('vc')) {
-      tags.push('vc-startup');        // Triggers VC-focused automation
+      tags.push('vc-startup');
     }
     if (formData.investmentPlan?.includes('angel')) {
-      tags.push('angel-startup');     // Triggers angel-focused automation
+      tags.push('angel-startup');
     }
-    if (formData.investmentPlan?.includes('self')) {
-      tags.push('bootstrap-startup');
-    }
-    
-    // Industry automation triggers
     if (formData.businessType?.includes('Technology')) {
-      tags.push('tech-startup');      // Triggers tech startup automation
+      tags.push('tech-startup');
       tags.push('industry-tech');
     }
-    if (formData.businessType?.includes('Healthcare')) {
-      tags.push('health-startup');
-      tags.push('industry-healthcare');
+  }
+  
+  // OUTSIDE COUNSEL - Automation triggers
+  if (submissionType === 'outside-counsel') {
+    if (formData.budget?.includes('10K+')) {
+      tags.push('high-budget');
     }
-    
-    // Experience automation triggers
-    if (formData.founderExperience?.includes('first')) {
-      tags.push('first-timer');       // Triggers first-time founder automation
-      tags.push('founder-beginner');
+    if (formData.timeline === 'Immediately') {
+      tags.push('urgent-help');
     }
-    if (formData.founderExperience?.includes('Serial')) {
-      tags.push('experienced');
-      tags.push('founder-veteran');
+    if (formData.industry) {
+      tags.push(`industry-${formData.industry.toLowerCase().replace(/\\s+/g, '-')}`);
     }
   }
   
@@ -362,29 +330,24 @@ function generateSmartTags(formData, leadScore, submissionType) {
 
 function buildSmartFields(formData, leadScore, submissionType) {
   const fields = {
-    // Basic info
-    FNAME: formData.firstName || formData.fullName?.split(' ')[0] || '',
-    LNAME: formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || '',
+    FNAME: formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || '',
+    LNAME: formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || formData.contactName?.split(' ').slice(1).join(' ') || '',
     EMAIL: formData.email,
     PHONE: formData.phone || '',
-    BUSINESS: formData.businessName || '',
-    
-    // Smart info that makes emails personal
+    BUSINESS: formData.businessName || formData.companyName || '',
     LEAD_SCORE: leadScore.score,
     PRIORITY: leadScore.score >= 70 ? 'High Priority' : 'Standard',
     SERVICE_TYPE: submissionType.replace('-', ' '),
   };
   
-  // BRAND PROTECTION - Remember their specific situation
+  // Type-specific fields
   if (submissionType === 'brand-protection') {
     fields.BP_GOAL = formData.protectionGoal || 'trademark protection';
     fields.BP_INDUSTRY = formData.industry || 'your industry';
     fields.BP_BUSINESS = formData.businessName || 'your business';
-    fields.BP_STAGE = formData.businessStage || '';
     fields.BP_URGENT = formData.urgency?.includes('Immediate') ? 'Yes' : 'No';
   }
   
-  // ESTATE PLANNING - Remember their wealth and family
   if (submissionType === 'estate-intake') {
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
     fields.ESTATE_AMOUNT = estate > 0 ? '$' + estate.toLocaleString() : 'your estate';
@@ -392,14 +355,19 @@ function buildSmartFields(formData, leadScore, submissionType) {
     fields.PACKAGE_WANT = formData.packagePreference || 'estate planning';
     fields.HAS_BUSINESS = formData.ownBusiness === 'Yes' ? 'Yes' : 'No';
     fields.HAS_KIDS = formData.hasMinorChildren === 'Yes' ? 'Yes' : 'No';
-    fields.MARRIED = formData.maritalStatus === 'Married' ? 'Yes' : 'No';
   }
   
-  // BUSINESS FORMATION - Remember their startup dreams
   if (submissionType === 'business-formation') {
     fields.STARTUP_TYPE = formData.investmentPlan || 'startup';
     fields.FOUNDER_EXP = formData.founderExperience?.includes('first') ? 'first-time' : 'experienced';
     fields.BUSINESS_TYPE = formData.businessType || 'business';
+  }
+  
+  if (submissionType === 'outside-counsel') {
+    fields.COMPANY = formData.companyName || '';
+    fields.INDUSTRY = formData.industry || '';
+    fields.BUDGET = formData.budget || '';
+    fields.TIMELINE = formData.timeline || '';
   }
   
   return fields;
@@ -438,7 +406,6 @@ async function addToMailchimpWithAutomation(formData, leadScore, submissionType,
     );
 
     if (response.status === 400) {
-      // Member might already exist, try to update
       const hashedEmail = await hashEmail(formData.email);
       const updateResponse = await fetch(
         `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}`,
@@ -478,7 +445,7 @@ async function createMotionProject(formData, leadScore, submissionType, aiAnalys
   }
 
   const projectData = {
-    name: `${submissionType.toUpperCase()}: ${formData.firstName || formData.fullName || 'New Client'} ${formData.lastName || ''}`,
+    name: `${submissionType.toUpperCase()}: ${formData.firstName || formData.fullName || formData.contactName || 'New Client'}`,
     description: buildProjectDescription(formData, leadScore, aiAnalysis),
     priority: leadScore.score >= 80 ? 'HIGH' : 'MEDIUM',
     workspace_id: MOTION_WORKSPACE_ID,
@@ -507,7 +474,7 @@ function buildProjectDescription(formData, leadScore, aiAnalysis) {
   return `
 Lead Score: ${leadScore.score}/100
 Contact: ${formData.email || ''} | ${formData.phone || ''}
-Business: ${formData.businessName || 'N/A'}
+Business: ${formData.businessName || formData.companyName || 'N/A'}
 Location: ${formData.state || formData.businessState || ''}
 
 AI Analysis: ${aiAnalysis?.analysis || 'Not available'}
@@ -589,6 +556,81 @@ async function sendEnhancedEmail({ to, subject, html, priority = 'normal', attac
   }
 }
 
+// ==================== CLIO GROW INTEGRATION ====================
+
+async function createClioLead(formData, submissionType, leadScore) {
+  if (!CLIO_GROW_INBOX_TOKEN) {
+    console.log('Clio Grow not configured, skipping');
+    return { skipped: true };
+  }
+
+  // Extract name based on submission type
+  let firstName = '';
+  let lastName = '';
+  
+  if (submissionType === 'estate-intake') {
+    firstName = formData.firstName || '';
+    lastName = formData.lastName || '';
+  } else if (submissionType === 'business-formation') {
+    const founderParts = (formData.founderName || '').split(' ');
+    firstName = founderParts[0] || '';
+    lastName = founderParts.slice(1).join(' ') || '';
+  } else if (submissionType === 'brand-protection') {
+    const fullNameParts = (formData.fullName || '').split(' ');
+    firstName = fullNameParts[0] || '';
+    lastName = fullNameParts.slice(1).join(' ') || '';
+  } else if (submissionType === 'outside-counsel') {
+    const contactParts = (formData.contactName || '').split(' ');
+    firstName = contactParts[0] || '';
+    lastName = contactParts.slice(1).join(' ') || '';
+  }
+
+  // Build message based on submission type
+  let message = `${submissionType.replace('-', ' ').toUpperCase()} Lead (Score: ${leadScore.score}/100)\\n`;
+  
+  if (submissionType === 'estate-intake') {
+    message += `State: ${formData.state || '-'}\\nMarital: ${formData.maritalStatus || '-'}\\nMinors: ${formData.hasMinorChildren || '-'}\\nPackage: ${formData.packagePreference || 'Not sure'}\\nEstate Value: ${formData.grossEstate || 'Not specified'}`;
+  } else if (submissionType === 'business-formation') {
+    message += `Business: ${formData.businessName || '-'}\\nType: ${formData.businessType || '-'}\\nInvestment: ${formData.investmentPlan || '-'}\\nPackage: ${formData.selectedPackage || 'Not specified'}`;
+  } else if (submissionType === 'brand-protection') {
+    message += `Business: ${formData.businessName || '-'}\\nGoal: ${formData.protectionGoal || '-'}\\nIndustry: ${formData.industry || '-'}\\nUrgency: ${formData.urgency || '-'}\\nService: ${formData.servicePreference || 'Not specified'}`;
+  } else if (submissionType === 'outside-counsel') {
+    message += `Company: ${formData.companyName || '-'}\\nIndustry: ${formData.industry || '-'}\\nStage: ${formData.stage || '-'}\\nBudget: ${formData.budget || '-'}\\nTimeline: ${formData.timeline || '-'}`;
+  }
+
+  const clioPayload = {
+    inbox_lead: {
+      from_first: firstName,
+      from_last: lastName,
+      from_email: formData.email || '',
+      from_phone: formData.phone || '',
+      from_message: message,
+      referring_url: `https://jacobscounsellaw.com/${submissionType}`,
+      from_source: `Jacobs Counsel ${submissionType.replace('-', ' ').toUpperCase()} Intake`
+    },
+    inbox_lead_token: CLIO_GROW_INBOX_TOKEN
+  };
+
+  try {
+    const response = await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(clioPayload)
+    });
+
+    if (response.ok) {
+      console.log('✅ Pushed to Clio Grow');
+      return await response.json();
+    } else {
+      console.error('❌ Clio Grow failed:', response.status, await response.text());
+      return { error: `Clio error ${response.status}` };
+    }
+  } catch (error) {
+    console.error('❌ Clio Grow failed:', error.message);
+    return { error: error.message };
+  }
+}
+
 // ==================== EMAIL TEMPLATES ====================
 
 function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId) {
@@ -615,10 +657,10 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
         
         <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0; border-left: 6px solid #ff4d00;">
             <h3 style="margin: 0 0 16px; color: #0b1f1e;">Contact Information</h3>
-            <p><strong>Name:</strong> ${formData.firstName || formData.fullName || ''} ${formData.lastName || ''}</p>
+            <p><strong>Name:</strong> ${formData.firstName || formData.fullName || formData.contactName || ''} ${formData.lastName || ''}</p>
             <p><strong>Email:</strong> <a href="mailto:${formData.email}">${formData.email}</a></p>
             <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
-            <p><strong>Business:</strong> ${formData.businessName || 'Not specified'}</p>
+            <p><strong>Business:</strong> ${formData.businessName || formData.companyName || 'Not specified'}</p>
             <p><strong>Location:</strong> ${formData.state || formData.businessState || 'Not specified'}</p>
         </div>
 
@@ -677,6 +719,8 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
 }
 
 function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
+  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';
+  
   return `
 <!DOCTYPE html>
 <html>
@@ -690,7 +734,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
         
         <h1 style="color: #ff4d00; font-size: 28px; margin: 0 0 16px; font-weight: 700;">Thank you for choosing Jacobs Counsel</h1>
         
-        <p style="font-size: 16px; margin: 16px 0;">Hi <strong>${formData.firstName || formData.fullName?.split(' ')[0] || 'there'}</strong>,</p>
+        <p style="font-size: 16px; margin: 16px 0;">Hi <strong>${clientName}</strong>,</p>
         
         <p style="font-size: 16px; margin: 16px 0;">We've received your ${submissionType.replace('-', ' ')} intake and will review it within <strong>1 business day</strong>. Our AI analysis has identified key opportunities for your situation.</p>
         
@@ -703,7 +747,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
         
         ${price ? `
         <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 24px 0; border: 2px solid #bbf7d0; text-align: center;">
-            <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">Estimated Investment: $${typeof price === 'number' ? price.toLocaleString() : price}</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">Estimated Investment: ${typeof price === 'number' ? '$' + price.toLocaleString() : price}</p>
             <p style="margin: 8px 0 0; font-size: 14px; color: #059669;">Final pricing confirmed after review</p>
         </div>
         ` : ''}
@@ -738,9 +782,9 @@ app.get('/', (req, res) => {
   res.json({ 
     ok: true, 
     service: 'jacobs-counsel-unified-intake',
-    version: '2.0.0',
-    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/add-subscriber', '/legal-guide'],
-    features: ['AI Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration']
+    version: '2.0.1',
+    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/outside-counsel', '/add-subscriber', '/legal-guide'],
+    features: ['AI Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration', 'Clio Grow Integration']
   });
 });
 
@@ -754,15 +798,12 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
 
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
-    // Calculate lead score
     const leadScore = calculateLeadScore(formData, submissionType);
     console.log(`📊 Lead score: ${leadScore.score}/100`);
 
-    // AI analysis
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
     console.log(`🤖 AI analysis completed`);
 
-    // Process attachments
     const attachments = files
       .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
       .slice(0, 10)
@@ -818,28 +859,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
 
     // Push to Clio Grow
     try {
-      if (CLIO_GROW_INBOX_TOKEN) {
-        const clioPayload = {
-          inbox_lead: {
-            from_first: formData.firstName || '',
-            from_last: formData.lastName || '',
-            from_email: formData.email || '',
-            from_phone: formData.phone || '',
-            from_message: `Estate Planning Lead (Score: ${leadScore.score}/100)\nState: ${formData.state || '-'}\nMarital: ${formData.maritalStatus || '-'}\nMinors: ${formData.hasMinorChildren || '-'}\nPackage: ${formData.packagePreference || 'Not sure'}`,
-            referring_url: req.headers.referer || 'https://jacobscounsellaw.com/intake',
-            from_source: 'Jacobs Counsel Unified Intake'
-          },
-          inbox_lead_token: CLIO_GROW_INBOX_TOKEN
-        };
-
-        await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(clioPayload)
-        });
-
-        console.log('✅ Pushed to Clio Grow');
-      }
+      await createClioLead(formData, submissionType, leadScore);
     } catch (e) {
       console.error('❌ Clio Grow failed:', e.message);
     }
@@ -937,6 +957,13 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
       console.error('❌ Motion integration failed:', e.message);
     }
 
+    // Push to Clio Grow
+    try {
+      await createClioLead(formData, submissionType, leadScore);
+    } catch (e) {
+      console.error('❌ Clio Grow failed:', e.message);
+    }
+
     // Client confirmation
     if (formData.email) {
       try {
@@ -988,21 +1015,20 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
         content: f.buffer
       }));
 
-    // Calculate pricing estimate
-    // Calculate pricing estimate - Updated to match frontend
-let priceEstimate = 'Custom Quote';
-const service = (formData.servicePreference || '').toLowerCase();
-if (service.includes('clearance') || service.includes('1495')) {
-  priceEstimate = '$1,495';
-} else if (service.includes('single trademark') || service.includes('2495')) {
-  priceEstimate = '$2,495';
-} else if (service.includes('multiple') || service.includes('4995')) {
-  priceEstimate = '$4,995+';
-} else if (service.includes('portfolio') || service.includes('7500')) {
-  priceEstimate = '$7,500+';
-} else if (service.includes('enforcement')) {
-  priceEstimate = 'Custom Quote';
-}
+    // Calculate pricing estimate - Coordinated pricing
+    let priceEstimate = 'Custom Quote';
+    const service = (formData.servicePreference || '').toLowerCase();
+    if (service.includes('clearance') || service.includes('1495')) {
+      priceEstimate = '$1,495';
+    } else if (service.includes('single trademark') || service.includes('2495')) {
+      priceEstimate = '$2,495';
+    } else if (service.includes('multiple') || service.includes('4995')) {
+      priceEstimate = '$4,995+';
+    } else if (service.includes('portfolio') || service.includes('7500')) {
+      priceEstimate = '$7,500+';
+    } else if (service.includes('enforcement')) {
+      priceEstimate = 'Custom Quote';
+    }
 
     // Send internal alert
     const alertRecipients = leadScore.score >= 70 
@@ -1039,6 +1065,13 @@ if (service.includes('clearance') || service.includes('1495')) {
       console.error('❌ Motion integration failed:', e.message);
     }
 
+    // Push to Clio Grow
+    try {
+      await createClioLead(formData, submissionType, leadScore);
+    } catch (e) {
+      console.error('❌ Clio Grow failed:', e.message);
+    }
+
     // Client confirmation
     if (formData.email) {
       try {
@@ -1068,239 +1101,84 @@ if (service.includes('clearance') || service.includes('1495')) {
   }
 });
 
-// Outside Counsel Intake Route
+// Outside Counsel Intake
 app.post('/outside-counsel', async (req, res) => {
   try {
     const formData = req.body;
-    
-    // Generate submission ID if not provided
     const submissionId = formData.submissionId || `OC-${Date.now()}`;
+    const submissionType = 'outside-counsel';
+
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+
+    // Send internal alert
+    const alertRecipients = leadScore.score >= 70 
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
+      : [INTAKE_NOTIFY_TO];
+
+    const internalSubject = `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Outside Counsel — ${formData.companyName || 'New Lead'} (Score: ${leadScore.score})`;
     
-    // Prepare email content
-    const emailHtml = `
-      <div style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px;"></div>
-        <div style="padding: 32px; background: #ffffff;">
-          <h1 style="color: #0f172a; margin: 0 0 24px;">New Outside Counsel Request</h1>
-          <p style="color: #64748b; font-size: 16px;">Submission ID: ${submissionId}</p>
-          
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Company Information</h2>
-            <p><strong>Company:</strong> ${formData.companyName}</p>
-            <p><strong>Contact:</strong> ${formData.contactName}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
-            <p><strong>Industry:</strong> ${formData.industry}</p>
-            <p><strong>Stage:</strong> ${formData.stage}</p>
-            <p><strong>Team Size:</strong> ${formData.teamSize || 'Not specified'}</p>
-          </div>
-          
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Business Description</h2>
-            <p>${formData.businessDescription || 'Not provided'}</p>
-          </div>
-          
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Legal Services Needed</h2>
-            <ul>
-              ${formData.services && formData.services.length > 0 
-                ? formData.services.map(service => `<li>${service}</li>`).join('')
-                : '<li>No specific services selected</li>'}
-            </ul>
-          </div>
-          
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Current Situation</h2>
-            <p><strong>Current Legal Setup:</strong> ${formData.hasLawyer || 'Not specified'}</p>
-            <p><strong>Challenges:</strong> ${Array.isArray(formData.challenges) ? formData.challenges.join(', ') : 'None specified'}</p>
-            <p><strong>Priorities:</strong> ${formData.priorities || 'None specified'}</p>
-          </div>
-          
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Service Requirements</h2>
-            <p><strong>Service Level:</strong> ${formData.level || 'Not selected'}</p>
-            <p><strong>Timeline:</strong> ${formData.timeline || 'Not specified'}</p>
-            <p><strong>Budget Range:</strong> ${formData.budget || 'Not specified'}/month</p>
-            <p><strong>Engagement Model:</strong> ${formData.engagement || 'Not specified'}</p>
-          </div>
-          
-          ${formData.customNeeds ? `
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Custom Needs</h2>
-            <p>${formData.customNeeds}</p>
-          </div>
-          ` : ''}
-          
-          ${formData.additionalInfo ? `
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 16px;">Additional Information</h2>
-            <p>${formData.additionalInfo}</p>
-          </div>
-          ` : ''}
-          
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <p><strong>Referral Source:</strong> ${formData.referralSource || 'Not specified'}</p>
-            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
-          </div>
-          
-          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
-            <p style="color: #64748b; font-size: 14px;">
-              This is an automated submission from the Outside Counsel intake form.
-              Please respond within 24 hours with a custom proposal.
-            </p>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    // Send internal notification email
-await sendEnhancedEmail({
-  to: ['drew@jacobscounsellaw.com'],
-  subject: `New Outside Counsel Request - ${formData.companyName}`,
-  html: emailHtml
-});
-    
-    // Send confirmation email to client
-    const clientEmailHtml = `
-      <div style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px;"></div>
-        <div style="padding: 32px; background: #ffffff;">
-          <h1 style="color: #0f172a; margin: 0 0 24px;">Thank You for Your Outside Counsel Request</h1>
-          
-          <p style="font-size: 16px; line-height: 1.6; color: #0f172a;">
-            Dear ${formData.contactName},
-          </p>
-          
-          <p style="font-size: 16px; line-height: 1.6; color: #0f172a;">
-            We've received your request for outside counsel services for ${formData.companyName}. 
-            Our team is reviewing your needs and will prepare a custom proposal tailored to your requirements.
-          </p>
-          
-          <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0;">
-            <h2 style="color: #0f172a; font-size: 18px; margin: 0 0 16px;">What Happens Next?</h2>
-            <ol style="line-height: 1.8; color: #0f172a;">
-              <li>We'll analyze your requirements and prepare a custom proposal</li>
-              <li>You'll receive a detailed proposal within 24 hours</li>
-              <li>We'll schedule a call to discuss your specific needs</li>
-              <li>Once agreed, we can begin supporting you immediately</li>
-            </ol>
-          </div>
-          
-          <div style="background: #fff4ed; border-left: 4px solid #ff4d00; padding: 16px; margin: 24px 0;">
-            <p style="margin: 0; color: #0f172a;">
-              <strong>Your Submission ID:</strong> ${submissionId}<br>
-              Please reference this ID in any communications about your request.
-            </p>
-          </div>
-          
-          <p style="font-size: 16px; line-height: 1.6; color: #0f172a;">
-            If you have any immediate questions or concerns, please don't hesitate to reach out:
-          </p>
-          
-          <ul style="line-height: 1.8; color: #0f172a;">
-            <li>Email: drew@jacobscounsellaw.com</li>
-            <li>Phone: (973) 796-4310</li>
-            <li>Schedule a call: <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="color: #ff4d00;">Book directly here</a></li>
-          </ul>
-          
-          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
-            <p style="color: #64748b; font-size: 14px; margin: 0;">
-              Best regards,<br>
-              Drew Jacobs<br>
-              Jacobs Counsel LLC
-            </p>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    await sendEnhancedEmail({
-  to: [formData.email],
-  subject: 'Your Outside Counsel Request - Jacobs Counsel',
-  html: clientEmailHtml
-});
-    
-    // Create lead in Clio Grow if configured
-    if (process.env.CLIO_SUBDOMAIN && process.env.CLIO_ACCESS_TOKEN) {
-      try {
-        const leadData = {
-          data: {
-            type: 'leads',
-            attributes: {
-              name: formData.contactName,
-              email: formData.email,
-              phone_number: formData.phone,
-              company_name: formData.companyName,
-              referring_url: formData.referringUrl || 'outside-counsel-intake',
-              custom_fields: {
-                industry: formData.industry,
-                company_stage: formData.stage,
-                team_size: formData.teamSize,
-                services_needed: formData.services?.join(', '),
-                budget: formData.budget,
-                timeline: formData.timeline,
-                service_level: formData.level
-              },
-              tags: ['outside-counsel', formData.industry, formData.stage].filter(Boolean)
-            }
-          }
-        };
-        
-        await createClioLead(leadData);
-      } catch (clioError) {
-        console.error('Clio Grow error:', clioError);
-        // Don't fail the whole request if Clio fails
-      }
+    try {
+      await sendEnhancedEmail({
+        to: alertRecipients,
+        subject: internalSubject,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal'
+      });
+      console.log('✅ Internal alert sent');
+    } catch (e) {
+      console.error('❌ Internal email failed:', e.message);
     }
-    
-    // Add to Mailchimp if configured
+
+    // Smart Mailchimp and other integrations
+    try {
+      await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Added to Smart Mailchimp automation');
+    } catch (e) {
+      console.error('❌ Mailchimp failed:', e.message);
+    }
+
+    try {
+      await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Motion project created');
+    } catch (e) {
+      console.error('❌ Motion integration failed:', e.message);
+    }
+
+    // Push to Clio Grow
+    try {
+      await createClioLead(formData, submissionType, leadScore);
+    } catch (e) {
+      console.error('❌ Clio Grow failed:', e.message);
+    }
+
+    // Client confirmation
     if (formData.email) {
       try {
-        await addToMailchimp({
-          email: formData.email,
-          firstName: formData.contactName?.split(' ')[0] || '',
-          source: 'outside-counsel-intake',
-          tags: ['outside-counsel', formData.industry, formData.stage].filter(Boolean),
-          merge_fields: {
-            COMPANY: formData.companyName,
-            INDUSTRY: formData.industry,
-            BUDGET: formData.budget
-          }
+        const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+        await sendEnhancedEmail({
+          to: [formData.email, INTAKE_NOTIFY_TO],
+          subject: 'Jacobs Counsel — Your Outside Counsel Request & Next Steps',
+          html: clientEmailHtml
         });
-      } catch (mailchimpError) {
-        console.error('Mailchimp error:', mailchimpError);
-        // Don't fail the whole request if Mailchimp fails
+        console.log('✅ Client confirmation sent');
+      } catch (e) {
+        console.error('❌ Client email failed:', e.message);
       }
     }
-    
-    // Calculate lead score
-    let leadScore = 50; // Base score
-    
-    // Adjust based on timeline
-    if (formData.timeline === 'Immediately') leadScore += 20;
-    else if (formData.timeline === 'Soon') leadScore += 15;
-    else if (formData.timeline === 'This Month') leadScore += 10;
-    
-    // Adjust based on budget
-    if (formData.budget?.includes('10K+')) leadScore += 20;
-    else if (formData.budget?.includes('5K-10K')) leadScore += 15;
-    else if (formData.budget?.includes('2.5K-5K')) leadScore += 10;
-    
-    // Adjust based on company stage
-    if (formData.stage === 'growth' || formData.stage === 'scale') leadScore += 10;
-    
-    // Adjust based on services needed
-    if (formData.services && formData.services.length > 3) leadScore += 10;
-    
+
     res.json({
       success: true,
       submissionId: submissionId,
-      leadScore: leadScore,
+      leadScore: leadScore.score,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis,
       message: 'Outside counsel request submitted successfully'
     });
     
   } catch (error) {
-    console.error('Outside counsel intake error:', error);
+    console.error('💥 Outside counsel intake error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to process outside counsel request'
@@ -1343,7 +1221,6 @@ app.post('/add-subscriber', async (req, res) => {
     );
     
     if (response.status === 400) {
-      // Member might already exist, try to update tags
       const crypto = await import('crypto');
       const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
       
@@ -1374,7 +1251,7 @@ app.post('/add-subscriber', async (req, res) => {
   }
 });
 
-// ============== LEGAL GUIDE DOWNLOAD ENDPOINT ==============
+// Legal Guide Download Endpoint
 app.post('/legal-guide', upload.none(), async (req, res) => {
   try {
     console.log('📖 Legal guide request:', req.body);
@@ -1388,40 +1265,29 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
     const submissionId = `guide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const name = firstName || email.split('@')[0];
     
-    // Get PDF URL from environment
     const pdfUrl = process.env.LEGAL_GUIDE_PDF_URL;
     if (!pdfUrl) {
       console.error('❌ LEGAL_GUIDE_PDF_URL not set');
       return res.status(500).json({ success: false, error: 'PDF not configured' });
     }
 
-// Client email with PDF link
-const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
-const clientHtml = `
+    const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
+    const clientHtml = `
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Legal Strategy Guide</title>
-    <style>
-        /* Fallback styles for email clients that don't support gradients */
-        .header-fallback {
-            background-color: #ff4d00 !important;
-            color: #ffffff !important;
-        }
-    </style>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
     <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         
-        <!-- Header with fallback background -->
-        <div class="header-fallback" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-            <h1 style="color: #ffffff !important; margin: 0; font-size: 28px; font-weight: 600; text-shadow: none;">Your Legal Strategy Guide</h1>
-            <p style="color: #ffffff !important; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
+        <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
         </div>
         
-        <!-- Main Content -->
         <div style="padding: 40px 30px;">
             <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>
             
@@ -1429,145 +1295,154 @@ const clientHtml = `
                 Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
             </p>
             
-            <!-- PROMINENT Download Button -->
             <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
                 <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
-                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); background-color: #ff4d00; color: #ffffff !important; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
-                    📥 DOWNLOAD YOUR GUIDE NOW
-                </a>
-                <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
-            </div>
-            
-            <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
-                Inside this guide, you'll discover:
-            </p>
-            
-            <!-- Benefits List -->
-            <div style="background: #f0fdf4; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #059669;">
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div style="display: flex; align-items: flex-start; gap: 12px;">
-                        <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
-                        <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Investor-ready business foundations</strong> that attract funding</span>
-                    </div>
-                    <div style="display: flex; align-items: flex-start; gap: 12px;">
-                        <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
-                        <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Brand protection strategies</strong> that actually work</span>
-                    </div>
-                    <div style="display: flex; align-items: flex-start; gap: 12px;">
-                        <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
-                        <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Wealth protection systems</strong> for high achievers</span>
-                    </div>
-                    <div style="display: flex; align-items: flex-start; gap: 12px;">
-                        <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
-                        <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Contract strategies</strong> for creators & athletes</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Call to Action -->
-            <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
-                <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
-                <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
-                    This guide gives you the framework. Now let's build your specific legal strategy.
-                </p>
-                <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff !important; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
-                    📅 Book Your Free Legal Edge Call
-                </a>
-            </div>
-            
-            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
-                Best regards,<br>
-                <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
-                Jacobs Counsel LLC<br>
-                <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">drew@jacobscounsellaw.com</a>
-            </p>
-        </div>
-        
-        <!-- Footer -->
-        <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
-            <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
-                This email does not create an attorney-client relationship.<br>
-                If you can't see the download button, <a href="${pdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
-            </p>
-        </div>
-    </div>
+                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+                   📥 DOWNLOAD YOUR GUIDE NOW
+               </a>
+               <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
+           </div>
+           
+           <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
+               Inside this guide, you'll discover:
+           </p>
+           
+           <div style="background: #f0fdf4; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #059669;">
+               <div style="display: flex; flex-direction: column; gap: 12px;">
+                   <div style="display: flex; align-items: flex-start; gap: 12px;">
+                       <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
+                       <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Investor-ready business foundations</strong> that attract funding</span>
+                   </div>
+                   <div style="display: flex; align-items: flex-start; gap: 12px;">
+                       <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
+                       <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Brand protection strategies</strong> that actually work</span>
+                   </div>
+                   <div style="display: flex; align-items: flex-start; gap: 12px;">
+                       <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
+                       <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Wealth protection systems</strong> for high achievers</span>
+                   </div>
+                   <div style="display: flex; align-items: flex-start; gap: 12px;">
+                       <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
+                       <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Contract strategies</strong> for creators & athletes</span>
+                   </div>
+               </div>
+           </div>
+           
+           <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
+               <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
+               <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
+                   This guide gives you the framework. Now let's build your specific legal strategy.
+               </p>
+               <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
+                   📅 Book Your Free Legal Edge Call
+               </a>
+           </div>
+           
+           <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
+               Best regards,<br>
+               <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
+               Jacobs Counsel LLC<br>
+               <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">drew@jacobscounsellaw.com</a>
+           </p>
+       </div>
+       
+       <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
+           <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
+               This email does not create an attorney-client relationship.<br>
+               If you can't see the download button, <a href="${pdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
+           </p>
+       </div>
+   </div>
 </body>
 </html>`;
 
-    // Send guide email
-    try {
-      console.log('📧 Sending guide to', email);
-      await sendEnhancedEmail({
-        to: [email],
-        subject: clientSubject,
-        html: clientHtml
-      });
-      console.log('✅ Client email sent');
-    } catch (e) {
-      console.error('❌ Client mail failed:', e.message);
-    }
+   // Send guide email
+   try {
+     console.log('📧 Sending guide to', email);
+     await sendEnhancedEmail({
+       to: [email],
+       subject: clientSubject,
+       html: clientHtml
+     });
+     console.log('✅ Client email sent');
+   } catch (e) {
+     console.error('❌ Client mail failed:', e.message);
+   }
 
-    // Send internal notification
-    try {
-      const adminSubject = `🎯 New Legal Guide Download: ${name}`;
-      const adminHtml = `<h2>New Legal Guide Download</h2><p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p><p><strong>Source:</strong> ${source}</p><p><strong>Time:</strong> ${new Date().toLocaleString()}</p>`;
-      
-      await sendEnhancedEmail({
-        to: [INTAKE_NOTIFY_TO],
-        subject: adminSubject,
-        html: adminHtml
-      });
-      console.log('✅ Internal notification sent');
-    } catch (e) {
-      console.error('❌ Internal mail failed:', e.message);
-    }
+   // Send internal notification
+   try {
+     const adminSubject = `🎯 New Legal Guide Download: ${name}`;
+     const adminHtml = `<h2>New Legal Guide Download</h2><p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p><p><strong>Source:</strong> ${source}</p><p><strong>Time:</strong> ${new Date().toLocaleString()}</p>`;
+     
+     await sendEnhancedEmail({
+       to: [INTAKE_NOTIFY_TO],
+       subject: adminSubject,
+       html: adminHtml
+     });
+     console.log('✅ Internal notification sent');
+   } catch (e) {
+     console.error('❌ Internal mail failed:', e.message);
+   }
 
-    res.json({ success: true, message: 'Guide sent successfully!', submissionId });
+   // Add to Mailchimp
+   try {
+     await addToMailchimpWithAutomation(
+       { email, firstName: name }, 
+       { score: 30, factors: ['Legal guide download: +30'] }, 
+       'legal-guide-download', 
+       null
+     );
+     console.log('✅ Added to Mailchimp');
+   } catch (e) {
+     console.error('❌ Mailchimp failed:', e.message);
+   }
 
-  } catch (err) {
-    console.error('💥 Legal guide error:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
+   res.json({ success: true, message: 'Guide sent successfully!', submissionId });
+
+ } catch (err) {
+   console.error('💥 Legal guide error:', err);
+   res.status(500).json({ success: false, error: err.message });
+ }
 });
 
 // ==================== ERROR HANDLING ====================
 
 app.use((err, req, res, next) => {
-  if (err && err.code) {
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({ 
-        ok: false, 
-        error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).' 
-      });
-    }
-    if (err.code === 'LIMIT_FILE_COUNT') {
-      return res.status(413).json({ 
-        ok: false, 
-        error: 'Too many files (max 15). Remove some and try again.' 
-      });
-    }
-    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-      return res.status(400).json({ 
-        ok: false, 
-        error: 'Unexpected file field. Please use the file picker in the form.' 
-      });
-    }
-  }
-  console.error('Unhandled error:', err);
-  res.status(500).json({ 
-    ok: false, 
-    error: 'Server error. Please try again or contact us directly.' 
-  });
+ if (err && err.code) {
+   if (err.code === 'LIMIT_FILE_SIZE') {
+     return res.status(413).json({ 
+       ok: false, 
+       error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).' 
+     });
+   }
+   if (err.code === 'LIMIT_FILE_COUNT') {
+     return res.status(413).json({ 
+       ok: false, 
+       error: 'Too many files (max 15). Remove some and try again.' 
+     });
+   }
+   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+     return res.status(400).json({ 
+       ok: false, 
+       error: 'Unexpected file field. Please use the file picker in the form.' 
+     });
+   }
+ }
+ console.error('Unhandled error:', err);
+ res.status(500).json({ 
+   ok: false, 
+   error: 'Server error. Please try again or contact us directly.' 
+ });
 });
 
 // ==================== SERVER STARTUP ====================
 
 app.listen(PORT, () => {
-  console.log(`🚀 Jacobs Counsel Unified Intake System running on port ${PORT}`);
-  console.log(`📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp Automation, Motion Integration`);
-  console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'}`);
+ console.log(`🚀 Jacobs Counsel Unified Intake System running on port ${PORT}`);
+ console.log(`📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp Automation, Motion Integration, Clio Grow`);
+ console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
+ console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+ console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+ console.log(`⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+ console.log(`⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'}`);
 });

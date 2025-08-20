@@ -989,12 +989,20 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
       }));
 
     // Calculate pricing estimate
-    let priceEstimate = 'Custom Quote';
-    const service = (formData.servicePreference || '').toLowerCase();
-    if (service.includes('clearance')) priceEstimate = '$750+';
-    else if (service.includes('single trademark')) priceEstimate = '$1,950+';
-    else if (service.includes('multiple')) priceEstimate = '$3,500+';
-    else if (service.includes('portfolio')) priceEstimate = '$5,000+';
+    // Calculate pricing estimate - Updated to match frontend
+let priceEstimate = 'Custom Quote';
+const service = (formData.servicePreference || '').toLowerCase();
+if (service.includes('clearance') || service.includes('1495')) {
+  priceEstimate = '$1,495';
+} else if (service.includes('single trademark') || service.includes('2495')) {
+  priceEstimate = '$2,495';
+} else if (service.includes('multiple') || service.includes('4995')) {
+  priceEstimate = '$4,995+';
+} else if (service.includes('portfolio') || service.includes('7500')) {
+  priceEstimate = '$7,500+';
+} else if (service.includes('enforcement')) {
+  priceEstimate = 'Custom Quote';
+}
 
     // Send internal alert
     const alertRecipients = leadScore.score >= 70 

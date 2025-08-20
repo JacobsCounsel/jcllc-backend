@@ -1146,11 +1146,11 @@ app.post('/outside-counsel', async (req, res) => {
     `;
     
     // Send internal notification email
-    await sendEmail(
-      'drew@jacobscounsellaw.com',
-      `New Outside Counsel Request - ${formData.companyName}`,
-      emailHtml
-    );
+await sendEnhancedEmail({
+  to: ['drew@jacobscounsellaw.com'],
+  subject: `New Outside Counsel Request - ${formData.companyName}`,
+  html: emailHtml
+});
     
     // Send confirmation email to client
     const clientEmailHtml = `
@@ -1206,11 +1206,11 @@ app.post('/outside-counsel', async (req, res) => {
       </div>
     `;
     
-    await sendEmail(
-      formData.email,
-      'Your Outside Counsel Request - Jacobs Counsel',
-      clientEmailHtml
-    );
+    await sendEnhancedEmail({
+  to: [formData.email],
+  subject: 'Your Outside Counsel Request - Jacobs Counsel',
+  html: clientEmailHtml
+});
     
     // Create lead in Clio Grow if configured
     if (process.env.CLIO_SUBDOMAIN && process.env.CLIO_ACCESS_TOKEN) {

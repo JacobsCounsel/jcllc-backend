@@ -1,6 +1,178 @@
 // index.js — Jacobs Counsel Unified Intake System
 // Features: AI-powered lead scoring, Mailchimp automation, Motion integration, intelligent routing
 
+// At the top of your index.js, add:
+import CommunicationHub from './communication-hub.js';
+
+// After your express setup, add:
+const commHub = new CommunicationHub(app);
+
+// ADD: Smart form analytics
+app.post('/api/analytics/form-event', async (req, res) => {
+    const { event, formType, step, data } = req.body;
+    
+    // Log the event
+    console.log(`📊 Form Event: ${event} - ${formType} - Step ${step}`);
+    
+    // Store in analytics (you can add a database later)
+    const analytics = {
+        event,
+        formType,
+        step,
+        timestamp: new Date().toISOString(),
+        data
+    };
+    
+    // If it's an abandonment, trigger recovery
+    if (event === 'abandoned') {
+        await triggerAbandonmentRecovery(data.email, formType, step);
+    }
+    
+    res.json({ received: true });
+});
+
+// ADD: Smart form recovery
+async function triggerAbandonmentRecovery(email, formType, lastStep) {
+    if (!email) return;
+    
+    // Wait 1 hour then send recovery email
+    setTimeout(async () => {
+        const recoveryLink = `https://jacobscounsellaw.com/${formType}?recover=true`;
+        
+        await sendEnhancedEmail({
+            to: [email],
+            subject: 'Complete Your Legal Consultation Request',
+            html: `
+                <h2>You're almost done!</h2>
+                <p>We noticed you didn't finish your ${formType} request.</p>
+                <p>Your progress has been saved. Click below to complete:</p>
+                <a href="${recoveryLink}" style="background: #ff4d00; 
+                   color: white; padding: 16px 32px; 
+                   text-decoration: none; border-radius: 8px; 
+                   display: inline-block;">
+                    Complete My Request →
+                </a>
+            `
+        });
+    }, 3600000); // 1 hour
+}
+
+// ADD: Enhanced intake with AI analysis
+app.post('/api/smart-intake', async (req, res) => {
+    const { message, sessionId, context } = req.body;
+    
+    try {
+        // Use GPT-4 to extract structured data from conversation
+        const extraction = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'gpt-4',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `Extract legal intake information from this conversation.
+                                 Return as JSON with fields: name, email, phone, 
+                                 legalNeed, urgency, budget, additionalInfo`
+                    },
+                    {
+                        role: 'user',
+                        content: message
+                    }
+                ],
+                functions: [{
+                    name: 'extract_intake_data',
+                    description: 'Extract structured intake data',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            name: { type: 'string' },
+                            email: { type: 'string' },
+                            phone: { type: 'string' },
+                            legalNeed: { type: 'string' },
+                            urgency: { type: 'string' },
+                            budget: { type: 'string' },
+                            additionalInfo: { type: 'string' }
+                        }
+                    }
+                }],
+                function_call: { name: 'extract_intake_data' }
+            })
+        });
+        
+        const data = await extraction.json();
+        const extractedData = JSON.parse(data.choices[0].message.function_call.arguments);
+        
+        // Generate intelligent response
+        const response = await generateSmartResponse(extractedData, context);
+        
+        res.json({
+            success: true,
+            extractedData,
+            response,
+            nextQuestions: generateNextQuestions(extractedData)
+        });
+        
+    } catch (error) {
+        console.error('Smart intake error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ADD: Document generation endpoint
+app.post('/api/generate-document', async (req, res) => {
+    const { documentType, clientData } = req.body;
+    
+    try {
+        const prompt = `Generate a legal ${documentType} with the following details:
+                       Client: ${clientData.name}
+                       State: ${clientData.state}
+                       Type: ${documentType}
+                       Requirements: ${JSON.stringify(clientData.requirements)}
+                       
+                       Format as a professional legal document.`;
+        
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'gpt-4',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are an expert legal document drafter. Create professional, legally sound documents.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                max_tokens: 2000
+            })
+        });
+        
+        const data = await response.json();
+        const document = data.choices[0].message.content;
+        
+        res.json({
+            success: true,
+            document,
+            documentId: `DOC-${Date.now()}`,
+            message: 'Document generated successfully. Attorney review recommended.'
+        });
+        
+    } catch (error) {
+        console.error('Document generation error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';

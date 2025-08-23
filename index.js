@@ -8,13 +8,9 @@ import cors from 'cors';
 import multer from 'multer';
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
-import CommunicationHub from './communication-hub.js'; // ADD THIS LINE
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// After your express setup, add:
-const commHub = new CommunicationHub(app);
 
 // ADD: Smart form analytics
 app.post('/api/analytics/form-event', async (req, res) => {
@@ -226,6 +222,9 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 15 * 1024 * 1024, files: 15 }
 });
+
+// After your express setup, add:
+const commHub = new CommunicationHub(app);
 
 // ==================== AI-POWERED LEAD INTELLIGENCE ====================
 

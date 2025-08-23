@@ -3,6 +3,15 @@
 
 // At the top of your index.js, add:
 import CommunicationHub from './communication-hub.js';
+import express from 'express';
+import cors from 'cors';
+import multer from 'multer';
+import fetch from 'node-fetch';
+import { Buffer } from 'buffer';
+import CommunicationHub from './communication-hub.js'; // ADD THIS LINE
+
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 // After your express setup, add:
 const commHub = new CommunicationHub(app);
@@ -399,6 +408,164 @@ function extractSection(content, marker) {
     : afterMarker.slice(0, nextMarker).trim();
 }
 
+// ==================== ENHANCED AI CAPABILITIES ====================
+
+// ADD: Conversational AI for intake
+async function createConversationalIntake(sessionId, userMessage, context) {
+  if (!OPENAI_API_KEY) return { response: "AI not configured", suggestions: [] };
+  
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL, // Uses your existing gpt-4o-mini
+        messages: [
+          {
+            role: 'system',
+            content: `You are Drew Jacobs' AI assistant at Jacobs Counsel. You're having a friendly conversation to understand their legal needs. Be warm, professional, and gather: name, email, legal issue, urgency, and budget. Drew is a former D1 athlete, licensed in NY/NJ/OH. Focus on business formation, estate planning, and brand protection.`
+          },
+          ...context,
+          { role: 'user', content: userMessage }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      })
+    });
+    
+    const data = await response.json();
+    return {
+      response: data.choices[0].message.content,
+      extractedData: await extractIntakeData(userMessage, context)
+    };
+  } catch (error) {
+    console.error('Conversational AI error:', error);
+    return { response: "I'm having trouble understanding. Could you rephrase?", suggestions: [] };
+  }
+}
+
+// ADD: Extract structured data from conversation
+async function extractIntakeData(message, context) {
+  if (!OPENAI_API_KEY) return {};
+  
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'Extract contact information and legal needs from this conversation. Return JSON only.'
+          },
+          {
+            role: 'user',
+            content: `Extract from: ${JSON.stringify(context)} and message: ${message}`
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1
+      })
+    });
+    
+    const data = await response.json();
+    return JSON.parse(data.choices[0].message.content);
+  } catch (error) {
+    console.error('Data extraction error:', error);
+    return {};
+  }
+}
+
+// ADD: Document generation with AI
+async function generateLegalDocument(documentType, clientData) {
+  if (!OPENAI_API_KEY) return { error: "AI not configured" };
+  
+  const templates = {
+    'nda': 'Create a mutual non-disclosure agreement for business discussions',
+    'services': 'Create a services agreement for legal representation',
+    'engagement': 'Create an engagement letter for legal services',
+    'will-worksheet': 'Create a will planning worksheet'
+  };
+  
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert legal document assistant. Create professional document drafts that explicitly state they require attorney review before use.'
+          },
+          {
+            role: 'user',
+            content: `Create a ${documentType} document with these details: ${JSON.stringify(clientData)}. Include header stating: "DRAFT - ATTORNEY REVIEW REQUIRED"`
+          }
+        ],
+        temperature: 0.2,
+        max_tokens: 2000
+      })
+    });
+    
+    const data = await response.json();
+    return {
+      document: data.choices[0].message.content,
+      documentId: `DOC-${Date.now()}`,
+      type: documentType
+    };
+  } catch (error) {
+    console.error('Document generation error:', error);
+    return { error: error.message };
+  }
+}
+
+// ADD: Predictive client lifetime value
+async function predictClientLifetimeValue(formData, aiAnalysis) {
+  if (!OPENAI_API_KEY) return { immediate: 0, year1: 0, year3: 0 };
+  
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'Predict legal service lifetime value. Return JSON with: immediate_value, year_1_value, year_3_value, likely_services (array), referral_potential (low/medium/high)'
+          },
+          {
+            role: 'user',
+            content: `Client data: ${JSON.stringify(formData)}. Analysis: ${JSON.stringify(aiAnalysis)}`
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3
+      })
+    });
+    
+    const data = await response.json();
+    return JSON.parse(data.choices[0].message.content);
+  } catch (error) {
+    console.error('CLV prediction error:', error);
+    return { immediate_value: 0, year_1_value: 0, year_3_value: 0 };
+  }
+}
+
 // ==================== SMART MAILCHIMP FUNCTIONS ====================
 
 function generateSmartTags(formData, leadScore, submissionType) {
@@ -555,6 +722,78 @@ async function addToMailchimpWithAutomation(formData, leadScore, submissionType,
 
   const tags = generateSmartTags(formData, leadScore, submissionType);
   const mergeFields = buildSmartFields(formData, leadScore, submissionType);
+
+    async function addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis) {
+  if (!MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
+    console.log('Mailchimp not configured, skipping');
+    return { skipped: true };
+  }
+
+  const tags = generateSmartTags(formData, leadScore, submissionType);
+  const mergeFields = buildSmartFields(formData, leadScore, submissionType);
+  
+  // ADD THIS SECTION - Enhanced behavioral automation triggers
+  const behavioralTags = [];
+  
+  // Personality-based automation
+  if (aiAnalysis?.personalityType) {
+    behavioralTags.push(`personality-${aiAnalysis.personalityType}`);
+  }
+  
+  // Engagement-based automation
+  if (aiAnalysis?.engagementStrategy?.includes('immediate')) {
+    behavioralTags.push('trigger-immediate-followup');
+  }
+  
+  // Value-based sequences
+  if (leadScore.score >= 80) {
+    behavioralTags.push('trigger-vip-sequence');
+    behavioralTags.push('notify-drew-immediately');
+  } else if (leadScore.score >= 60) {
+    behavioralTags.push('trigger-premium-nurture');
+  } else {
+    behavioralTags.push('trigger-standard-nurture');
+  }
+  
+  // Service-specific sequences
+  const serviceSequences = {
+    'estate-intake': [
+      formData.hasMinorChildren === 'Yes' ? 'sequence-parents-estate' : null,
+      formData.ownBusiness === 'Yes' ? 'sequence-business-succession' : null,
+      parseFloat(formData.grossEstate?.replace(/[,$]/g, '')) > 5000000 ? 'sequence-estate-tax' : null
+    ].filter(Boolean),
+    
+    'business-formation': [
+      formData.investmentPlan === 'vc' ? 'sequence-vc-startup' : null,
+      formData.businessType?.includes('Technology') ? 'sequence-tech-legal' : null,
+      formData.founderExperience?.includes('first') ? 'sequence-first-time-founder' : null
+    ].filter(Boolean),
+    
+    'brand-protection': [
+      formData.protectionGoal?.includes('enforcement') ? 'sequence-ip-enforcement' : null,
+      formData.urgency?.includes('Immediate') ? 'sequence-urgent-trademark' : null,
+      formData.geographicScope === 'International' ? 'sequence-global-brand' : null
+    ].filter(Boolean),
+    
+    'outside-counsel': [
+      formData.budget?.includes('10K+') ? 'sequence-enterprise-counsel' : null,
+      formData.stage === 'growth' ? 'sequence-scaling-legal' : null,
+      'sequence-counsel-onboarding'
+    ].filter(Boolean)
+  };
+  
+  // Combine all tags
+  const allTags = [
+    ...tags,
+    ...behavioralTags,
+    ...(serviceSequences[submissionType] || [])
+  ];
+  
+  // Add CLV prediction to merge fields
+  const clvPrediction = await predictClientLifetimeValue(formData, aiAnalysis);
+  mergeFields.CLV_IMMEDIATE = clvPrediction.immediate_value || 0;
+  mergeFields.CLV_YEAR1 = clvPrediction.year_1_value || 0;
+  mergeFields.CLV_YEAR3 = clvPrediction.year_3_value || 0;
 
   const memberData = {
     email_address: formData.email,
@@ -1816,6 +2055,99 @@ app.post('/api/download-specialized-guide', async (req, res) => {
   }
 });
 
+// ==================== NEW AI-POWERED ENDPOINTS ====================
+
+// Conversational intake endpoint
+app.post('/api/chat-intake', async (req, res) => {
+  try {
+    const { sessionId, message, context } = req.body;
+    
+    const result = await createConversationalIntake(sessionId, message, context || []);
+    
+    // If we have enough data, create a lead
+    if (result.extractedData?.email) {
+      const leadScore = calculateLeadScore(result.extractedData, 'chat-intake');
+      await addToMailchimpWithAutomation(result.extractedData, leadScore, 'chat-intake', null);
+      await createClioLead(result.extractedData, 'chat-intake', leadScore);
+    }
+    
+    res.json({
+      success: true,
+      response: result.response,
+      extractedData: result.extractedData,
+      sessionId: sessionId || `chat-${Date.now()}`
+    });
+    
+  } catch (error) {
+    console.error('Chat intake error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Document generation endpoint
+app.post('/api/generate-document', async (req, res) => {
+  try {
+    const { documentType, clientData } = req.body;
+    
+    const result = await generateLegalDocument(documentType, clientData);
+    
+    if (result.error) {
+      return res.status(400).json({ success: false, error: result.error });
+    }
+    
+    // Log document generation
+    console.log(`📄 Generated ${documentType} for ${clientData.name || 'client'}`);
+    
+    // Send notification
+    if (clientData.email) {
+      await sendEnhancedEmail({
+        to: [clientData.email],
+        subject: `Your ${documentType} Draft - Jacobs Counsel`,
+        html: `
+          <h2>Your Document is Ready</h2>
+          <p>We've prepared your ${documentType} draft.</p>
+          <p><strong>Important:</strong> This is a draft and requires attorney review.</p>
+          <pre style="background: #f5f5f5; padding: 20px; border-radius: 8px;">
+            ${result.document}
+          </pre>
+          <p><a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm">Schedule Review Call</a></p>
+        `
+      });
+    }
+    
+    res.json({
+      success: true,
+      documentId: result.documentId,
+      document: result.document
+    });
+    
+  } catch (error) {
+    console.error('Document generation error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Client lifetime value prediction endpoint
+app.post('/api/predict-clv', async (req, res) => {
+  try {
+    const { formData } = req.body;
+    
+    const leadScore = calculateLeadScore(formData, 'clv-check');
+    const aiAnalysis = await analyzeIntakeWithAI(formData, 'clv-check', leadScore);
+    const clvPrediction = await predictClientLifetimeValue(formData, aiAnalysis);
+    
+    res.json({
+      success: true,
+      leadScore: leadScore.score,
+      prediction: clvPrediction
+    });
+    
+  } catch (error) {
+    console.error('CLV prediction error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+    
 // ==================== ERROR HANDLING ====================
 
 app.use((err, req, res, next) => {
@@ -1848,12 +2180,16 @@ app.use((err, req, res, next) => {
 
 // ==================== SERVER STARTUP ====================
 
-app.listen(PORT, () => {
- console.log(`🚀 Jacobs Counsel Unified Intake System running on port ${PORT}`);
- console.log(`📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp Automation, Motion Integration, Clio Grow`);
- console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
- console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
- console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
- console.log(`⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
- console.log(`⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'}`);
+// Use the communication hub's server instead of app.listen
+const server = commHub.server || app;
+
+server.listen(PORT, () => {
+  console.log(`🚀 Jacobs Counsel Unified Intake System running on port ${PORT}`);
+  console.log(`📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, WebSockets`);
+  console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`💬 WebSocket: ✅ Active on same port`);
 });

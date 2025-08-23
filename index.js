@@ -778,39 +778,56 @@ async function createClioLead(formData, submissionType, leadScore) {
     return { skipped: true };
   }
 
-  // Extract name based on submission type
-  let firstName = '';
-  let lastName = '';
+  // 🔧 FIXED: Better name extraction with fallbacks
+  let firstName = 'Not';
+  let lastName = 'Provided';
+  
+  console.log(`🔍 Extracting names for ${submissionType} from:`, formData);
   
   if (submissionType === 'estate-intake') {
-    firstName = formData.firstName || '';
-    lastName = formData.lastName || '';
+    firstName = formData.firstName || 'Estate';
+    lastName = formData.lastName || 'Client';
   } else if (submissionType === 'business-formation') {
-    const founderParts = (formData.founderName || '').split(' ');
-    firstName = founderParts[0] || '';
-    lastName = founderParts.slice(1).join(' ') || '';
+    // Try multiple sources for business formation
+    if (formData.founderName) {
+      const nameParts = formData.founderName.trim().split(' ');
+      firstName = nameParts[0] || 'Business';
+      lastName = nameParts.slice(1).join(' ') || 'Founder';
+    } else if (formData.firstName) {
+      firstName = formData.firstName;
+      lastName = formData.lastName || 'Founder';
+    } else {
+      firstName = 'Business';
+      lastName = 'Founder';
+    }
   } else if (submissionType === 'brand-protection') {
-    const fullNameParts = (formData.fullName || '').split(' ');
-    firstName = fullNameParts[0] || '';
-    lastName = fullNameParts.slice(1).join(' ') || '';
+    if (formData.fullName) {
+      const nameParts = formData.fullName.trim().split(' ');
+      firstName = nameParts[0] || 'Brand';
+      lastName = nameParts.slice(1).join(' ') || 'Client';
+    } else {
+      firstName = 'Brand';
+      lastName = 'Client';
+    }
   } else if (submissionType === 'outside-counsel') {
-    const contactParts = (formData.contactName || '').split(' ');
-    firstName = contactParts[0] || '';
-    lastName = contactParts.slice(1).join(' ') || '';
+    if (formData.contactName) {
+      const nameParts = formData.contactName.trim().split(' ');
+      firstName = nameParts[0] || 'Counsel';
+      lastName = nameParts.slice(1).join(' ') || 'Client';
+    } else {
+      firstName = 'Counsel';
+      lastName = 'Client';
+    }
+  } else if (submissionType === 'legal-strategy-builder') {
+    firstName = formData.firstName || formData.email?.split('@')[0] || 'Strategy';
+    lastName = formData.lastName || 'User';
   }
-
-  // Build comprehensive message
-  let message = `${submissionType.replace('-', ' ').toUpperCase()} Lead (Score: ${leadScore.score}/100)\n`;
   
-  if (submissionType === 'estate-intake') {
-    message += `State: ${formData.state || '-'}\nMarital: ${formData.maritalStatus || '-'}\nMinors: ${formData.hasMinorChildren || '-'}\nPackage: ${formData.packagePreference || 'Not sure'}\nEstate Value: ${formData.grossEstate || 'Not specified'}`;
-  } else if (submissionType === 'business-formation') {
-    message += `Business: ${formData.businessName || '-'}\nType: ${formData.businessType || '-'}\nInvestment: ${formData.investmentPlan || '-'}\nPackage: ${formData.selectedPackage || 'Not specified'}`;
-  } else if (submissionType === 'brand-protection') {
-    message += `Business: ${formData.businessName || '-'}\nGoal: ${formData.protectionGoal || '-'}\nIndustry: ${formData.industry || '-'}\nUrgency: ${formData.urgency || '-'}\nService: ${formData.servicePreference || 'Not specified'}`;
-  } else if (submissionType === 'outside-counsel') {
-    message += `Company: ${formData.companyName || '-'}\nIndustry: ${formData.industry || '-'}\nStage: ${formData.stage || '-'}\nBudget: ${formData.budget || '-'}\nTimeline: ${formData.timeline || '-'}`;
-  }
+  // Make absolutely sure we have valid names
+  if (!firstName || firstName.length < 1) firstName = 'Unknown';
+  if (!lastName || lastName.length < 1) lastName = 'Client';
+  
+  console.log(`✅ Clio names extracted: First="${firstName}" Last="${lastName}"`);
 
   const clioPayload = {
     inbox_lead: {
@@ -942,7 +959,39 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
 }
 
 function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
-  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';
+  // 🔧 FIXED: More robust name extraction
+  let clientName = '';
+  
+  if (submissionType === 'estate-intake') {
+    clientName = formData.firstName || 'there';
+  } else if (submissionType === 'business-formation') {
+    // Try multiple sources
+    clientName = formData.firstName || 
+                 formData.founderName?.split(' ')[0] || 
+                 'there';
+  } else if (submissionType === 'brand-protection') {
+    clientName = formData.fullName?.split(' ')[0] || 
+                 formData.firstName || 
+                 'there';
+  } else if (submissionType === 'outside-counsel') {
+    clientName = formData.contactName?.split(' ')[0] || 
+                 formData.firstName || 
+                 'there';
+  } else {
+    clientName = formData.firstName || 
+                 formData.fullName?.split(' ')[0] || 
+                 formData.contactName?.split(' ')[0] || 
+                 formData.founderName?.split(' ')[0] ||
+                 'there';
+  }
+  
+  // Ensure email exists
+  if (!formData.email) {
+    console.error('❌ No email provided for client confirmation');
+    return null;
+  }
+  
+  console.log(`📧 Generating email for ${clientName} at ${formData.email}`);
   
   return `
 <!DOCTYPE html>
@@ -1018,6 +1067,14 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     const files = req.files || [];
     const submissionId = formData.submissionId || `estate-${Date.now()}`;
     const submissionType = 'estate-intake';
+
+    // 🔍 DETECTIVE CODE - START
+    console.log('=== 🔍 ESTATE FORM DATA RECEIVED ===');
+    console.log('Email:', formData.email || '❌ NO EMAIL!');
+    console.log('First Name:', formData.firstName || '❌ NO FIRST NAME!');
+    console.log('Last Name:', formData.lastName || '❌ NO LAST NAME!');
+    console.log('All fields received:', Object.keys(formData).join(', '));
+    // 🔍 DETECTIVE CODE - END
 
     // ✅ ADD THIS DETECTION:
     const fromAssessment = formData.fromAssessment === 'true' || 
@@ -1098,19 +1155,27 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       console.error('❌ Clio Grow failed:', e.message);
     }
 
-    // Send client confirmation email
+    // Client confirmation
     if (formData.email) {
+      console.log('📧 ESTATE: Attempting to send client email to:', formData.email);
       try {
         const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore.score);
+        if (!clientEmailHtml) {
+          throw new Error('Failed to generate email HTML');
+        }
         await sendEnhancedEmail({
           to: [formData.email, INTAKE_NOTIFY_TO],
           subject: 'Jacobs Counsel — Your Estate Planning Intake & Next Steps',
           html: clientEmailHtml
         });
-        console.log('✅ Client confirmation sent');
+        console.log('✅ ESTATE: Client confirmation sent to:', formData.email);
       } catch (e) {
-        console.error('❌ Client email failed:', e.message);
+        console.error('❌ ESTATE: Client email failed for', formData.email);
+        console.error('❌ ESTATE: Error details:', e.message);
+        console.error('❌ ESTATE: Full error:', e);
       }
+    } else {
+      console.error('❌ ESTATE: NO EMAIL - Cannot send client confirmation');
     }
 
     res.json({ 
@@ -1134,6 +1199,14 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     const files = req.files || [];
     const submissionId = formData.submissionId || `business-${Date.now()}`;
     const submissionType = 'business-formation';
+
+    // 🔍 DETECTIVE CODE - START
+    console.log('=== 🔍 BUSINESS FORM DATA RECEIVED ===');
+    console.log('Email:', formData.email || '❌ NO EMAIL!');
+    console.log('Founder Name:', formData.founderName || '❌ NO FOUNDER NAME!');
+    console.log('First Name:', formData.firstName || '❌ NO FIRST NAME!');
+    console.log('All fields received:', Object.keys(formData).join(', '));
+    // 🔍 DETECTIVE CODE - END
 
     // ✅ ADD THIS DETECTION:
     const fromAssessment = formData.fromAssessment === 'true' || 
@@ -1211,17 +1284,25 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
 
     // Client confirmation
     if (formData.email) {
+      console.log('📧 BUSINESS: Attempting to send client email to:', formData.email);
       try {
         const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore.score);
+        if (!clientEmailHtml) {
+          throw new Error('Failed to generate email HTML');
+        }
         await sendEnhancedEmail({
           to: [formData.email, INTAKE_NOTIFY_TO],
           subject: 'Jacobs Counsel — Your Business Formation Intake & Next Steps',
           html: clientEmailHtml
         });
-        console.log('✅ Client confirmation sent');
+        console.log('✅ BUSINESS: Client confirmation sent to:', formData.email);
       } catch (e) {
-        console.error('❌ Client email failed:', e.message);
+        console.error('❌ BUSINESS: Client email failed for', formData.email);
+        console.error('❌ BUSINESS: Error details:', e.message);
+        console.error('❌ BUSINESS: Full error:', e);
       }
+    } else {
+      console.error('❌ BUSINESS: NO EMAIL - Cannot send client confirmation');
     }
 
     res.json({ 
@@ -1245,6 +1326,14 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
     const files = req.files || [];
     const submissionId = formData.submissionId || `brand-${Date.now()}`;
     const submissionType = 'brand-protection';
+
+    // 🔍 DETECTIVE CODE - START
+    console.log('=== 🔍 BRAND FORM DATA RECEIVED ===');
+    console.log('Email:', formData.email || '❌ NO EMAIL!');
+    console.log('Full Name:', formData.fullName || '❌ NO FULL NAME!');
+    console.log('Business Name:', formData.businessName || '❌ NO BUSINESS NAME!');
+    console.log('All fields received:', Object.keys(formData).join(', '));
+    // 🔍 DETECTIVE CODE - END
 
     // ✅ ADD THIS DETECTION:
     const fromAssessment = formData.fromAssessment === 'true' || 
@@ -1330,17 +1419,25 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
 
     // Client confirmation
     if (formData.email) {
+      console.log('📧 BRAND: Attempting to send client email to:', formData.email);
       try {
         const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore.score);
+        if (!clientEmailHtml) {
+          throw new Error('Failed to generate email HTML');
+        }
         await sendEnhancedEmail({
           to: [formData.email, INTAKE_NOTIFY_TO],
           subject: 'Jacobs Counsel — Your Brand Protection Intake & Next Steps',
           html: clientEmailHtml
         });
-        console.log('✅ Client confirmation sent');
+        console.log('✅ BRAND: Client confirmation sent to:', formData.email);
       } catch (e) {
-        console.error('❌ Client email failed:', e.message);
+        console.error('❌ BRAND: Client email failed for', formData.email);
+        console.error('❌ BRAND: Error details:', e.message);
+        console.error('❌ BRAND: Full error:', e);
       }
+    } else {
+      console.error('❌ BRAND: NO EMAIL - Cannot send client confirmation');
     }
 
     res.json({ 
@@ -1363,6 +1460,14 @@ app.post('/outside-counsel', async (req, res) => {
     const formData = req.body;
     const submissionId = formData.submissionId || `OC-${Date.now()}`;
     const submissionType = 'outside-counsel';
+
+    // 🔍 DETECTIVE CODE - START
+    console.log('=== 🔍 OUTSIDE COUNSEL DATA RECEIVED ===');
+    console.log('Email:', formData.email || '❌ NO EMAIL!');
+    console.log('Contact Name:', formData.contactName || '❌ NO CONTACT NAME!');
+    console.log('Company Name:', formData.companyName || '❌ NO COMPANY!');
+    console.log('All fields received:', Object.keys(formData).join(', '));
+    // 🔍 DETECTIVE CODE - END
 
     // ✅ ADD THIS DETECTION:
     const fromAssessment = formData.fromAssessment === 'true' || 
@@ -1423,17 +1528,25 @@ app.post('/outside-counsel', async (req, res) => {
 
     // Client confirmation
     if (formData.email) {
+      console.log('📧 COUNSEL: Attempting to send client email to:', formData.email);
       try {
         const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+        if (!clientEmailHtml) {
+          throw new Error('Failed to generate email HTML');
+        }
         await sendEnhancedEmail({
           to: [formData.email, INTAKE_NOTIFY_TO],
           subject: 'Jacobs Counsel — Your Outside Counsel Request & Next Steps',
           html: clientEmailHtml
         });
-        console.log('✅ Client confirmation sent');
+        console.log('✅ COUNSEL: Client confirmation sent to:', formData.email);
       } catch (e) {
-        console.error('❌ Client email failed:', e.message);
+        console.error('❌ COUNSEL: Client email failed for', formData.email);
+        console.error('❌ COUNSEL: Error details:', e.message);
+        console.error('❌ COUNSEL: Full error:', e);
       }
+    } else {
+      console.error('❌ COUNSEL: NO EMAIL - Cannot send client confirmation');
     }
 
     res.json({
@@ -1511,21 +1624,32 @@ app.post('/legal-strategy-builder', async (req, res) => {
       console.error('❌ Clio Grow failed:', e.message);
     }
 
-    // Send client confirmation email
+    // Send client confirmation email - WITH BETTER LOGGING
     if (formData.email) {
+      console.log('📧 Attempting to send client email to:', formData.email);
       try {
-        const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+        const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore.score);
+        
+        if (!clientEmailHtml) {
+          console.error('❌ Failed to generate client email HTML');
+          throw new Error('Email HTML generation failed');
+        }
+        
         await sendEnhancedEmail({
-          to: [formData.email, INTAKE_NOTIFY_TO],
-          subject: 'Your Legal Strategy Assessment Results - Jacobs Counsel',
+          to: [formData.email],
+          subject: `Jacobs Counsel — Your ${submissionType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} Request Received`,
           html: clientEmailHtml
         });
-        console.log('✅ Client confirmation sent');
+        
+        console.log('✅ Client confirmation sent successfully to:', formData.email);
       } catch (e) {
-        console.error('❌ Client email failed:', e.message);
+        console.error('❌ Client email failed for', formData.email, ':', e.message);
+        console.error('❌ Full error:', e);
+        // Don't fail the entire request if email fails
       }
+    } else {
+      console.error('❌ NO EMAIL PROVIDED - Cannot send client confirmation');
     }
-
     res.json({ 
       ok: true, 
       submissionId,
@@ -1783,19 +1907,31 @@ app.post('/download-primary-guide', async (req, res) => {
       console.error('❌ Clio Grow failed:', e.message);
     }
 
-    // Send client confirmation email
+    // Send client confirmation email - WITH BETTER LOGGING
     if (formData.email) {
+      console.log('📧 Attempting to send client email to:', formData.email);
       try {
-        const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+        const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore.score);
+        
+        if (!clientEmailHtml) {
+          console.error('❌ Failed to generate client email HTML');
+          throw new Error('Email HTML generation failed');
+        }
+        
         await sendEnhancedEmail({
-          to: [formData.email, INTAKE_NOTIFY_TO],
-          subject: 'Your Legal Strategy Guide + Next Steps - Jacobs Counsel',
+          to: [formData.email],
+          subject: `Jacobs Counsel — Your ${submissionType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} Request Received`,
           html: clientEmailHtml
         });
-        console.log('✅ Client confirmation sent');
+        
+        console.log('✅ Client confirmation sent successfully to:', formData.email);
       } catch (e) {
-        console.error('❌ Client email failed:', e.message);
+        console.error('❌ Client email failed for', formData.email, ':', e.message);
+        console.error('❌ Full error:', e);
+        // Don't fail the entire request if email fails
       }
+    } else {
+      console.error('❌ NO EMAIL PROVIDED - Cannot send client confirmation');
     }
 
     // Redirect to the PDF download

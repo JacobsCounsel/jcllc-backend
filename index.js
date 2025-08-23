@@ -1,179 +1,11 @@
-// index.js — Jacobs Counsel Unified Intake System
+// index.js — Jacobs Counsel Unified Intake System - THE POWERHOUSE
 // Features: AI-powered lead scoring, Mailchimp automation, Motion integration, intelligent routing
 
-// At the top of your index.js, add:
-import CommunicationHub from './communication-hub.js';
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
-
-// ADD: Smart form analytics
-app.post('/api/analytics/form-event', async (req, res) => {
-    const { event, formType, step, data } = req.body;
-    
-    // Log the event
-    console.log(`📊 Form Event: ${event} - ${formType} - Step ${step}`);
-    
-    // Store in analytics (you can add a database later)
-    const analytics = {
-        event,
-        formType,
-        step,
-        timestamp: new Date().toISOString(),
-        data
-    };
-    
-    // If it's an abandonment, trigger recovery
-    if (event === 'abandoned') {
-        await triggerAbandonmentRecovery(data.email, formType, step);
-    }
-    
-    res.json({ received: true });
-});
-
-// ADD: Smart form recovery
-async function triggerAbandonmentRecovery(email, formType, lastStep) {
-    if (!email) return;
-    
-    // Wait 1 hour then send recovery email
-    setTimeout(async () => {
-        const recoveryLink = `https://jacobscounsellaw.com/${formType}?recover=true`;
-        
-        await sendEnhancedEmail({
-            to: [email],
-            subject: 'Complete Your Legal Consultation Request',
-            html: `
-                <h2>You're almost done!</h2>
-                <p>We noticed you didn't finish your ${formType} request.</p>
-                <p>Your progress has been saved. Click below to complete:</p>
-                <a href="${recoveryLink}" style="background: #ff4d00; 
-                   color: white; padding: 16px 32px; 
-                   text-decoration: none; border-radius: 8px; 
-                   display: inline-block;">
-                    Complete My Request →
-                </a>
-            `
-        });
-    }, 3600000); // 1 hour
-}
-
-// ADD: Enhanced intake with AI analysis
-app.post('/api/smart-intake', async (req, res) => {
-    const { message, sessionId, context } = req.body;
-    
-    try {
-        // Use GPT-4 to extract structured data from conversation
-        const extraction = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: 'gpt-4',
-                messages: [
-                    {
-                        role: 'system',
-                        content: `Extract legal intake information from this conversation.
-                                 Return as JSON with fields: name, email, phone, 
-                                 legalNeed, urgency, budget, additionalInfo`
-                    },
-                    {
-                        role: 'user',
-                        content: message
-                    }
-                ],
-                functions: [{
-                    name: 'extract_intake_data',
-                    description: 'Extract structured intake data',
-                    parameters: {
-                        type: 'object',
-                        properties: {
-                            name: { type: 'string' },
-                            email: { type: 'string' },
-                            phone: { type: 'string' },
-                            legalNeed: { type: 'string' },
-                            urgency: { type: 'string' },
-                            budget: { type: 'string' },
-                            additionalInfo: { type: 'string' }
-                        }
-                    }
-                }],
-                function_call: { name: 'extract_intake_data' }
-            })
-        });
-        
-        const data = await extraction.json();
-        const extractedData = JSON.parse(data.choices[0].message.function_call.arguments);
-        
-        // Generate intelligent response
-        const response = await generateSmartResponse(extractedData, context);
-        
-        res.json({
-            success: true,
-            extractedData,
-            response,
-            nextQuestions: generateNextQuestions(extractedData)
-        });
-        
-    } catch (error) {
-        console.error('Smart intake error:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ADD: Document generation endpoint
-app.post('/api/generate-document', async (req, res) => {
-    const { documentType, clientData } = req.body;
-    
-    try {
-        const prompt = `Generate a legal ${documentType} with the following details:
-                       Client: ${clientData.name}
-                       State: ${clientData.state}
-                       Type: ${documentType}
-                       Requirements: ${JSON.stringify(clientData.requirements)}
-                       
-                       Format as a professional legal document.`;
-        
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: 'gpt-4',
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are an expert legal document drafter. Create professional, legally sound documents.'
-                    },
-                    {
-                        role: 'user',
-                        content: prompt
-                    }
-                ],
-                max_tokens: 2000
-            })
-        });
-        
-        const data = await response.json();
-        const document = data.choices[0].message.content;
-        
-        res.json({
-            success: true,
-            document,
-            documentId: `DOC-${Date.now()}`,
-            message: 'Document generated successfully. Attorney review recommended.'
-        });
-        
-    } catch (error) {
-        console.error('Document generation error:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
 
 // ==================== CONFIGURATION ====================
 const PORT = process.env.PORT || 3000;
@@ -216,9 +48,6 @@ const upload = multer({
   limits: { fileSize: 15 * 1024 * 1024, files: 15 }
 });
 
-// After your express setup, add:
-const commHub = new CommunicationHub(app);
-
 // ==================== AI-POWERED LEAD INTELLIGENCE ====================
 
 // Sophisticated lead scoring algorithm
@@ -231,7 +60,8 @@ function calculateLeadScore(formData, submissionType) {
     'estate-intake': 40,
     'business-formation': 50,
     'brand-protection': 35,
-    'outside-counsel': 45
+    'outside-counsel': 45,
+    'legal-guide-download': 30
   };
   score += baseScores[submissionType] || 30;
   scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
@@ -400,9 +230,9 @@ function extractSection(content, marker) {
     : afterMarker.slice(0, nextMarker).trim();
 }
 
-// ==================== ENHANCED AI CAPABILITIES ====================
+// ==================== ADVANCED AI CAPABILITIES ====================
 
-// ADD: Conversational AI for intake
+// Conversational AI for intake
 async function createConversationalIntake(sessionId, userMessage, context) {
   if (!OPENAI_API_KEY) return { response: "AI not configured", suggestions: [] };
   
@@ -414,7 +244,7 @@ async function createConversationalIntake(sessionId, userMessage, context) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL, // Uses your existing gpt-4o-mini
+        model: OPENAI_MODEL,
         messages: [
           {
             role: 'system',
@@ -439,7 +269,7 @@ async function createConversationalIntake(sessionId, userMessage, context) {
   }
 }
 
-// ADD: Extract structured data from conversation
+// Extract structured data from conversation
 async function extractIntakeData(message, context) {
   if (!OPENAI_API_KEY) return {};
   
@@ -475,16 +305,9 @@ async function extractIntakeData(message, context) {
   }
 }
 
-// ADD: Document generation with AI
+// Document generation with AI
 async function generateLegalDocument(documentType, clientData) {
   if (!OPENAI_API_KEY) return { error: "AI not configured" };
-  
-  const templates = {
-    'nda': 'Create a mutual non-disclosure agreement for business discussions',
-    'services': 'Create a services agreement for legal representation',
-    'engagement': 'Create an engagement letter for legal services',
-    'will-worksheet': 'Create a will planning worksheet'
-  };
   
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -522,7 +345,7 @@ async function generateLegalDocument(documentType, clientData) {
   }
 }
 
-// ADD: Predictive client lifetime value
+// Predictive client lifetime value
 async function predictClientLifetimeValue(formData, aiAnalysis) {
   if (!OPENAI_API_KEY) return { immediate: 0, year1: 0, year3: 0 };
   
@@ -570,36 +393,46 @@ function generateSmartTags(formData, leadScore, submissionType) {
   if (leadScore.score >= 70) {
     tags.push('high-priority');
     tags.push('score-high');
+    tags.push('trigger-vip-sequence');
+    tags.push('notify-drew-immediately');
   } else if (leadScore.score >= 50) {
     tags.push('medium-priority');
     tags.push('score-medium');
+    tags.push('trigger-premium-nurture');
   } else {
     tags.push('standard-priority');
     tags.push('score-low');
+    tags.push('trigger-standard-nurture');
   }
   
   // BRAND PROTECTION - Automation triggers
   if (submissionType === 'brand-protection') {
     if (formData.protectionGoal?.includes('enforcement')) {
       tags.push('needs-enforcement');
+      tags.push('sequence-ip-enforcement');
     }
     if (formData.protectionGoal?.includes('registration')) {
       tags.push('wants-trademark');
+      tags.push('sequence-trademark-registration');
     }
     if (formData.protectionGoal?.includes('clearance')) {
       tags.push('needs-search');
+      tags.push('sequence-trademark-search');
     }
     if (formData.protectionGoal?.includes('unsure')) {
       tags.push('needs-education');
+      tags.push('sequence-brand-education');
     }
     
     if (formData.industry?.includes('Technology')) {
       tags.push('tech-business');
       tags.push('industry-tech');
+      tags.push('sequence-tech-legal');
     }
     if (formData.urgency?.includes('Immediate')) {
       tags.push('urgent-help');
       tags.push('timeline-immediate');
+      tags.push('sequence-urgent-trademark');
     }
   }
   
@@ -608,24 +441,31 @@ function generateSmartTags(formData, leadScore, submissionType) {
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
     if (estate > 5000000) {
       tags.push('very-wealthy');
+      tags.push('sequence-estate-tax');
     } else if (estate > 2000000) {
       tags.push('wealthy');
+      tags.push('sequence-wealth-protection');
     } else if (estate > 1000000) {
       tags.push('comfortable');
+      tags.push('sequence-asset-protection');
     } else {
       tags.push('modest-assets');
+      tags.push('sequence-basic-planning');
     }
     
     if (formData.packagePreference?.includes('trust')) {
       tags.push('wants-trust');
+      tags.push('sequence-trust-planning');
     }
     if (formData.ownBusiness === 'Yes') {
       tags.push('business-owner');
       tags.push('has-business');
+      tags.push('sequence-business-succession');
     }
     if (formData.hasMinorChildren === 'Yes') {
       tags.push('has-kids');
       tags.push('family-children');
+      tags.push('sequence-parents-estate');
     }
   }
   
@@ -633,13 +473,20 @@ function generateSmartTags(formData, leadScore, submissionType) {
   if (submissionType === 'business-formation') {
     if (formData.investmentPlan?.includes('vc')) {
       tags.push('vc-startup');
+      tags.push('sequence-vc-startup');
     }
     if (formData.investmentPlan?.includes('angel')) {
       tags.push('angel-startup');
+      tags.push('sequence-angel-funding');
     }
     if (formData.businessType?.includes('Technology')) {
       tags.push('tech-startup');
       tags.push('industry-tech');
+      tags.push('sequence-tech-legal');
+    }
+    if (formData.founderExperience?.includes('first')) {
+      tags.push('first-time-founder');
+      tags.push('sequence-first-time-founder');
     }
   }
   
@@ -647,13 +494,16 @@ function generateSmartTags(formData, leadScore, submissionType) {
   if (submissionType === 'outside-counsel') {
     if (formData.budget?.includes('10K+')) {
       tags.push('high-budget');
+      tags.push('sequence-enterprise-counsel');
     }
     if (formData.timeline === 'Immediately') {
       tags.push('urgent-help');
+      tags.push('sequence-urgent-counsel');
     }
-    if (formData.industry) {
-      tags.push(`industry-${formData.industry.toLowerCase().replace(/\\s+/g, '-')}`);
+    if (formData.stage === 'growth') {
+      tags.push('sequence-scaling-legal');
     }
+    tags.push('sequence-counsel-onboarding');
   }
   
   return tags;
@@ -667,31 +517,36 @@ function buildSmartFields(formData, leadScore, submissionType) {
     PHONE: formData.phone || '',
     BUSINESS: formData.businessName || formData.companyName || '',
     LEAD_SCORE: leadScore.score,
-    PRIORITY: leadScore.score >= 70 ? 'High Priority' : 'Standard',
+    PRIORITY: leadScore.score >= 70 ? 'High Priority' : leadScore.score >= 50 ? 'Medium Priority' : 'Standard',
     SERVICE_TYPE: submissionType.replace('-', ' '),
+    SIGNUP_DATE: new Date().toISOString().split('T')[0],
+    LEAD_SOURCE: 'Website Intake Form'
   };
   
-  // Type-specific fields
+  // Type-specific fields for personalized sequences
   if (submissionType === 'brand-protection') {
     fields.BP_GOAL = formData.protectionGoal || 'trademark protection';
     fields.BP_INDUSTRY = formData.industry || 'your industry';
     fields.BP_BUSINESS = formData.businessName || 'your business';
     fields.BP_URGENT = formData.urgency?.includes('Immediate') ? 'Yes' : 'No';
+    fields.BP_SCOPE = formData.geographicScope || 'Regional';
   }
   
   if (submissionType === 'estate-intake') {
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
     fields.ESTATE_AMOUNT = estate > 0 ? '$' + estate.toLocaleString() : 'your estate';
-    fields.ESTATE_LEVEL = estate > 2000000 ? 'substantial' : 'moderate';
+    fields.ESTATE_LEVEL = estate > 2000000 ? 'substantial' : estate > 1000000 ? 'moderate' : 'basic';
     fields.PACKAGE_WANT = formData.packagePreference || 'estate planning';
     fields.HAS_BUSINESS = formData.ownBusiness === 'Yes' ? 'Yes' : 'No';
     fields.HAS_KIDS = formData.hasMinorChildren === 'Yes' ? 'Yes' : 'No';
+    fields.MARITAL_STATUS = formData.maritalStatus || 'Not specified';
   }
   
   if (submissionType === 'business-formation') {
     fields.STARTUP_TYPE = formData.investmentPlan || 'startup';
     fields.FOUNDER_EXP = formData.founderExperience?.includes('first') ? 'first-time' : 'experienced';
     fields.BUSINESS_TYPE = formData.businessType || 'business';
+    fields.FUNDING_STAGE = formData.investmentPlan || 'self-funded';
   }
   
   if (submissionType === 'outside-counsel') {
@@ -699,6 +554,7 @@ function buildSmartFields(formData, leadScore, submissionType) {
     fields.INDUSTRY = formData.industry || '';
     fields.BUDGET = formData.budget || '';
     fields.TIMELINE = formData.timeline || '';
+    fields.COMPANY_STAGE = formData.stage || '';
   }
   
   return fields;
@@ -714,72 +570,6 @@ async function addToMailchimpWithAutomation(formData, leadScore, submissionType,
 
   const tags = generateSmartTags(formData, leadScore, submissionType);
   const mergeFields = buildSmartFields(formData, leadScore, submissionType);
-
-    async function addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis) {
-  if (!MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
-    console.log('Mailchimp not configured, skipping');
-    return { skipped: true };
-  }
-
-  const tags = generateSmartTags(formData, leadScore, submissionType);
-  const mergeFields = buildSmartFields(formData, leadScore, submissionType);
-  
-  // ADD THIS SECTION - Enhanced behavioral automation triggers
-  const behavioralTags = [];
-  
-  // Personality-based automation
-  if (aiAnalysis?.personalityType) {
-    behavioralTags.push(`personality-${aiAnalysis.personalityType}`);
-  }
-  
-  // Engagement-based automation
-  if (aiAnalysis?.engagementStrategy?.includes('immediate')) {
-    behavioralTags.push('trigger-immediate-followup');
-  }
-  
-  // Value-based sequences
-  if (leadScore.score >= 80) {
-    behavioralTags.push('trigger-vip-sequence');
-    behavioralTags.push('notify-drew-immediately');
-  } else if (leadScore.score >= 60) {
-    behavioralTags.push('trigger-premium-nurture');
-  } else {
-    behavioralTags.push('trigger-standard-nurture');
-  }
-  
-  // Service-specific sequences
-  const serviceSequences = {
-    'estate-intake': [
-      formData.hasMinorChildren === 'Yes' ? 'sequence-parents-estate' : null,
-      formData.ownBusiness === 'Yes' ? 'sequence-business-succession' : null,
-      parseFloat(formData.grossEstate?.replace(/[,$]/g, '')) > 5000000 ? 'sequence-estate-tax' : null
-    ].filter(Boolean),
-    
-    'business-formation': [
-      formData.investmentPlan === 'vc' ? 'sequence-vc-startup' : null,
-      formData.businessType?.includes('Technology') ? 'sequence-tech-legal' : null,
-      formData.founderExperience?.includes('first') ? 'sequence-first-time-founder' : null
-    ].filter(Boolean),
-    
-    'brand-protection': [
-      formData.protectionGoal?.includes('enforcement') ? 'sequence-ip-enforcement' : null,
-      formData.urgency?.includes('Immediate') ? 'sequence-urgent-trademark' : null,
-      formData.geographicScope === 'International' ? 'sequence-global-brand' : null
-    ].filter(Boolean),
-    
-    'outside-counsel': [
-      formData.budget?.includes('10K+') ? 'sequence-enterprise-counsel' : null,
-      formData.stage === 'growth' ? 'sequence-scaling-legal' : null,
-      'sequence-counsel-onboarding'
-    ].filter(Boolean)
-  };
-  
-  // Combine all tags
-  const allTags = [
-    ...tags,
-    ...behavioralTags,
-    ...(serviceSequences[submissionType] || [])
-  ];
   
   // Add CLV prediction to merge fields
   const clvPrediction = await predictClientLifetimeValue(formData, aiAnalysis);
@@ -988,17 +778,17 @@ async function createClioLead(formData, submissionType, leadScore) {
     lastName = contactParts.slice(1).join(' ') || '';
   }
 
-  // Build message based on submission type
-  let message = `${submissionType.replace('-', ' ').toUpperCase()} Lead (Score: ${leadScore.score}/100)\\n`;
+  // Build comprehensive message
+  let message = `${submissionType.replace('-', ' ').toUpperCase()} Lead (Score: ${leadScore.score}/100)\n`;
   
   if (submissionType === 'estate-intake') {
-    message += `State: ${formData.state || '-'}\\nMarital: ${formData.maritalStatus || '-'}\\nMinors: ${formData.hasMinorChildren || '-'}\\nPackage: ${formData.packagePreference || 'Not sure'}\\nEstate Value: ${formData.grossEstate || 'Not specified'}`;
+    message += `State: ${formData.state || '-'}\nMarital: ${formData.maritalStatus || '-'}\nMinors: ${formData.hasMinorChildren || '-'}\nPackage: ${formData.packagePreference || 'Not sure'}\nEstate Value: ${formData.grossEstate || 'Not specified'}`;
   } else if (submissionType === 'business-formation') {
-    message += `Business: ${formData.businessName || '-'}\\nType: ${formData.businessType || '-'}\\nInvestment: ${formData.investmentPlan || '-'}\\nPackage: ${formData.selectedPackage || 'Not specified'}`;
+    message += `Business: ${formData.businessName || '-'}\nType: ${formData.businessType || '-'}\nInvestment: ${formData.investmentPlan || '-'}\nPackage: ${formData.selectedPackage || 'Not specified'}`;
   } else if (submissionType === 'brand-protection') {
-    message += `Business: ${formData.businessName || '-'}\\nGoal: ${formData.protectionGoal || '-'}\\nIndustry: ${formData.industry || '-'}\\nUrgency: ${formData.urgency || '-'}\\nService: ${formData.servicePreference || 'Not specified'}`;
+    message += `Business: ${formData.businessName || '-'}\nGoal: ${formData.protectionGoal || '-'}\nIndustry: ${formData.industry || '-'}\nUrgency: ${formData.urgency || '-'}\nService: ${formData.servicePreference || 'Not specified'}`;
   } else if (submissionType === 'outside-counsel') {
-    message += `Company: ${formData.companyName || '-'}\\nIndustry: ${formData.industry || '-'}\\nStage: ${formData.stage || '-'}\\nBudget: ${formData.budget || '-'}\\nTimeline: ${formData.timeline || '-'}`;
+    message += `Company: ${formData.companyName || '-'}\nIndustry: ${formData.industry || '-'}\nStage: ${formData.stage || '-'}\nBudget: ${formData.budget || '-'}\nTimeline: ${formData.timeline || '-'}`;
   }
 
   const clioPayload = {
@@ -1185,9 +975,9 @@ app.get('/', (req, res) => {
   res.json({ 
     ok: true, 
     service: 'jacobs-counsel-unified-intake',
-    version: '2.0.1',
-    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/outside-counsel', '/add-subscriber', '/legal-guide', '/api/download-primary-guide', '/api/download-specialized-guide'],
-    features: ['AI Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration', 'Clio Grow Integration']
+    version: '3.0.0-POWERHOUSE',
+    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/outside-counsel', '/add-subscriber', '/legal-guide', '/api/chat-intake', '/api/generate-document', '/api/predict-clv'],
+    features: ['AI Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration', 'Clio Grow Integration', 'Conversational AI', 'Document Generation', 'CLV Prediction']
   });
 });
 
@@ -1418,7 +1208,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
         content: f.buffer
       }));
 
-    // Calculate pricing estimate - Coordinated pricing
+    // Calculate pricing estimate
     let priceEstimate = 'Custom Quote';
     const service = (formData.servicePreference || '').toLowerCase();
     if (service.includes('clearance') || service.includes('1495')) {
@@ -1532,150 +1322,107 @@ app.post('/outside-counsel', async (req, res) => {
       });
       console.log('✅ Internal alert sent');
     } catch (e) {
-      console.error('❌ Internal email failed:', e.message);
-    }
-
-    // Smart Mailchimp and other integrations
-    try {
-      await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
-      console.log('✅ Added to Smart Mailchimp automation');
-    } catch (e) {
-      console.error('❌ Mailchimp failed:', e.message);
-    }
-
-    try {
-      await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
-      console.log('✅ Motion project created');
-    } catch (e) {
-      console.error('❌ Motion integration failed:', e.message);
-    }
-
-    // Push to Clio Grow
-    try {
-      await createClioLead(formData, submissionType, leadScore);
-    } catch (e) {
-      console.error('❌ Clio Grow failed:', e.message);
-    }
-
-    // Client confirmation
-    if (formData.email) {
-      try {
-        const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
-        await sendEnhancedEmail({
-          to: [formData.email, INTAKE_NOTIFY_TO],
-          subject: 'Jacobs Counsel — Your Outside Counsel Request & Next Steps',
-          html: clientEmailHtml
-        });
-        console.log('✅ Client confirmation sent');
-      } catch (e) {
-        console.error('❌ Client email failed:', e.message);
-      }
-    }
-
-    res.json({
-      success: true,
-      submissionId: submissionId,
-      leadScore: leadScore.score,
-      aiAnalysisAvailable: !!aiAnalysis?.analysis,
-      message: 'Outside counsel request submitted successfully'
+console.error('❌ Internal email failed:', e.message);
+}
+      // Smart Mailchimp and other integrations
+try {
+  await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
+  console.log('✅ Added to Smart Mailchimp automation');
+} catch (e) {
+  console.error('❌ Mailchimp failed:', e.message);
+}try {
+  await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
+  console.log('✅ Motion project created');
+} catch (e) {
+  console.error('❌ Motion integration failed:', e.message);
+}// Push to Clio Grow
+try {
+  await createClioLead(formData, submissionType, leadScore);
+} catch (e) {
+  console.error('❌ Clio Grow failed:', e.message);
+}// Client confirmation
+if (formData.email) {
+  try {
+    const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+    await sendEnhancedEmail({
+      to: [formData.email, INTAKE_NOTIFY_TO],
+      subject: 'Jacobs Counsel — Your Outside Counsel Request & Next Steps',
+      html: clientEmailHtml
     });
-    
-  } catch (error) {
-    console.error('💥 Outside counsel intake error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to process outside counsel request'
-    });
+    console.log('✅ Client confirmation sent');
+  } catch (e) {
+    console.error('❌ Client email failed:', e.message);
   }
+}res.json({
+  success: true,
+  submissionId: submissionId,
+  leadScore: leadScore.score,
+  aiAnalysisAvailable: !!aiAnalysis?.analysis,
+  message: 'Outside counsel request submitted successfully'
+});} catch (error) {
+console.error('💥 Outside counsel intake error:', error);
+res.status(500).json({
+success: false,
+error: 'Failed to process outside counsel request'
 });
-
-// Lead Magnet Subscriber Endpoint
+}
+});// Lead Magnet Subscriber Endpoint
 app.post('/add-subscriber', async (req, res) => {
-  try {
-    const { email, source, tags = [], merge_fields = {} } = req.body;
-    
-    if (!email || !MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
-      return res.status(400).json({ ok: false, error: 'Missing required data' });
-    }
-    
-    console.log(`📧 New subscriber: ${email} from ${source}`);
-    
-    const memberData = {
-      email_address: email,
-      status: 'subscribed',
-      tags: [...tags, source, `date-${new Date().toISOString().split('T')[0]}`],
-      merge_fields: {
-        LEAD_SOURCE: source,
-        SIGNUP_DATE: new Date().toISOString(),
-        ...merge_fields
-      }
-    };
-    
-    const response = await fetch(
-      `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(memberData)
-      }
-    );
-    
-    if (response.status === 400) {
-      const crypto = await import('crypto');
-      const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
-      
-      await fetch(
-        `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            tags: tags.map(tag => ({ name: tag, status: 'active' }))
-          })
-        }
-      );
-      
-      console.log('✅ Updated existing subscriber tags');
-    } else {
-      console.log('✅ New subscriber added to Mailchimp');
-    }
-    
-    res.json({ ok: true, message: 'Subscriber added successfully' });
-    
-  } catch (error) {
-    console.error('❌ Mailchimp subscription error:', error);
-    res.status(500).json({ ok: false, error: 'Subscription failed' });
+try {
+const { email, source, tags = [], merge_fields = {} } = req.body;if (!email || !MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
+  return res.status(400).json({ ok: false, error: 'Missing required data' });
+}console.log(`📧 New subscriber: ${email} from ${source}`);const memberData = {
+  email_address: email,
+  status: 'subscribed',
+  tags: [...tags, source, `date-${new Date().toISOString().split('T')[0]}`],
+  merge_fields: {
+    LEAD_SOURCE: source,
+    SIGNUP_DATE: new Date().toISOString(),
+    ...merge_fields
   }
-});
-
-// Legal Guide Download Endpoint
+};const response = await fetch(
+  `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(memberData)
+  }
+);if (response.status === 400) {
+  const crypto = await import('crypto');
+  const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');  await fetch(
+    `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tags: tags.map(tag => ({ name: tag, status: 'active' }))
+      })
+    }
+  );  console.log('✅ Updated existing subscriber tags');
+} else {
+  console.log('✅ New subscriber added to Mailchimp');
+}res.json({ ok: true, message: 'Subscriber added successfully' });} catch (error) {
+console.error('❌ Mailchimp subscription error:', error);
+res.status(500).json({ ok: false, error: 'Subscription failed' });
+}
+});// Legal Guide Download Endpoint
 app.post('/legal-guide', upload.none(), async (req, res) => {
-  try {
-    console.log('📖 Legal guide request:', req.body);
-    
-    const { email, firstName, source = 'legal-guide-download', referringUrl } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({ success: false, error: 'Email required' });
-    }
-    
-    const submissionId = `guide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const name = firstName || email.split('@')[0];
-    
-    const pdfUrl = process.env.LEGAL_GUIDE_PDF_URL;
-    if (!pdfUrl) {
-      console.error('❌ LEGAL_GUIDE_PDF_URL not set');
-      return res.status(500).json({ success: false, error: 'PDF not configured' });
-    }
-
-    const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
-    const clientHtml = `
+try {
+console.log('📖 Legal guide request:', req.body);const { email, firstName, source = 'legal-guide-download', referringUrl } = req.body;if (!email) {
+  return res.status(400).json({ success: false, error: 'Email required' });
+}const submissionId = `guide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+const name = firstName || email.split('@')[0];const pdfUrl = process.env.LEGAL_GUIDE_PDF_URL;
+if (!pdfUrl) {
+  console.error('❌ LEGAL_GUIDE_PDF_URL not set');
+  return res.status(500).json({ success: false, error: 'PDF not configured' });
+}const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
+const clientHtml = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -1684,504 +1431,204 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
     <title>Your Legal Strategy Guide</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        
-        <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
-            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
-        </div>
-        
-        <div style="padding: 40px 30px;">
-            <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>
-            
-            <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
-                Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
-            </p>
-            
-            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
-                <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
-                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
-                   📥 DOWNLOAD YOUR GUIDE NOW
-               </a>
-               <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
-           </div>
-           
-           <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
-               Inside this guide, you'll discover:
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">    <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
+        <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
+    </div>    <div style="padding: 40px 30px;">
+        <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>        <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
+            Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
+        </p>        <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
+            <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
+            <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+               📥 DOWNLOAD YOUR GUIDE NOW
+           </a>
+           <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
+       </div>       <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
+           <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
+           <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
+               This guide gives you the framework. Now let's build your specific legal strategy.
            </p>
-           
-           <div style="background: #f0fdf4; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #059669;">
-               <div style="display: flex; flex-direction: column; gap: 12px;">
-                   <div style="display: flex; align-items: flex-start; gap: 12px;">
-                       <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
-                       <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Investor-ready business foundations</strong> that attract funding</span>
-                   </div>
-                   <div style="display: flex; align-items: flex-start; gap: 12px;">
-                       <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
-                       <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Brand protection strategies</strong> that actually work</span>
-                   </div>
-                   <div style="display: flex; align-items: flex-start; gap: 12px;">
-                       <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
-                       <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Wealth protection systems</strong> for high achievers</span>
-                   </div>
-                   <div style="display: flex; align-items: flex-start; gap: 12px;">
-                       <span style="color: #059669; font-weight: bold; font-size: 16px; line-height: 1.5;">✓</span>
-                       <span style="color: #0b1f1e; line-height: 1.5; font-size: 15px;"><strong>Contract strategies</strong> for creators & athletes</span>
-                   </div>
-               </div>
-           </div>
-           
-           <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
-               <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
-               <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
-                   This guide gives you the framework. Now let's build your specific legal strategy.
-               </p>
-               <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
-                   📅 Book Your Free Legal Edge Call
-               </a>
-           </div>
-           
-           <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
-               Best regards,<br>
-               <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
-               Jacobs Counsel LLC<br>
-               <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">drew@jacobscounsellaw.com</a>
-           </p>
-       </div>
-       
-       <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
-           <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
-               This email does not create an attorney-client relationship.<br>
-               If you can't see the download button, <a href="${pdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
-           </p>
-       </div>
+           <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
+               📅 Book Your Free Legal Edge Call
+           </a>
+       </div>       <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
+           Best regards,<br>
+           <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
+           Jacobs Counsel LLC<br>
+           <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">drew@jacobscounsellaw.com</a>
+       </p>
+   </div>   <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
+       <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
+           This email does not create an attorney-client relationship.<br>
+           If you can't see the download button, <a href="${pdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
+       </p>
+   </div>
    </div>
 </body>
-</html>`;
-
-   // Send guide email
-   try {
-     console.log('📧 Sending guide to', email);
-     await sendEnhancedEmail({
-       to: [email],
-       subject: clientSubject,
-       html: clientHtml
-     });
-     console.log('✅ Client email sent');
-   } catch (e) {
-     console.error('❌ Client mail failed:', e.message);
-   }
-
-   // Send internal notification
-   try {
-     const adminSubject = `🎯 New Legal Guide Download: ${name}`;
-     const adminHtml = `<h2>New Legal Guide Download</h2><p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p><p><strong>Source:</strong> ${source}</p><p><strong>Time:</strong> ${new Date().toLocaleString()}</p>`;
-     
-     await sendEnhancedEmail({
-       to: [INTAKE_NOTIFY_TO],
-       subject: adminSubject,
-       html: adminHtml
-     });
-     console.log('✅ Internal notification sent');
-   } catch (e) {
-     console.error('❌ Internal mail failed:', e.message);
-   }
-
-   // Add to Mailchimp
-   try {
-     await addToMailchimpWithAutomation(
-       { email, firstName: name }, 
-       { score: 30, factors: ['Legal guide download: +30'] }, 
-       'legal-guide-download', 
-       null
-     );
-     console.log('✅ Added to Mailchimp');
-   } catch (e) {
-     console.error('❌ Mailchimp failed:', e.message);
-   }
-
-   res.json({ success: true, message: 'Guide sent successfully!', submissionId });
-
- } catch (err) {
-   console.error('💥 Legal guide error:', err);
-   res.status(500).json({ success: false, error: err.message });
- }
+</html>`;// Send guide email
+try {
+console.log('📧 Sending guide to', email);
+await sendEnhancedEmail({
+to: [email],
+subject: clientSubject,
+html: clientHtml
 });
-
-// ==================== GUIDE DOWNLOAD ENDPOINTS ====================
-
-// Primary Guide Download with Lead Capture
-app.post('/api/download-primary-guide', async (req, res) => {
-  try {
-    const { name, email, role, guideType, guideName, pdfUrl } = req.body;
-    const submissionId = `guide-primary-${Date.now()}`;
-
-    console.log(`📚 Primary guide download: ${email} (${role})`);
-
-    // Generate lead analysis for guide downloads
-    const leadScore = { 
-      score: 45, 
-      factors: ['Primary guide download: +30', 'Email provided: +15'] 
-    };
-
-    // AI analysis for guide downloads
-    let aiAnalysis = null;
-    if (OPENAI_API_KEY) {
-      try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${OPENAI_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: OPENAI_MODEL,
-            temperature: 0.3,
-            max_tokens: 300,
-            messages: [
-              { 
-                role: 'system', 
-                content: "You are Drew Jacobs' legal assistant. Analyze this guide download lead and provide insights."
-              },
-              { 
-                role: 'user', 
-                content: `Guide download analysis:
-                Name: ${name}
-                Email: ${email}
-                Role: ${role}
-                Guide: ${guideName}
-                
-                Provide brief analysis of potential legal needs and follow-up approach.`
-              }
-            ]
-          })
-        });
-
-        const data = await response.json();
-        aiAnalysis = {
-          analysis: data.choices?.[0]?.message?.content || 'Analysis not available'
-        };
-      } catch (error) {
-        console.error('AI analysis failed:', error);
-      }
-    }
-
-    // Send confirmation email to client
-    const clientEmailHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Your Legal Strategy Guide - Jacobs Counsel</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        
-        <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
-            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
-        </div>
-        
-        <div style="padding: 40px 30px;">
-            <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>
-            
-            <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
-                Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
-            </p>
-            
-            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
-                <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
-                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3);">
-                   📥 DOWNLOAD YOUR GUIDE NOW
-               </a>
-           </div>
-           
-           <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
-               <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
-               <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
-                   This guide gives you the framework. Now let's build your specific legal strategy.
-               </p>
-               <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px;">
-                   📅 Book Your Strategy Session
-               </a>
-           </div>
-           
-           <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
-               Best regards,<br>
-               <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
-               Jacobs Counsel LLC
-           </p>
-       </div>
-   </div>
-</body>
-</html>`;
-
-    // Send client confirmation
-    try {
-      await sendEnhancedEmail({
-        to: [email],
-        subject: 'Your Legal Strategy Guide - Jacobs Counsel',
-        html: clientEmailHtml
-      });
-      console.log('✅ Client guide email sent');
-    } catch (e) {
-      console.error('❌ Client email failed:', e.message);
-    }
-
-    // Send internal notification
-    try {
-      const internalSubject = `📚 Primary Guide Download: ${name} (${role})`;
-      const internalHtml = `
-        <h2>New Primary Guide Download</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-        <p><strong>Role:</strong> ${role}</p>
-        <p><strong>Guide:</strong> ${guideName}</p>
-        <p><strong>Lead Score:</strong> ${leadScore.score}/100</p>
-        ${aiAnalysis ? `<p><strong>AI Analysis:</strong> ${aiAnalysis.analysis}</p>` : ''}
-        <p><strong>Recommended Action:</strong> Follow up within 24 hours with role-specific content</p>
-        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-      `;
-      
-      await sendEnhancedEmail({
-        to: [INTAKE_NOTIFY_TO],
-        subject: internalSubject,
-        html: internalHtml
-      });
-      console.log('✅ Internal notification sent');
-    } catch (e) {
-      console.error('❌ Internal email failed:', e.message);
-    }
-
-    // Add to Mailchimp with smart tags
-    try {
-      const tags = ['primary-guide-download', `role-${role}`, `date-${new Date().toISOString().split('T')[0]}`];
-      
-      await addToMailchimpWithAutomation(
-        { email, firstName: name, role }, 
-        leadScore, 
-        'primary-guide-download', 
-        aiAnalysis
-      );
-      console.log('✅ Added to Mailchimp automation');
-    } catch (e) {
-      console.error('❌ Mailchimp failed:', e.message);
-    }
-
-    // Add to Clio Grow
-    try {
-      await createClioLead(
-        { 
-          email, 
-          firstName: name.split(' ')[0], 
-          lastName: name.split(' ').slice(1).join(' '),
-          role 
-        }, 
-        'primary-guide-download', 
-        leadScore
-      );
-    } catch (e) {
-      console.error('❌ Clio Grow failed:', e.message);
-    }
-
-    res.json({ 
-      success: true, 
-      submissionId,
-      downloadUrl: pdfUrl,
-      message: 'Guide download processed successfully'
-    });
-
-  } catch (error) {
-    console.error('💥 Primary guide download error:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Download processing failed, but guide should be available' 
-    });
-  }
-});
-
-// Specialized Guide Download Tracker
-app.post('/api/download-specialized-guide', async (req, res) => {
-  try {
-    const { guideType, guideName, pdfUrl, timestamp } = req.body;
-    const submissionId = `guide-${guideType}-${Date.now()}`;
-
-    console.log(`📖 Specialized guide download: ${guideName}`);
-
-    // Send internal notification for specialized downloads
-    try {
-      const internalSubject = `📖 Specialized Guide Download: ${guideName}`;
-      const internalHtml = `
-        <h2>Specialized Guide Downloaded</h2>
-        <p><strong>Guide:</strong> ${guideName}</p>
-        <p><strong>Type:</strong> ${guideType}</p>
-        <p><strong>PDF URL:</strong> <a href="${pdfUrl}">${pdfUrl}</a></p>
-        <p><strong>Time:</strong> ${timestamp}</p>
-        <p><strong>Action:</strong> Consider following up with targeted content for ${guideType} topics</p>
-        <hr>
-        <p><em>This was an anonymous download. No lead capture performed.</em></p>
-      `;
-      
-      await sendEnhancedEmail({
-        to: [INTAKE_NOTIFY_TO],
-        subject: internalSubject,
-        html: internalHtml
-      });
-      console.log('✅ Internal notification sent');
-    } catch (e) {
-      console.error('❌ Internal email failed:', e.message);
-    }
-
-    res.json({ 
-      success: true, 
-      submissionId,
-      message: 'Specialized guide download tracked'
-    });
-
-  } catch (error) {
-    console.error('💥 Specialized guide download error:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Tracking failed'
-    });
-  }
-});
-
-// ==================== NEW AI-POWERED ENDPOINTS ====================
-
-// Conversational intake endpoint
-app.post('/api/chat-intake', async (req, res) => {
-  try {
-    const { sessionId, message, context } = req.body;
-    
-    const result = await createConversationalIntake(sessionId, message, context || []);
-    
-    // If we have enough data, create a lead
-    if (result.extractedData?.email) {
-      const leadScore = calculateLeadScore(result.extractedData, 'chat-intake');
-      await addToMailchimpWithAutomation(result.extractedData, leadScore, 'chat-intake', null);
-      await createClioLead(result.extractedData, 'chat-intake', leadScore);
-    }
-    
-    res.json({
-      success: true,
-      response: result.response,
-      extractedData: result.extractedData,
-      sessionId: sessionId || `chat-${Date.now()}`
-    });
-    
-  } catch (error) {
-    console.error('Chat intake error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Document generation endpoint
-app.post('/api/generate-document', async (req, res) => {
-  try {
-    const { documentType, clientData } = req.body;
-    
-    const result = await generateLegalDocument(documentType, clientData);
-    
-    if (result.error) {
-      return res.status(400).json({ success: false, error: result.error });
-    }
-    
-    // Log document generation
-    console.log(`📄 Generated ${documentType} for ${clientData.name || 'client'}`);
-    
-    // Send notification
-    if (clientData.email) {
-      await sendEnhancedEmail({
-        to: [clientData.email],
-        subject: `Your ${documentType} Draft - Jacobs Counsel`,
-        html: `
-          <h2>Your Document is Ready</h2>
-          <p>We've prepared your ${documentType} draft.</p>
-          <p><strong>Important:</strong> This is a draft and requires attorney review.</p>
-          <pre style="background: #f5f5f5; padding: 20px; border-radius: 8px;">
-            ${result.document}
-          </pre>
-          <p><a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm">Schedule Review Call</a></p>
-        `
-      });
-    }
-    
-    res.json({
-      success: true,
-      documentId: result.documentId,
-      document: result.document
-    });
-    
-  } catch (error) {
-    console.error('Document generation error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Client lifetime value prediction endpoint
-app.post('/api/predict-clv', async (req, res) => {
-  try {
-    const { formData } = req.body;
-    
-    const leadScore = calculateLeadScore(formData, 'clv-check');
-    const aiAnalysis = await analyzeIntakeWithAI(formData, 'clv-check', leadScore);
-    const clvPrediction = await predictClientLifetimeValue(formData, aiAnalysis);
-    
-    res.json({
-      success: true,
-      leadScore: leadScore.score,
-      prediction: clvPrediction
-    });
-    
-  } catch (error) {
-    console.error('CLV prediction error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-    
-// ==================== ERROR HANDLING ====================
-
-app.use((err, req, res, next) => {
- if (err && err.code) {
-   if (err.code === 'LIMIT_FILE_SIZE') {
-     return res.status(413).json({ 
-       ok: false, 
-       error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).' 
-     });
-   }
-   if (err.code === 'LIMIT_FILE_COUNT') {
-     return res.status(413).json({ 
-       ok: false, 
-       error: 'Too many files (max 15). Remove some and try again.' 
-     });
-   }
-   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-     return res.status(400).json({ 
-       ok: false, 
-       error: 'Unexpected file field. Please use the file picker in the form.' 
-     });
-   }
- }
- console.error('Unhandled error:', err);
- res.status(500).json({ 
-   ok: false, 
-   error: 'Server error. Please try again or contact us directly.' 
+console.log('✅ Client email sent');
+} catch (e) {
+console.error('❌ Client mail failed:', e.message);
+}// Send internal notification
+try {
+const adminSubject = 🎯 New Legal Guide Download: ${name};
+const adminHtml = <h2>New Legal Guide Download</h2><p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p><p><strong>Source:</strong> ${source}</p><p><strong>Time:</strong> ${new Date().toLocaleString()}</p>; await sendEnhancedEmail({
+   to: [INTAKE_NOTIFY_TO],
+   subject: adminSubject,
+   html: adminHtml
  });
+ console.log('✅ Internal notification sent');
+} catch (e) {
+console.error('❌ Internal mail failed:', e.message);
+}// Add to Mailchimp
+try {
+const leadScore = calculateLeadScore({ email, firstName: name }, 'legal-guide-download');
+await addToMailchimpWithAutomation(
+{ email, firstName: name },
+leadScore,
+'legal-guide-download',
+null
+);
+console.log('✅ Added to Mailchimp');
+} catch (e) {
+console.error('❌ Mailchimp failed:', e.message);
+}res.json({ success: true, message: 'Guide sent successfully!', submissionId });} catch (err) {
+console.error('💥 Legal guide error:', err);
+res.status(500).json({ success: false, error: err.message });
+}
+});// ==================== ADVANCED AI ENDPOINTS ====================// Conversational intake endpoint
+app.post('/api/chat-intake', async (req, res) => {
+try {
+const { sessionId, message, context } = req.body;const result = await createConversationalIntake(sessionId, message, context || []);// If we have enough data, create a lead
+if (result.extractedData?.email) {
+  const leadScore = calculateLeadScore(result.extractedData, 'chat-intake');
+  await addToMailchimpWithAutomation(result.extractedData, leadScore, 'chat-intake', null);
+  await createClioLead(result.extractedData, 'chat-intake', leadScore);
+}res.json({
+  success: true,
+  response: result.response,
+  extractedData: result.extractedData,
+  sessionId: sessionId || `chat-${Date.now()}`
+});} catch (error) {
+console.error('Chat intake error:', error);
+res.status(500).json({ success: false, error: error.message });
+}
+});// Document generation endpoint
+app.post('/api/generate-document', async (req, res) => {
+try {
+const { documentType, clientData } = req.body;const result = await generateLegalDocument(documentType, clientData);if (result.error) {
+  return res.status(400).json({ success: false, error: result.error });
+}// Log document generation
+console.log(`📄 Generated ${documentType} for ${clientData.name || 'client'}`);// Send notification
+if (clientData.email) {
+  await sendEnhancedEmail({
+    to: [clientData.email],
+    subject: `Your ${documentType} Draft - Jacobs Counsel`,
+    html: `
+      <h2>Your Document is Ready</h2>
+      <p>We've prepared your ${documentType} draft.</p>
+      <p><strong>Important:</strong> This is a draft and requires attorney review.</p>
+      <pre style="background: #f5f5f5; padding: 20px; border-radius: 8px;">
+        ${result.document}
+      </pre>
+      <p><a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm">Schedule Review Call</a></p>
+    `
+  });
+}res.json({
+  success: true,
+  documentId: result.documentId,
+  document: result.document
+});} catch (error) {
+console.error('Document generation error:', error);
+res.status(500).json({ success: false, error: error.message });
+}
+});// Client lifetime value prediction endpoint
+app.post('/api/predict-clv', async (req, res) => {
+try {
+const { formData } = req.body;const leadScore = calculateLeadScore(formData, 'clv-check');
+const aiAnalysis = await analyzeIntakeWithAI(formData, 'clv-check', leadScore);
+const clvPrediction = await predictClientLifetimeValue(formData, aiAnalysis);res.json({
+  success: true,
+  leadScore: leadScore.score,
+  prediction: clvPrediction
+});} catch (error) {
+console.error('CLV prediction error:', error);
+res.status(500).json({ success: false, error: error.message });
+}
+});// Smart form analytics
+app.post('/api/analytics/form-event', async (req, res) => {
+const { event, formType, step, data } = req.body;// Log the event
+console.log(`📊 Form Event: ${event} - ${formType} - Step ${step}`);// Store in analytics (you can add a database later)
+const analytics = {
+    event,
+    formType,
+    step,
+    timestamp: new Date().toISOString(),
+    data
+};// If it's an abandonment, trigger recovery
+if (event === 'abandoned') {
+    await triggerAbandonmentRecovery(data.email, formType, step);
+}res.json({ received: true });
+});// Smart form recovery
+async function triggerAbandonmentRecovery(email, formType, lastStep) {
+if (!email) return;// Wait 1 hour then send recovery email
+setTimeout(async () => {
+    const recoveryLink = `https://jacobscounsellaw.com/${formType}?recover=true`;    await sendEnhancedEmail({
+        to: [email],
+        subject: 'Complete Your Legal Consultation Request',
+        html: `
+            <h2>You're almost done!</h2>
+            <p>We noticed you didn't finish your ${formType} request.</p>
+            <p>Your progress has been saved. Click below to complete:</p>
+            <a href="${recoveryLink}" style="background: #ff4d00; 
+               color: white; padding: 16px 32px; 
+               text-decoration: none; border-radius: 8px; 
+               display: inline-block;">
+                Complete My Request →
+            </a>
+        `
+    });
+}, 3600000); // 1 hour
+}// ==================== ERROR HANDLING ====================app.use((err, req, res, next) => {
+if (err && err.code) {
+if (err.code === 'LIMIT_FILE_SIZE') {
+return res.status(413).json({
+ok: false,
+error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).'
 });
-
-// ==================== SERVER STARTUP ====================
-
-// Use the communication hub's server instead of app.listen
-const server = commHub.server || app;
-
-server.listen(PORT, () => {
-  console.log(`🚀 Jacobs Counsel Unified Intake System running on port ${PORT}`);
-  console.log(`📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, WebSockets`);
-  console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`💬 WebSocket: ✅ Active on same port`);
+}
+if (err.code === 'LIMIT_FILE_COUNT') {
+return res.status(413).json({
+ok: false,
+error: 'Too many files (max 15). Remove some and try again.'
+});
+}
+if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+return res.status(400).json({
+ok: false,
+error: 'Unexpected file field. Please use the file picker in the form.'
+});
+}
+}
+console.error('Unhandled error:', err);
+res.status(500).json({
+ok: false,
+error: 'Server error. Please try again or contact us directly.'
+});
+});// ==================== SERVER STARTUP ====================app.listen(PORT, () => {
+console.log(🚀 Jacobs Counsel POWERHOUSE System running on port ${PORT});
+console.log(📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Conversational AI, Document Generation, CLV Prediction);
+console.log(📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'});
+console.log(🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'});
+console.log(📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'});
+console.log(⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'});
+console.log(⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'});
+console.log(🎯 POWERHOUSE MODE: ACTIVATED);
 });

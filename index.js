@@ -64,8 +64,28 @@ const baseScores = {
   'legal-guide-download': 30,
   'legal-strategy-builder': 55  // ✅ ADD THIS LINE
 };
-  score += baseScores[submissionType] || 30;
-  scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
+
+  // ADD this new logic right after the base scoring:
+score += baseScores[submissionType] || 30;
+scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
+
+// ✅ ADD THIS NEW SECTION:
+// Legal Strategy Builder conversion bonus
+if (formData.fromAssessment === 'true' || formData.source === 'legal-strategy-builder-conversion') {
+  score += 20;
+  scoreFactors.push('Strategy Builder conversion: +20');
+  
+  if (formData.assessmentScore) {
+    const assessmentScore = parseInt(formData.assessmentScore);
+    if (assessmentScore >= 70) {
+      score += 15;
+      scoreFactors.push('High assessment score: +15');
+    } else if (assessmentScore >= 50) {
+      score += 10;
+      scoreFactors.push('Good assessment score: +10');
+    }
+  }
+}
 
   // Estate Planning Scoring
   if (submissionType === 'estate-intake') {
@@ -829,6 +849,7 @@ async function createClioLead(formData, submissionType, leadScore) {
 
 function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId) {
   const isHighValue = leadScore.score >= 70;
+  const isConversion = formData.conversionSource === 'legal-strategy-builder'; // ✅ ADD THIS
   const urgentFlag = formData.urgency?.includes('Immediate') || aiAnalysis?.riskFlags?.includes('urgent');
 
   return `
@@ -836,10 +857,18 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
 <html>
 <head>
     <meta charset="utf-8">
-    <title>${isHighValue ? '🔥 HIGH VALUE' : ''} ${urgentFlag ? '⚡ URGENT' : ''} New ${submissionType.toUpperCase()} Intake</title>
+    <title>${isHighValue ? '🔥 HIGH VALUE' : ''}${isConversion ? ' 🎯 ASSESSMENT CONVERSION' : ''} ${urgentFlag ? '⚡ URGENT' : ''} New ${submissionType.toUpperCase()} Intake</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #0f172a;">
     <div style="max-width: 700px; margin: 0 auto; padding: 20px;">
+        
+        ${isConversion ? `
+        <div style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+            <h2 style="margin: 0; font-size: 24px;">🎯 ASSESSMENT CONVERSION SUCCESS!</h2>
+            <p style="margin: 8px 0 0; font-size: 16px;">This lead came from the Legal Strategy Builder</p>
+        </div>
+        ` : ''}
+        
         ${isHighValue ? `
         <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
             <h2 style="margin: 0; font-size: 24px;">🔥 HIGH VALUE LEAD ALERT</h2>
@@ -990,6 +1019,17 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     const submissionId = formData.submissionId || `estate-${Date.now()}`;
     const submissionType = 'estate-intake';
 
+    // ✅ ADD THIS DETECTION:
+    const fromAssessment = formData.fromAssessment === 'true' || 
+                          formData.source === 'legal-strategy-builder-conversion' ||
+                          req.get('Referer')?.includes('legal-strategy-builder');
+    
+    if (fromAssessment) {
+      console.log('🎯 ASSESSMENT CONVERSION: Estate Planning');
+      formData.conversionSource = 'legal-strategy-builder';
+      formData.conversionType = 'assessment-to-estate';
+    }
+
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
     const leadScore = calculateLeadScore(formData, submissionType);
@@ -1095,6 +1135,17 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     const submissionId = formData.submissionId || `business-${Date.now()}`;
     const submissionType = 'business-formation';
 
+    // ✅ ADD THIS DETECTION:
+    const fromAssessment = formData.fromAssessment === 'true' || 
+                          formData.source === 'legal-strategy-builder-conversion' ||
+                          req.get('Referer')?.includes('legal-strategy-builder');
+    
+    if (fromAssessment) {
+      console.log('🎯 ASSESSMENT CONVERSION: Business Formation');
+      formData.conversionSource = 'legal-strategy-builder';
+      formData.conversionType = 'assessment-to-business';
+    }
+
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
     const leadScore = calculateLeadScore(formData, submissionType);
@@ -1194,6 +1245,17 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
     const files = req.files || [];
     const submissionId = formData.submissionId || `brand-${Date.now()}`;
     const submissionType = 'brand-protection';
+
+    // ✅ ADD THIS DETECTION:
+    const fromAssessment = formData.fromAssessment === 'true' || 
+                          formData.source === 'legal-strategy-builder-conversion' ||
+                          req.get('Referer')?.includes('legal-strategy-builder');
+    
+    if (fromAssessment) {
+      console.log('🎯 ASSESSMENT CONVERSION: Brand Protection');
+      formData.conversionSource = 'legal-strategy-builder';
+      formData.conversionType = 'assessment-to-brand';
+    }
 
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
@@ -1301,6 +1363,17 @@ app.post('/outside-counsel', async (req, res) => {
     const formData = req.body;
     const submissionId = formData.submissionId || `OC-${Date.now()}`;
     const submissionType = 'outside-counsel';
+
+    // ✅ ADD THIS DETECTION:
+    const fromAssessment = formData.fromAssessment === 'true' || 
+                          formData.source === 'legal-strategy-builder-conversion' ||
+                          req.get('Referer')?.includes('legal-strategy-builder');
+    
+    if (fromAssessment) {
+      console.log('🎯 ASSESSMENT CONVERSION: Outside Counsel');
+      formData.conversionSource = 'legal-strategy-builder';
+      formData.conversionType = 'assessment-to-counsel';
+    }
 
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
@@ -1659,6 +1732,40 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
    console.error('💥 Legal guide error:', err);
    res.status(500).json({ success: false, error: err.message });
  }
+
+  // Add this new endpoint right after your other endpoints
+app.post('/api/analytics/conversion', async (req, res) => {
+  try {
+    const { email, fromService, toService, assessmentScore, assessmentAnswers, timestamp } = req.body;
+    
+    console.log(`📈 CONVERSION TRACKED: ${email} went from ${fromService} → ${toService}`);
+    console.log(`📊 Assessment Score: ${assessmentScore}`);
+    
+    // Send notification about successful conversion
+    try {
+      await sendEnhancedEmail({
+        to: [INTAKE_NOTIFY_TO],
+        subject: `🎯 Conversion Success: ${email} → ${toService}`,
+        html: `
+          <h2>🎯 Legal Strategy Builder Conversion</h2>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Assessment Score:</strong> ${assessmentScore}/100</p>
+          <p><strong>Converted To:</strong> ${toService}</p>
+          <p><strong>Assessment Answers:</strong></p>
+          <pre>${JSON.stringify(assessmentAnswers, null, 2)}</pre>
+          <p><strong>Time:</strong> ${timestamp}</p>
+        `
+      });
+    } catch (e) {
+      console.error('❌ Conversion email failed:', e.message);
+    }
+    
+    res.json({ success: true, message: 'Conversion tracked' });
+    
+  } catch (error) {
+    console.error('❌ Conversion tracking error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // ==================== ADVANCED AI ENDPOINTS ====================

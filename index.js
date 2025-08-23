@@ -1798,12 +1798,8 @@ app.post('/download-primary-guide', async (req, res) => {
       }
     }
 
-    res.json({ 
-      ok: true, 
-      submissionId, 
-      leadScore: leadScore.score,
-      message: 'Guide download processed successfully'
-    });
+    // Redirect to the PDF download
+res.redirect('https://www.jacobscounsellaw.com/s/Protect-Your-Dreams-Maximize-Your-Impact-and-Grow-Smart.pdf');
 
   } catch (error) {
     console.error('💥 Primary guide download error:', error);

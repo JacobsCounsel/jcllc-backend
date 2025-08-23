@@ -9,9 +9,6 @@ import multer from 'multer';
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
 // ADD: Smart form analytics
 app.post('/api/analytics/form-event', async (req, res) => {
     const { event, formType, step, data } = req.body;

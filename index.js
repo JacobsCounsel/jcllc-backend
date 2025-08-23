@@ -1741,9 +1741,18 @@ app.post('/add-subscriber', async (req, res) => {
 app.post('/legal-guide', upload.none(), async (req, res) => {
   try {
     console.log('📖 Legal guide request:', req.body);
-    
-    const { email, firstName, source = 'legal-guide-download', referringUrl } = req.body;
-    
+
+// ✅ ADD guideUrl, guideType, and guideName to destructuring
+    const { 
+      email, 
+      firstName, 
+      source = 'legal-guide-download', 
+      referringUrl,
+      guideUrl,  // ✅ ADD THIS
+      guideType, // ✅ ADD THIS
+      guideName  // ✅ ADD THIS
+    } = req.body;
+        
     if (!email) {
       return res.status(400).json({ success: false, error: 'Email required' });
     }
@@ -1751,13 +1760,29 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
     const submissionId = `guide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const name = firstName || email.split('@')[0];
     
-    const pdfUrl = process.env.LEGAL_GUIDE_PDF_URL;
-    if (!pdfUrl) {
-      console.error('❌ LEGAL_GUIDE_PDF_URL not set');
+    // ✅ Use the guideUrl from request, or fall back to default
+    const pdfUrl = guideUrl || process.env.LEGAL_GUIDE_PDF_URL;
+    
+    // Map guide types to their PDF URLs if guideUrl wasn't provided
+    const guideUrls = {
+      'complete-playbook': 'https://www.jacobscounsellaw.com/s/Protect-Your-Dreams-Maximize-Your-Impact-and-Grow-Smart.pdf',
+      'vc-formation': 'https://www.jacobscounsellaw.com/s/The-VC-Ready-Business-Formation-Blueprint.pdf',
+      'estate-planning': 'https://www.jacobscounsellaw.com/s/Estate-Planning-for-High-Achievers.pdf',
+      'brand-protection': 'https://www.jacobscounsellaw.com/s/Emergency-Brand-Protection-Playbook.pdf'
+    };
+    
+    // If no guideUrl but we have guideType, use the mapping
+    const finalPdfUrl = pdfUrl || (guideType ? guideUrls[guideType] : null);
+    
+    if (!finalPdfUrl) {
+      console.error('❌ No PDF URL available for guide type:', guideType);
       return res.status(500).json({ success: false, error: 'PDF not configured' });
     }
+    
+    console.log('📄 Sending guide:', guideName || 'Legal Strategy Guide');
+    console.log('📎 PDF URL:', finalPdfUrl);
 
-    const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
+   const clientSubject = guideName ? `Your ${guideName} - Jacobs Counsel` : 'Your Free Legal Strategy Guide - Jacobs Counsel';
     const clientHtml = `
 <!DOCTYPE html>
 <html>
@@ -1783,7 +1808,7 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
             
             <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
                 <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
-                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+                <a href="${finalPdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
                    📥 DOWNLOAD YOUR GUIDE NOW
                </a>
                <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
@@ -1810,7 +1835,7 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
        <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
            <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
                This email does not create an attorney-client relationship.<br>
-               If you can't see the download button, <a href="${pdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
+               If you can't see the download button, <a href="${finalPdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
            </p>
        </div>
    </div>
@@ -1832,8 +1857,17 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
 
    // Send internal notification
    try {
-     const adminSubject = `🎯 New Legal Guide Download: ${name}`;
-     const adminHtml = `<h2>New Legal Guide Download</h2><p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p><p><strong>Source:</strong> ${source}</p><p><strong>Time:</strong> ${new Date().toLocaleString()}</p>`;
+     const adminSubject = `🎯 New Guide Download: ${guideName || 'Legal Strategy Guide'} - ${name}`;
+     const adminHtml = `
+       <h2>New Legal Guide Download</h2>
+       <p><strong>Guide:</strong> ${guideName || 'Legal Strategy Guide'}</p>
+       <p><strong>Type:</strong> ${guideType || 'complete-playbook'}</p>
+       <p><strong>Email:</strong> ${email}</p>
+       <p><strong>Name:</strong> ${name}</p>
+       <p><strong>Source:</strong> ${source}</p>
+       <p><strong>PDF URL:</strong> <a href="${finalPdfUrl}">${finalPdfUrl}</a></p>
+       <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+     `;
      
      await sendEnhancedEmail({
        to: [INTAKE_NOTIFY_TO],
@@ -1969,7 +2003,7 @@ app.post('/download-specialized-guide', async (req, res) => {
           <h2>Specialized Guide Downloaded</h2>
           <p><strong>Guide:</strong> ${guideName}</p>
           <p><strong>Type:</strong> ${guideType}</p>
-          <p><strong>PDF URL:</strong> <a href="${pdfUrl}">${pdfUrl}</a></p>
+          <p><strong>PDF URL:</strong> <a href="${finalPdfUrl}">${pdfUrl}</a></p>
           <p><strong>Time:</strong> ${timestamp}</p>
           <p><strong>Submission ID:</strong> ${submissionId}</p>
         `

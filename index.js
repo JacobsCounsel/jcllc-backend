@@ -1732,8 +1732,9 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
    console.error('💥 Legal guide error:', err);
    res.status(500).json({ success: false, error: err.message });
  }
+});
 
-  // Add this new endpoint right after your other endpoints
+// Add this new endpoint right after your other endpoints
 app.post('/api/analytics/conversion', async (req, res) => {
   try {
     const { email, fromService, toService, assessmentScore, assessmentAnswers, timestamp } = req.body;

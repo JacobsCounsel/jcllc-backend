@@ -1149,34 +1149,43 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     }
 
     // Push to Clio Grow
-    try {
-      await createClioLead(formData, submissionType, leadScore);
-    } catch (e) {
-      console.error('❌ Clio Grow failed:', e.message);
-    }
+try {
+  if (CLIO_GROW_INBOX_TOKEN) {
+    const clioPayload = {
+      inbox_lead: {
+        from_first: formData.firstName || '',
+        from_last: formData.lastName || '',
+        from_email: formData.email || '',
+        from_phone: formData.phone || '',
+        from_message: `Estate Planning Lead (Score: ${leadScore.score}/100)
+Planning Goal: ${formData.planningGoal || 'Not specified'}
+Marital Status: ${formData.maritalStatus || 'Not specified'}
+Has Children: ${formData.hasChildren || 'No'}
+Estate Value: ${formData.grossEstate || 'Not specified'}
+Package Preference: ${formData.packagePreference || 'Not specified'}`,
+        referring_url: req.headers.referer || 'https://jacobscounsellaw.com/estate-planning',
+        from_source: 'Estate Planning Intake'
+      },
+      inbox_lead_token: CLIO_GROW_INBOX_TOKEN
+    };
 
-    // Client confirmation
-    if (formData.email) {
-      console.log('📧 ESTATE: Attempting to send client email to:', formData.email);
-      try {
-        const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore.score);
-        if (!clientEmailHtml) {
-          throw new Error('Failed to generate email HTML');
-        }
-        await sendEnhancedEmail({
-          to: [formData.email, INTAKE_NOTIFY_TO],
-          subject: 'Jacobs Counsel — Your Estate Planning Intake & Next Steps',
-          html: clientEmailHtml
-        });
-        console.log('✅ ESTATE: Client confirmation sent to:', formData.email);
-      } catch (e) {
-        console.error('❌ ESTATE: Client email failed for', formData.email);
-        console.error('❌ ESTATE: Error details:', e.message);
-        console.error('❌ ESTATE: Full error:', e);
-      }
+    const clioResponse = await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(clioPayload)
+    });
+
+    if (clioResponse.ok) {
+      console.log('✅ Pushed to Clio Grow');
     } else {
-      console.error('❌ ESTATE: NO EMAIL - Cannot send client confirmation');
+      const errorText = await clioResponse.text();
+      console.error('❌ Clio Grow failed:', errorText);
     }
+  }
+} catch (e) {
+  // THIS IS THE FIX - use e.message instead of undefined "message"
+  console.error('❌ Clio Grow failed:', e.message || 'Unknown error');
+}
 
     res.json({ 
       ok: true, 

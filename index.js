@@ -1734,6 +1734,122 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
  }
 });
 
+// ADD THESE TWO NEW ENDPOINTS HERE:
+
+// Primary Guide Download Endpoint
+app.post('/download-primary-guide', async (req, res) => {
+  try {
+    const formData = req.body;
+    const submissionId = `guide-primary-${Date.now()}`;
+    const submissionType = 'legal-guide-download';
+
+    console.log(`📥 Primary guide download:`, formData.email);
+
+    // Calculate lead score
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+
+    // Send internal alert
+    const alertRecipients = leadScore.score >= 70 
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
+      : [INTAKE_NOTIFY_TO];
+
+    const internalSubject = `📖 Primary Guide Download — ${formData.name} (${formData.email}) — Score: ${leadScore.score}`;
+    
+    try {
+      await sendEnhancedEmail({
+        to: alertRecipients,
+        subject: internalSubject,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal'
+      });
+      console.log('✅ Internal alert sent');
+    } catch (e) {
+      console.error('❌ Internal email failed:', e.message);
+    }
+
+    // Add to Smart Mailchimp
+    try {
+      await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Added to Smart Mailchimp automation');
+    } catch (e) {
+      console.error('❌ Mailchimp failed:', e.message);
+    }
+
+    // Push to Clio Grow
+    try {
+      await createClioLead(formData, submissionType, leadScore);
+    } catch (e) {
+      console.error('❌ Clio Grow failed:', e.message);
+    }
+
+    // Send client confirmation email
+    if (formData.email) {
+      try {
+        const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+        await sendEnhancedEmail({
+          to: [formData.email, INTAKE_NOTIFY_TO],
+          subject: 'Your Legal Strategy Guide + Next Steps - Jacobs Counsel',
+          html: clientEmailHtml
+        });
+        console.log('✅ Client confirmation sent');
+      } catch (e) {
+        console.error('❌ Client email failed:', e.message);
+      }
+    }
+
+    res.json({ 
+      ok: true, 
+      submissionId, 
+      leadScore: leadScore.score,
+      message: 'Guide download processed successfully'
+    });
+
+  } catch (error) {
+    console.error('💥 Primary guide download error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Specialized Guide Download Endpoint
+app.post('/download-specialized-guide', async (req, res) => {
+  try {
+    const { guideType, guideName, pdfUrl, timestamp } = req.body;
+    const submissionId = `guide-${guideType}-${Date.now()}`;
+
+    console.log(`📥 Specialized guide download: ${guideType}`);
+
+    // Send internal notification
+    try {
+      await sendEnhancedEmail({
+        to: [INTAKE_NOTIFY_TO],
+        subject: `📖 Specialized Guide Download: ${guideName}`,
+        html: `
+          <h2>Specialized Guide Downloaded</h2>
+          <p><strong>Guide:</strong> ${guideName}</p>
+          <p><strong>Type:</strong> ${guideType}</p>
+          <p><strong>PDF URL:</strong> <a href="${pdfUrl}">${pdfUrl}</a></p>
+          <p><strong>Time:</strong> ${timestamp}</p>
+          <p><strong>Submission ID:</strong> ${submissionId}</p>
+        `
+      });
+      console.log('✅ Internal notification sent');
+    } catch (e) {
+      console.error('❌ Internal email failed:', e.message);
+    }
+
+    res.json({ 
+      ok: true, 
+      submissionId,
+      message: 'Specialized guide download tracked'
+    });
+
+  } catch (error) {
+    console.error('💥 Specialized guide download error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Add this new endpoint right after your other endpoints
 app.post('/api/analytics/conversion', async (req, res) => {
   try {

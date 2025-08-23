@@ -178,10 +178,6 @@ app.post('/api/generate-document', async (req, res) => {
     }
 });
 
-import express from 'express';
-import cors from 'cors';
-import multer from 'multer';
-
 // ==================== CONFIGURATION ====================
 const PORT = process.env.PORT || 3000;
 

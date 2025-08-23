@@ -56,13 +56,14 @@ function calculateLeadScore(formData, submissionType) {
   let scoreFactors = [];
 
   // Base score by submission type
-  const baseScores = {
-    'estate-intake': 40,
-    'business-formation': 50,
-    'brand-protection': 35,
-    'outside-counsel': 45,
-    'legal-guide-download': 30
-  };
+const baseScores = {
+  'estate-intake': 40,
+  'business-formation': 50,
+  'brand-protection': 35,
+  'outside-counsel': 45,
+  'legal-guide-download': 30,
+  'legal-strategy-builder': 55  // ✅ ADD THIS LINE
+};
   score += baseScores[submissionType] || 30;
   scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
 
@@ -1376,6 +1377,92 @@ app.post('/outside-counsel', async (req, res) => {
       success: false,
       error: 'Failed to process outside counsel request'
     });
+  }
+});
+
+// ✅ ADD THIS NEW ENDPOINT RIGHT HERE:
+// Legal Strategy Builder Endpoint
+app.post('/legal-strategy-builder', async (req, res) => {
+  try {
+    const formData = req.body;
+    const submissionId = `strategy-${Date.now()}`;
+    const submissionType = 'legal-strategy-builder';
+
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    // Calculate lead score based on assessment answers
+    const leadScore = calculateLeadScore(formData, submissionType);
+    console.log(`📊 Lead score: ${leadScore.score}/100`);
+
+    // AI Analysis
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+
+    // Send internal alert
+    const alertRecipients = leadScore.score >= 70 
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
+      : [INTAKE_NOTIFY_TO];
+
+    const internalSubject = `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Legal Strategy Assessment — ${formData.email} (Score: ${leadScore.score})`;
+    
+    try {
+      await sendEnhancedEmail({
+        to: alertRecipients,
+        subject: internalSubject,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal'
+      });
+      console.log('✅ Internal alert sent');
+    } catch (e) {
+      console.error('❌ Internal email failed:', e.message);
+    }
+
+    // Add to Smart Mailchimp
+    try {
+      await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Added to Smart Mailchimp automation');
+    } catch (e) {
+      console.error('❌ Mailchimp failed:', e.message);
+    }
+
+    // Create Motion project for high-value leads
+    try {
+      await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
+    } catch (e) {
+      console.error('❌ Motion integration failed:', e.message);
+    }
+
+    // Push to Clio Grow
+    try {
+      await createClioLead(formData, submissionType, leadScore);
+    } catch (e) {
+      console.error('❌ Clio Grow failed:', e.message);
+    }
+
+    // Send client confirmation email
+    if (formData.email) {
+      try {
+        const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+        await sendEnhancedEmail({
+          to: [formData.email, INTAKE_NOTIFY_TO],
+          subject: 'Your Legal Strategy Assessment Results - Jacobs Counsel',
+          html: clientEmailHtml
+        });
+        console.log('✅ Client confirmation sent');
+      } catch (e) {
+        console.error('❌ Client email failed:', e.message);
+      }
+    }
+
+    res.json({ 
+      ok: true, 
+      submissionId,
+      leadScore: leadScore.score,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis
+    });
+
+  } catch (error) {
+    console.error('💥 Legal Strategy Builder error:', error);
+    res.status(500).json({ ok: false, error: error.message });
   }
 });
 

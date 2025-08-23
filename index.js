@@ -1306,7 +1306,7 @@ app.post('/outside-counsel', async (req, res) => {
     const leadScore = calculateLeadScore(formData, submissionType);
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
-    // Send internal alert
+   // Send internal alert
     const alertRecipients = leadScore.score >= 70 
       ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
       : [INTAKE_NOTIFY_TO];
@@ -1322,107 +1322,150 @@ app.post('/outside-counsel', async (req, res) => {
       });
       console.log('✅ Internal alert sent');
     } catch (e) {
-console.error('❌ Internal email failed:', e.message);
-}
-      // Smart Mailchimp and other integrations
-try {
-  await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
-  console.log('✅ Added to Smart Mailchimp automation');
-} catch (e) {
-  console.error('❌ Mailchimp failed:', e.message);
-}try {
-  await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
-  console.log('✅ Motion project created');
-} catch (e) {
-  console.error('❌ Motion integration failed:', e.message);
-}// Push to Clio Grow
-try {
-  await createClioLead(formData, submissionType, leadScore);
-} catch (e) {
-  console.error('❌ Clio Grow failed:', e.message);
-}// Client confirmation
-if (formData.email) {
-  try {
-    const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
-    await sendEnhancedEmail({
-      to: [formData.email, INTAKE_NOTIFY_TO],
-      subject: 'Jacobs Counsel — Your Outside Counsel Request & Next Steps',
-      html: clientEmailHtml
-    });
-    console.log('✅ Client confirmation sent');
-  } catch (e) {
-    console.error('❌ Client email failed:', e.message);
-  }
-}res.json({
-  success: true,
-  submissionId: submissionId,
-  leadScore: leadScore.score,
-  aiAnalysisAvailable: !!aiAnalysis?.analysis,
-  message: 'Outside counsel request submitted successfully'
-});} catch (error) {
-console.error('💥 Outside counsel intake error:', error);
-res.status(500).json({
-success: false,
-error: 'Failed to process outside counsel request'
-});
-}
-});// Lead Magnet Subscriber Endpoint
-app.post('/add-subscriber', async (req, res) => {
-try {
-const { email, source, tags = [], merge_fields = {} } = req.body;if (!email || !MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
-  return res.status(400).json({ ok: false, error: 'Missing required data' });
-}console.log(`📧 New subscriber: ${email} from ${source}`);const memberData = {
-  email_address: email,
-  status: 'subscribed',
-  tags: [...tags, source, `date-${new Date().toISOString().split('T')[0]}`],
-  merge_fields: {
-    LEAD_SOURCE: source,
-    SIGNUP_DATE: new Date().toISOString(),
-    ...merge_fields
-  }
-};const response = await fetch(
-  `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
-  {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(memberData)
-  }
-);if (response.status === 400) {
-  const crypto = await import('crypto');
-  const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');  await fetch(
-    `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        tags: tags.map(tag => ({ name: tag, status: 'active' }))
-      })
+      console.error('❌ Internal email failed:', e.message);
     }
-  );  console.log('✅ Updated existing subscriber tags');
-} else {
-  console.log('✅ New subscriber added to Mailchimp');
-}res.json({ ok: true, message: 'Subscriber added successfully' });} catch (error) {
-console.error('❌ Mailchimp subscription error:', error);
-res.status(500).json({ ok: false, error: 'Subscription failed' });
-}
-});// Legal Guide Download Endpoint
+
+    // Smart Mailchimp and other integrations
+    try {
+      await addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Added to Smart Mailchimp automation');
+    } catch (e) {
+      console.error('❌ Mailchimp failed:', e.message);
+    }
+
+    try {
+      await createMotionProject(formData, leadScore, submissionType, aiAnalysis);
+      console.log('✅ Motion project created');
+    } catch (e) {
+      console.error('❌ Motion integration failed:', e.message);
+    }
+
+    // Push to Clio Grow
+    try {
+      await createClioLead(formData, submissionType, leadScore);
+    } catch (e) {
+      console.error('❌ Clio Grow failed:', e.message);
+    }
+
+    // Client confirmation
+    if (formData.email) {
+      try {
+        const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+        await sendEnhancedEmail({
+          to: [formData.email, INTAKE_NOTIFY_TO],
+          subject: 'Jacobs Counsel — Your Outside Counsel Request & Next Steps',
+          html: clientEmailHtml
+        });
+        console.log('✅ Client confirmation sent');
+      } catch (e) {
+        console.error('❌ Client email failed:', e.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      submissionId: submissionId,
+      leadScore: leadScore.score,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis,
+      message: 'Outside counsel request submitted successfully'
+    });
+    
+  } catch (error) {
+    console.error('💥 Outside counsel intake error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process outside counsel request'
+    });
+  }
+});
+
+// Lead Magnet Subscriber Endpoint
+app.post('/add-subscriber', async (req, res) => {
+  try {
+    const { email, source, tags = [], merge_fields = {} } = req.body;
+    
+    if (!email || !MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
+      return res.status(400).json({ ok: false, error: 'Missing required data' });
+    }
+    
+    console.log(`📧 New subscriber: ${email} from ${source}`);
+    
+    const memberData = {
+      email_address: email,
+      status: 'subscribed',
+      tags: [...tags, source, `date-${new Date().toISOString().split('T')[0]}`],
+      merge_fields: {
+        LEAD_SOURCE: source,
+        SIGNUP_DATE: new Date().toISOString(),
+        ...merge_fields
+      }
+    };
+    
+    const response = await fetch(
+      `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(memberData)
+      }
+    );
+    
+    if (response.status === 400) {
+      const crypto = await import('crypto');
+      const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+      
+      await fetch(
+        `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            tags: tags.map(tag => ({ name: tag, status: 'active' }))
+          })
+        }
+      );
+      
+      console.log('✅ Updated existing subscriber tags');
+    } else {
+      console.log('✅ New subscriber added to Mailchimp');
+    }
+    
+    res.json({ ok: true, message: 'Subscriber added successfully' });
+    
+  } catch (error) {
+    console.error('❌ Mailchimp subscription error:', error);
+    res.status(500).json({ ok: false, error: 'Subscription failed' });
+  }
+});
+
+// Legal Guide Download Endpoint
 app.post('/legal-guide', upload.none(), async (req, res) => {
-try {
-console.log('📖 Legal guide request:', req.body);const { email, firstName, source = 'legal-guide-download', referringUrl } = req.body;if (!email) {
-  return res.status(400).json({ success: false, error: 'Email required' });
-}const submissionId = `guide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-const name = firstName || email.split('@')[0];const pdfUrl = process.env.LEGAL_GUIDE_PDF_URL;
-if (!pdfUrl) {
-  console.error('❌ LEGAL_GUIDE_PDF_URL not set');
-  return res.status(500).json({ success: false, error: 'PDF not configured' });
-}const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
-const clientHtml = `
+  try {
+    console.log('📖 Legal guide request:', req.body);
+    
+    const { email, firstName, source = 'legal-guide-download', referringUrl } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email required' });
+    }
+    
+    const submissionId = `guide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const name = firstName || email.split('@')[0];
+    
+    const pdfUrl = process.env.LEGAL_GUIDE_PDF_URL;
+    if (!pdfUrl) {
+      console.error('❌ LEGAL_GUIDE_PDF_URL not set');
+      return res.status(500).json({ success: false, error: 'PDF not configured' });
+    }
+
+    const clientSubject = 'Your Free Legal Strategy Guide - Jacobs Counsel';
+    const clientHtml = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -1431,204 +1474,288 @@ const clientHtml = `
     <title>Your Legal Strategy Guide</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">    <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
-        <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
-    </div>    <div style="padding: 40px 30px;">
-        <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>        <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
-            Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
-        </p>        <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
-            <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
-            <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
-               📥 DOWNLOAD YOUR GUIDE NOW
-           </a>
-           <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
-       </div>       <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
-           <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
-           <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
-               This guide gives you the framework. Now let's build your specific legal strategy.
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        
+        <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Your Legal Strategy Guide</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.95;">Protect Your Dreams, Maximize Your Impact, Grow Smart</p>
+        </div>
+        
+        <div style="padding: 40px 30px;">
+            <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${name}!</h2>
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 30px; font-size: 16px;">
+                Thank you for downloading our <strong>Legal Strategy Guide</strong>! This comprehensive resource will help you protect what you build and scale something lasting.
+            </p>
+            
+            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; background: #f8fafc; border-radius: 12px; border: 3px solid #ff4d00;">
+                <h3 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 20px; font-weight: 700;">🎯 YOUR GUIDE IS READY</h3>
+                <a href="${pdfUrl}" style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: #ffffff; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+                   📥 DOWNLOAD YOUR GUIDE NOW
+               </a>
+               <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">Click the button above to download your free PDF guide</p>
+           </div>
+           
+           <div style="background: #f1f5f9; padding: 30px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0; text-align: center;">
+               <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">Ready to Take Action?</h3>
+               <p style="color: #475569; margin: 0 0 20px 0; line-height: 1.5; font-size: 16px;">
+                   This guide gives you the framework. Now let's build your specific legal strategy.
+               </p>
+               <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
+                   📅 Book Your Free Legal Edge Call
+               </a>
+           </div>
+           
+           <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
+               Best regards,<br>
+               <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
+               Jacobs Counsel LLC<br>
+               <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">drew@jacobscounsellaw.com</a>
            </p>
-           <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" style="background: #ff4d00; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);">
-               📅 Book Your Free Legal Edge Call
-           </a>
-       </div>       <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
-           Best regards,<br>
-           <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
-           Jacobs Counsel LLC<br>
-           <a href="mailto:drew@jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">drew@jacobscounsellaw.com</a>
-       </p>
-   </div>   <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
-       <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
-           This email does not create an attorney-client relationship.<br>
-           If you can't see the download button, <a href="${pdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
-       </p>
-   </div>
+       </div>
+       
+       <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
+           <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.4;">
+               This email does not create an attorney-client relationship.<br>
+               If you can't see the download button, <a href="${pdfUrl}" style="color: #ff4d00;">click here to download your guide</a>.
+           </p>
+       </div>
    </div>
 </body>
-</html>`;// Send guide email
-try {
-console.log('📧 Sending guide to', email);
-await sendEnhancedEmail({
-to: [email],
-subject: clientSubject,
-html: clientHtml
+</html>`;
+
+   // Send guide email
+   try {
+     console.log('📧 Sending guide to', email);
+     await sendEnhancedEmail({
+       to: [email],
+       subject: clientSubject,
+       html: clientHtml
+     });
+     console.log('✅ Client email sent');
+   } catch (e) {
+     console.error('❌ Client mail failed:', e.message);
+   }
+
+   // Send internal notification
+   try {
+     const adminSubject = `🎯 New Legal Guide Download: ${name}`;
+     const adminHtml = `<h2>New Legal Guide Download</h2><p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p><p><strong>Source:</strong> ${source}</p><p><strong>Time:</strong> ${new Date().toLocaleString()}</p>`;
+     
+     await sendEnhancedEmail({
+       to: [INTAKE_NOTIFY_TO],
+       subject: adminSubject,
+       html: adminHtml
+     });
+     console.log('✅ Internal notification sent');
+   } catch (e) {
+     console.error('❌ Internal mail failed:', e.message);
+   }
+
+   // Add to Mailchimp
+   try {
+     const leadScore = calculateLeadScore({ email, firstName: name }, 'legal-guide-download');
+     await addToMailchimpWithAutomation(
+       { email, firstName: name }, 
+       leadScore, 
+       'legal-guide-download', 
+       null
+     );
+     console.log('✅ Added to Mailchimp');
+   } catch (e) {
+     console.error('❌ Mailchimp failed:', e.message);
+   }
+
+   res.json({ success: true, message: 'Guide sent successfully!', submissionId });
+
+ } catch (err) {
+   console.error('💥 Legal guide error:', err);
+   res.status(500).json({ success: false, error: err.message });
+ }
 });
-console.log('✅ Client email sent');
-} catch (e) {
-console.error('❌ Client mail failed:', e.message);
-}// Send internal notification
-try {
-const adminSubject = 🎯 New Legal Guide Download: ${name};
-const adminHtml = <h2>New Legal Guide Download</h2><p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p><p><strong>Source:</strong> ${source}</p><p><strong>Time:</strong> ${new Date().toLocaleString()}</p>; await sendEnhancedEmail({
-   to: [INTAKE_NOTIFY_TO],
-   subject: adminSubject,
-   html: adminHtml
- });
- console.log('✅ Internal notification sent');
-} catch (e) {
-console.error('❌ Internal mail failed:', e.message);
-}// Add to Mailchimp
-try {
-const leadScore = calculateLeadScore({ email, firstName: name }, 'legal-guide-download');
-await addToMailchimpWithAutomation(
-{ email, firstName: name },
-leadScore,
-'legal-guide-download',
-null
-);
-console.log('✅ Added to Mailchimp');
-} catch (e) {
-console.error('❌ Mailchimp failed:', e.message);
-}res.json({ success: true, message: 'Guide sent successfully!', submissionId });} catch (err) {
-console.error('💥 Legal guide error:', err);
-res.status(500).json({ success: false, error: err.message });
-}
-});// ==================== ADVANCED AI ENDPOINTS ====================// Conversational intake endpoint
+
+// ==================== ADVANCED AI ENDPOINTS ====================
+
+// Conversational intake endpoint
 app.post('/api/chat-intake', async (req, res) => {
-try {
-const { sessionId, message, context } = req.body;const result = await createConversationalIntake(sessionId, message, context || []);// If we have enough data, create a lead
-if (result.extractedData?.email) {
-  const leadScore = calculateLeadScore(result.extractedData, 'chat-intake');
-  await addToMailchimpWithAutomation(result.extractedData, leadScore, 'chat-intake', null);
-  await createClioLead(result.extractedData, 'chat-intake', leadScore);
-}res.json({
-  success: true,
-  response: result.response,
-  extractedData: result.extractedData,
-  sessionId: sessionId || `chat-${Date.now()}`
-});} catch (error) {
-console.error('Chat intake error:', error);
-res.status(500).json({ success: false, error: error.message });
-}
-});// Document generation endpoint
-app.post('/api/generate-document', async (req, res) => {
-try {
-const { documentType, clientData } = req.body;const result = await generateLegalDocument(documentType, clientData);if (result.error) {
-  return res.status(400).json({ success: false, error: result.error });
-}// Log document generation
-console.log(`📄 Generated ${documentType} for ${clientData.name || 'client'}`);// Send notification
-if (clientData.email) {
-  await sendEnhancedEmail({
-    to: [clientData.email],
-    subject: `Your ${documentType} Draft - Jacobs Counsel`,
-    html: `
-      <h2>Your Document is Ready</h2>
-      <p>We've prepared your ${documentType} draft.</p>
-      <p><strong>Important:</strong> This is a draft and requires attorney review.</p>
-      <pre style="background: #f5f5f5; padding: 20px; border-radius: 8px;">
-        ${result.document}
-      </pre>
-      <p><a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm">Schedule Review Call</a></p>
-    `
-  });
-}res.json({
-  success: true,
-  documentId: result.documentId,
-  document: result.document
-});} catch (error) {
-console.error('Document generation error:', error);
-res.status(500).json({ success: false, error: error.message });
-}
-});// Client lifetime value prediction endpoint
-app.post('/api/predict-clv', async (req, res) => {
-try {
-const { formData } = req.body;const leadScore = calculateLeadScore(formData, 'clv-check');
-const aiAnalysis = await analyzeIntakeWithAI(formData, 'clv-check', leadScore);
-const clvPrediction = await predictClientLifetimeValue(formData, aiAnalysis);res.json({
-  success: true,
-  leadScore: leadScore.score,
-  prediction: clvPrediction
-});} catch (error) {
-console.error('CLV prediction error:', error);
-res.status(500).json({ success: false, error: error.message });
-}
-});// Smart form analytics
-app.post('/api/analytics/form-event', async (req, res) => {
-const { event, formType, step, data } = req.body;// Log the event
-console.log(`📊 Form Event: ${event} - ${formType} - Step ${step}`);// Store in analytics (you can add a database later)
-const analytics = {
-    event,
-    formType,
-    step,
-    timestamp: new Date().toISOString(),
-    data
-};// If it's an abandonment, trigger recovery
-if (event === 'abandoned') {
-    await triggerAbandonmentRecovery(data.email, formType, step);
-}res.json({ received: true });
-});// Smart form recovery
-async function triggerAbandonmentRecovery(email, formType, lastStep) {
-if (!email) return;// Wait 1 hour then send recovery email
-setTimeout(async () => {
-    const recoveryLink = `https://jacobscounsellaw.com/${formType}?recover=true`;    await sendEnhancedEmail({
-        to: [email],
-        subject: 'Complete Your Legal Consultation Request',
-        html: `
-            <h2>You're almost done!</h2>
-            <p>We noticed you didn't finish your ${formType} request.</p>
-            <p>Your progress has been saved. Click below to complete:</p>
-            <a href="${recoveryLink}" style="background: #ff4d00; 
-               color: white; padding: 16px 32px; 
-               text-decoration: none; border-radius: 8px; 
-               display: inline-block;">
-                Complete My Request →
-            </a>
-        `
+  try {
+    const { sessionId, message, context } = req.body;
+    
+    const result = await createConversationalIntake(sessionId, message, context || []);
+    
+    // If we have enough data, create a lead
+    if (result.extractedData?.email) {
+      const leadScore = calculateLeadScore(result.extractedData, 'chat-intake');
+      await addToMailchimpWithAutomation(result.extractedData, leadScore, 'chat-intake', null);
+      await createClioLead(result.extractedData, 'chat-intake', leadScore);
+    }
+    
+    res.json({
+      success: true,
+      response: result.response,
+      extractedData: result.extractedData,
+      sessionId: sessionId || `chat-${Date.now()}`
     });
-}, 3600000); // 1 hour
-}// ==================== ERROR HANDLING ====================app.use((err, req, res, next) => {
-if (err && err.code) {
-if (err.code === 'LIMIT_FILE_SIZE') {
-return res.status(413).json({
-ok: false,
-error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).'
+    
+  } catch (error) {
+    console.error('Chat intake error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
-}
-if (err.code === 'LIMIT_FILE_COUNT') {
-return res.status(413).json({
-ok: false,
-error: 'Too many files (max 15). Remove some and try again.'
+
+// Document generation endpoint
+app.post('/api/generate-document', async (req, res) => {
+  try {
+    const { documentType, clientData } = req.body;
+    
+    const result = await generateLegalDocument(documentType, clientData);
+    
+    if (result.error) {
+      return res.status(400).json({ success: false, error: result.error });
+    }
+    
+    // Log document generation
+    console.log(`📄 Generated ${documentType} for ${clientData.name || 'client'}`);
+    
+    // Send notification
+    if (clientData.email) {
+      await sendEnhancedEmail({
+        to: [clientData.email],
+        subject: `Your ${documentType} Draft - Jacobs Counsel`,
+        html: `
+          <h2>Your Document is Ready</h2>
+          <p>We've prepared your ${documentType} draft.</p>
+          <p><strong>Important:</strong> This is a draft and requires attorney review.</p>
+          <pre style="background: #f5f5f5; padding: 20px; border-radius: 8px;">
+            ${result.document}
+          </pre>
+          <p><a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm">Schedule Review Call</a></p>
+        `
+      });
+    }
+    
+    res.json({
+      success: true,
+      documentId: result.documentId,
+      document: result.document
+    });
+    
+  } catch (error) {
+    console.error('Document generation error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
-}
-if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-return res.status(400).json({
-ok: false,
-error: 'Unexpected file field. Please use the file picker in the form.'
+
+// Client lifetime value prediction endpoint
+app.post('/api/predict-clv', async (req, res) => {
+  try {
+    const { formData } = req.body;
+    
+    const leadScore = calculateLeadScore(formData, 'clv-check');
+    const aiAnalysis = await analyzeIntakeWithAI(formData, 'clv-check', leadScore);
+    const clvPrediction = await predictClientLifetimeValue(formData, aiAnalysis);
+    
+    res.json({
+      success: true,
+      leadScore: leadScore.score,
+      prediction: clvPrediction
+    });
+    
+  } catch (error) {
+    console.error('CLV prediction error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
-}
-}
-console.error('Unhandled error:', err);
-res.status(500).json({
-ok: false,
-error: 'Server error. Please try again or contact us directly.'
+
+// Smart form analytics
+app.post('/api/analytics/form-event', async (req, res) => {
+    const { event, formType, step, data } = req.body;
+    
+    // Log the event
+    console.log(`📊 Form Event: ${event} - ${formType} - Step ${step}`);
+    
+    // Store in analytics (you can add a database later)
+    const analytics = {
+        event,
+        formType,
+        step,
+        timestamp: new Date().toISOString(),
+        data
+    };
+    
+    // If it's an abandonment, trigger recovery
+    if (event === 'abandoned') {
+        await triggerAbandonmentRecovery(data.email, formType, step);
+    }
+    
+    res.json({ received: true });
 });
-});// ==================== SERVER STARTUP ====================app.listen(PORT, () => {
-console.log(🚀 Jacobs Counsel POWERHOUSE System running on port ${PORT});
-console.log(📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Conversational AI, Document Generation, CLV Prediction);
-console.log(📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'});
-console.log(🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'});
-console.log(📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'});
-console.log(⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'});
-console.log(⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'});
-console.log(🎯 POWERHOUSE MODE: ACTIVATED);
+
+// Smart form recovery
+async function triggerAbandonmentRecovery(email, formType, lastStep) {
+    if (!email) return;
+    
+    // Wait 1 hour then send recovery email
+    setTimeout(async () => {
+        const recoveryLink = `https://jacobscounsellaw.com/${formType}?recover=true`;
+        
+        await sendEnhancedEmail({
+            to: [email],
+            subject: 'Complete Your Legal Consultation Request',
+            html: `
+                <h2>You're almost done!</h2>
+                <p>We noticed you didn't finish your ${formType} request.</p>
+                <p>Your progress has been saved. Click below to complete:</p>
+                <a href="${recoveryLink}" style="background: #ff4d00; 
+                   color: white; padding: 16px 32px; 
+                   text-decoration: none; border-radius: 8px; 
+                   display: inline-block;">
+                    Complete My Request →
+                </a>
+            `
+        });
+    }, 3600000); // 1 hour
+}
+
+// ==================== ERROR HANDLING ====================
+
+app.use((err, req, res, next) => {
+ if (err && err.code) {
+   if (err.code === 'LIMIT_FILE_SIZE') {
+     return res.status(413).json({ 
+       ok: false, 
+       error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).' 
+     });
+   }
+   if (err.code === 'LIMIT_FILE_COUNT') {
+     return res.status(413).json({ 
+       ok: false, 
+       error: 'Too many files (max 15). Remove some and try again.' 
+     });
+   }
+   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+     return res.status(400).json({ 
+       ok: false, 
+       error: 'Unexpected file field. Please use the file picker in the form.' 
+     });
+   }
+ }
+ console.error('Unhandled error:', err);
+ res.status(500).json({ 
+   ok: false, 
+   error: 'Server error. Please try again or contact us directly.' 
+ });
+});
+
+// ==================== SERVER STARTUP ====================
+
+app.listen(PORT, () => {
+  console.log(`🚀 Jacobs Counsel POWERHOUSE System running on port ${PORT}`);
+  console.log(`📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Conversational AI, Document Generation, CLV Prediction`);
+  console.log(`📧 Email: ${MS_GRAPH_SENDER ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`🤖 OpenAI: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`📮 Mailchimp: ${MAILCHIMP_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`⚡ Motion: ${MOTION_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`⚖️ Clio Grow: ${CLIO_GROW_INBOX_TOKEN ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`🎯 POWERHOUSE MODE: ACTIVATED`);
 });

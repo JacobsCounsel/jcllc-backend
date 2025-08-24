@@ -1455,6 +1455,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
     const leadScore = calculateLeadScore(formData, submissionType);
+    trackForFollowup(formData.email, formData, leadScore, submissionType);
     console.log(`📊 Lead score: ${leadScore.score}/100`);
 
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
@@ -1596,6 +1597,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
     const leadScore = calculateLeadScore(formData, submissionType);
+    trackForFollowup(formData.email, formData, leadScore, submissionType);
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
     const attachments = files
@@ -1723,6 +1725,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
     const leadScore = calculateLeadScore(formData, submissionType);
+    trackForFollowup(formData.email, formData, leadScore, submissionType);
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
     const attachments = files
@@ -1857,6 +1860,7 @@ app.post('/outside-counsel', async (req, res) => {
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
     const leadScore = calculateLeadScore(formData, submissionType);
+    trackForFollowup(formData.email, formData, leadScore, submissionType);
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
    // Send internal alert
@@ -1952,6 +1956,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
 
     // Calculate lead score based on assessment answers
     const leadScore = calculateLeadScore(formData, submissionType);
+    trackForFollowup(formData.email, formData, leadScore, submissionType);
     console.log(`📊 Lead score: ${leadScore.score}/100`);
 
     // AI Analysis
@@ -2279,6 +2284,7 @@ app.post('/download-primary-guide', async (req, res) => {
 
     // Calculate lead score
     const leadScore = calculateLeadScore(formData, submissionType);
+    trackForFollowup(formData.email, formData, leadScore, submissionType);
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
     // Send internal alert
@@ -2437,6 +2443,7 @@ app.post('/api/chat-intake', async (req, res) => {
     // If we have enough data, create a lead
     if (result.extractedData?.email) {
       const leadScore = calculateLeadScore(result.extractedData, 'chat-intake');
+      trackForFollowup(formData.email, formData, leadScore, submissionType);
       await addToMailchimpWithAutomation(result.extractedData, leadScore, 'chat-intake', null);
       await createClioLead(result.extractedData, 'chat-intake', leadScore);
     }

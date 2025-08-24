@@ -2064,6 +2064,211 @@ app.post('/legal-strategy-builder', async (req, res) => {
  }
 });
 
+// Newsletter Subscriber with AI Nurturing - ADD THIS NEW ENDPOINT
+app.post('/newsletter-subscriber-enhanced', async (req, res) => {
+  try {
+    const { email, source = 'newsletter' } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ ok: false, error: 'Email required' });
+    }
+    
+    const firstName = email.split('@')[0];
+    const submissionId = `newsletter-${Date.now()}`;
+    
+    // Create a low-score lead for gentle nurturing
+    const leadScore = { 
+      score: 30, 
+      factors: ['Newsletter subscriber: +30'] 
+    };
+    
+    // Track for special newsletter follow-up sequence
+    const formData = {
+      email: email,
+      firstName: firstName,
+      source: source,
+      newsletterSubscriber: true,
+      signupDate: new Date().toISOString()
+    };
+    
+    // Add to follow-up database with special newsletter flag
+    if (email) {
+      followupDatabase.set(email, {
+        submissionTime: Date.now(),
+        firstName: firstName,
+        serviceType: 'newsletter',
+        leadScore: 30,
+        formData: formData,
+        followupsSent: [],
+        mailchimpHandoffScheduled: false,
+        isNewsletter: true // Special flag for different nurture sequence
+      });
+      
+      console.log(`📧 Newsletter subscriber tracked for nurturing: ${email}`);
+    }
+    
+    // Add to Mailchimp with newsletter-specific tags
+    const newsletterTags = [
+      'newsletter-subscriber',
+      'trigger-welcome-series',
+      'nurture-awareness-stage',
+      `date-${new Date().toISOString().split('T')[0]}`
+    ];
+    
+    await addToMailchimpWithAutomation(
+      formData,
+      leadScore,
+      'newsletter',
+      null
+    );
+    
+    res.json({ 
+      ok: true, 
+      message: 'Newsletter subscription successful',
+      submissionId 
+    });
+    
+  } catch (error) {
+    console.error('Newsletter enhanced error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// MODIFY the existing runDailyFollowups function to handle newsletter subscribers differently
+// Find this function around line 250 and add this check:
+
+async function runDailyFollowups() {
+  const contactsToFollowUp = getContactsNeedingFollowup();
+  
+  for (const contact of contactsToFollowUp) {
+    try {
+      // Check if this is a newsletter subscriber
+      const isNewsletter = followupDatabase.get(contact.email)?.isNewsletter;
+      
+      let followupEmail;
+      if (isNewsletter) {
+        // Use gentler, educational follow-ups for newsletter subscribers
+        followupEmail = await generateNewsletterFollowup(contact);
+      } else {
+        // Use existing high-conversion follow-up for intake forms
+        followupEmail = await generateHighConversionFollowup(contact);
+      }
+      
+      const reviewId = `review-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+      pendingReviews.set(reviewId, {
+        contact,
+        email: followupEmail,
+        generated: new Date().toISOString()
+      });
+      
+      await sendFollowupForReview(contact, followupEmail, reviewId);
+      console.log(`📝 Generated follow-up for review: ${contact.email}`);
+    } catch (error) {
+      console.error(`❌ Follow-up generation failed for ${contact.email}:`, error);
+    }
+  }
+}
+
+// ADD this new function for newsletter-specific follow-ups
+async function generateNewsletterFollowup(contact) {
+  const dayPrompts = {
+    1: `Write a warm welcome email with one valuable legal tip they can use today. Be helpful, not salesy.`,
+    3: `Share a brief case study or success story relevant to entrepreneurs/families. Include one actionable insight.`,
+    7: `Educate about a common legal mistake and how to avoid it. Soft mention of your assessment tool.`,
+    14: `Share insider knowledge about legal protection. Include gentle CTA for free consultation.`,
+    30: `Check in with valuable content and stronger call to action for legal assessment.`
+  };
+
+  const newsletterPrompt = `You are Drew Jacobs, writing to a newsletter subscriber who is learning about legal protection.
+
+FOLLOW-UP DAY: ${contact.daysSinceSubmission}
+SUBSCRIBER: ${contact.firstName}
+EMAIL TYPE: Educational newsletter follow-up
+
+INSTRUCTIONS: ${dayPrompts[contact.daysSinceSubmission] || 'Write helpful, educational content.'}
+
+REQUIREMENTS:
+- Focus on VALUE and EDUCATION, not selling
+- Be warm and approachable
+- Maximum 150 words
+- Include one actionable tip or insight
+- Gentle CTA if appropriate for the day
+
+Write as a helpful advisor, not a salesperson.`;
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: [{ role: 'system', content: newsletterPrompt }],
+      temperature: 0.7,
+      max_tokens: 600
+    })
+  });
+
+  const result = await response.json();
+  return {
+    subject: generateNewsletterSubject(contact),
+    content: result.choices[0].message.content
+  };
+}
+
+// ADD this new function for newsletter subject lines
+function generateNewsletterSubject(contact) {
+  const subjects = {
+    1: `Welcome to Jacobs Counsel, ${contact.firstName}! Here's your first insider tip`,
+    3: `${contact.firstName}, how this founder saved $50K with one document`,
+    7: `The #1 legal mistake I see (and how you can avoid it)`,
+    14: `${contact.firstName}, are you making this protection mistake?`,
+    30: `Quick question about your legal protection, ${contact.firstName}`
+  };
+  
+  return subjects[contact.daysSinceSubmission] || `Legal tip for ${contact.firstName}`;
+}
+
+// MODIFY getContactsNeedingFollowup to use different schedule for newsletters
+function getContactsNeedingFollowup() {
+  const contacts = [];
+  const now = Date.now();
+  
+  followupDatabase.forEach((data, email) => {
+    const daysSince = Math.floor((now - data.submissionTime) / (1000 * 60 * 60 * 24));
+    
+    let schedule = [];
+    
+    // Different schedule for newsletter subscribers
+    if (data.isNewsletter) {
+      schedule = [1, 3, 7, 14, 30]; // Gentler, more spread out
+    } else if (data.leadScore >= 70) {
+      schedule = [1, 2, 4, 10];
+    } else if (data.leadScore >= 50) {
+      schedule = [1, 3, 8];
+    } else {
+      schedule = [2];
+    }
+    
+    const followupKey = `day-${daysSince}-followup`;
+    
+    if (schedule.includes(daysSince) && !data.followupsSent.includes(followupKey)) {
+      contacts.push({
+        email,
+        firstName: data.firstName,
+        serviceType: data.serviceType,
+        leadScore: data.leadScore,
+        formData: data.formData,
+        daysSinceSubmission: daysSince,
+        isNewsletter: data.isNewsletter
+      });
+    }
+  });
+  
+  return contacts;
+}
+
 // Lead Magnet Subscriber Endpoint
 app.post('/add-subscriber', async (req, res) => {
  try {

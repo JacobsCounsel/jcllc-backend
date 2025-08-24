@@ -152,7 +152,17 @@ async function runDailyFollowups() {
   
   for (const contact of contactsToFollowUp) {
     try {
-      const followupEmail = await generateHighConversionFollowup(contact);
+      // Check if this is a newsletter subscriber
+      const isNewsletter = followupDatabase.get(contact.email)?.isNewsletter;
+      
+      let followupEmail;
+      if (isNewsletter) {
+        // Use gentler, educational follow-ups for newsletter subscribers
+        followupEmail = await generateNewsletterFollowup(contact);
+      } else {
+        // Use existing high-conversion follow-up for intake forms
+        followupEmail = await generateHighConversionFollowup(contact);
+      }
       
       const reviewId = `review-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
       pendingReviews.set(reviewId, {
@@ -2133,41 +2143,6 @@ app.post('/newsletter-subscriber-enhanced', async (req, res) => {
     res.status(500).json({ ok: false, error: error.message });
   }
 });
-
-// MODIFY the existing runDailyFollowups function to handle newsletter subscribers differently
-// Find this function around line 250 and add this check:
-
-async function runDailyFollowups() {
-  const contactsToFollowUp = getContactsNeedingFollowup();
-  
-  for (const contact of contactsToFollowUp) {
-    try {
-      // Check if this is a newsletter subscriber
-      const isNewsletter = followupDatabase.get(contact.email)?.isNewsletter;
-      
-      let followupEmail;
-      if (isNewsletter) {
-        // Use gentler, educational follow-ups for newsletter subscribers
-        followupEmail = await generateNewsletterFollowup(contact);
-      } else {
-        // Use existing high-conversion follow-up for intake forms
-        followupEmail = await generateHighConversionFollowup(contact);
-      }
-      
-      const reviewId = `review-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-      pendingReviews.set(reviewId, {
-        contact,
-        email: followupEmail,
-        generated: new Date().toISOString()
-      });
-      
-      await sendFollowupForReview(contact, followupEmail, reviewId);
-      console.log(`📝 Generated follow-up for review: ${contact.email}`);
-    } catch (error) {
-      console.error(`❌ Follow-up generation failed for ${contact.email}:`, error);
-    }
-  }
-}
 
 // ADD this new function for newsletter-specific follow-ups
 async function generateNewsletterFollowup(contact) {

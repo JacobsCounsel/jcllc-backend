@@ -6,6 +6,7 @@ import cors from 'cors';
 import multer from 'multer';
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
+import cron from 'node-cron';
 
 // ==================== CONFIGURATION ====================
 const PORT = process.env.PORT || 3000;
@@ -46,6 +47,327 @@ app.use(express.urlencoded({ extended: true }));
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 15 * 1024 * 1024, files: 15 }
+});
+
+// ==================== AI FOLLOW-UP AUTOMATION SYSTEM ====================
+
+// Storage for tracking follow-ups
+let followupDatabase = new Map();
+let pendingReviews = new Map();
+
+// Daily follow-up generation at 8 AM EST
+cron.schedule('0 13 * * *', async () => {
+  console.log('🤖 Running daily AI follow-ups...');
+  await runDailyFollowups();
+});
+
+async function runDailyFollowups() {
+  const contactsToFollowUp = getContactsNeedingFollowup();
+  
+  for (const contact of contactsToFollowUp) {
+    try {
+      const followupEmail = await generateHighConversionFollowup(contact);
+      
+      const reviewId = `review-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+      pendingReviews.set(reviewId, {
+        contact,
+        email: followupEmail,
+        generated: new Date().toISOString()
+      });
+      
+      await sendFollowupForReview(contact, followupEmail, reviewId);
+      console.log(`📝 Generated follow-up for review: ${contact.email}`);
+    } catch (error) {
+      console.error(`❌ Follow-up generation failed for ${contact.email}:`, error);
+    }
+  }
+}
+
+async function generateHighConversionFollowup(contact) {
+  const dayPrompts = {
+    1: `Write immediate, personalized response showing you've reviewed their submission. Be helpful, demonstrate expertise.`,
+    2: `Write strategic follow-up with specific insights they haven't considered. Position as strategic partner.`,
+    4: `Write timeline-focused follow-up creating appropriate urgency based on their situation.`,
+    10: `Write final value-add touchpoint with helpful insight and clear consultation offer.`
+  };
+
+  const conversionPrompt = `You are Drew Jacobs, former D1 athlete turned attorney helping entrepreneurs, athletes, and creators.
+
+FOLLOW-UP DAY: ${contact.daysSinceSubmission}
+CONTACT: ${contact.firstName}
+SERVICE: ${contact.serviceType}
+LEAD SCORE: ${contact.leadScore}/100
+THEIR SUBMISSION: ${JSON.stringify(contact.formData, null, 2)}
+
+INSTRUCTIONS: ${dayPrompts[contact.daysSinceSubmission] || 'Write helpful follow-up.'}
+
+REQUIREMENTS:
+- Reference their SPECIFIC situation 
+- Demonstrate expertise through insights
+- Be authentic, not sales-y
+- Maximum 150 words
+- End with clear call-to-action
+
+Write as personal note from someone who genuinely wants to help.`;
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: [{ role: 'system', content: conversionPrompt }],
+      temperature: 0.6,
+      max_tokens: 600
+    })
+  });
+
+  const result = await response.json();
+  return {
+    subject: generateDaySpecificSubject(contact),
+    content: result.choices[0].message.content
+  };
+}
+
+function generateDaySpecificSubject(contact) {
+  const subjects = {
+    1: `${contact.firstName}, insights on your ${contact.serviceType.replace('-', ' ')} inquiry`,
+    2: `Strategic considerations for your situation`,
+    4: `Timeline considerations for ${contact.firstName}`,
+    10: `Final thoughts on your ${contact.serviceType.replace('-', ' ')} matter`
+  };
+  
+  return subjects[contact.daysSinceSubmission] || `Follow-up on your legal inquiry`;
+}
+
+function getContactsNeedingFollowup() {
+  const contacts = [];
+  const now = Date.now();
+  
+  followupDatabase.forEach((data, email) => {
+    const daysSince = Math.floor((now - data.submissionTime) / (1000 * 60 * 60 * 24));
+    
+    let schedule = [];
+    if (data.leadScore >= 70) {
+      schedule = [1, 2, 4, 10];
+    } else if (data.leadScore >= 50) {
+      schedule = [1, 3, 8];
+    } else {
+      schedule = [2];
+    }
+    
+    const followupKey = `day-${daysSince}-followup`;
+    
+    if (schedule.includes(daysSince) && !data.followupsSent.includes(followupKey)) {
+      contacts.push({
+        email,
+        firstName: data.firstName,
+        serviceType: data.serviceType,
+        leadScore: data.leadScore,
+        formData: data.formData,
+        daysSinceSubmission: daysSince
+      });
+    }
+  });
+  
+  return contacts;
+}
+
+function trackForFollowup(email, formData, leadScore, submissionType) {
+  if (!email) return;
+  
+  followupDatabase.set(email, {
+    submissionTime: Date.now(),
+    firstName: formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there',
+    serviceType: submissionType,
+    leadScore: leadScore.score,
+    formData: formData,
+    followupsSent: [],
+    mailchimpHandoffScheduled: false
+  });
+  
+  console.log(`📊 Tracking for AI follow-up: ${email} (Score: ${leadScore.score})`);
+}
+
+async function markAsFollowedUp(email, followupType) {
+  const contact = followupDatabase.get(email);
+  if (!contact) return;
+  
+  contact.followupsSent.push(followupType);
+  followupDatabase.set(email, contact);
+  
+  const schedule = getOptimizedFollowupSchedule(contact.leadScore);
+  const completedDays = contact.followupsSent.map(f => parseInt(f.split('-')[1]));
+  const sequenceComplete = schedule.every(day => completedDays.includes(day));
+  
+  if (sequenceComplete && !contact.mailchimpHandoffScheduled) {
+    await automaticMailchimpHandoff(contact);
+  }
+}
+
+function getOptimizedFollowupSchedule(leadScore) {
+  if (leadScore >= 70) return [1, 2, 4, 10];
+  if (leadScore >= 50) return [1, 3, 8];
+  return [2];
+}
+
+async function automaticMailchimpHandoff(contact) {
+  try {
+    let handoffTag;
+    if (contact.leadScore >= 70) {
+      handoffTag = 'ai-to-premium-nurture';
+    } else if (contact.leadScore >= 50) {
+      handoffTag = 'ai-to-standard-nurture';
+    } else {
+      handoffTag = 'ai-to-newsletter-only';
+    }
+    
+    const hashedEmail = await hashEmail(contact.email);
+    const response = await fetch(
+      `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          tags: [{ name: handoffTag, status: 'active' }]
+        })
+      }
+    );
+    
+    if (response.ok) {
+      contact.mailchimpHandoffScheduled = true;
+      followupDatabase.set(contact.email, contact);
+      console.log(`✅ ${contact.email} handed off to Mailchimp: ${handoffTag}`);
+    }
+  } catch (error) {
+    console.error('❌ Handoff error:', error);
+  }
+}
+
+async function sendFollowupForReview(contact, followupEmail, reviewId) {
+  pendingReviews.set(reviewId, {
+    contact,
+    email: followupEmail,
+    generated: new Date().toISOString()
+  });
+
+  const reviewHTML = `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto;">
+        
+        <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+            <h2 style="color: #0369a1;">🤖 AI Follow-up Ready for Review</h2>
+            <p><strong>Contact:</strong> ${contact.firstName} (${contact.email})</p>
+            <p><strong>Service:</strong> ${contact.serviceType}</p>
+            <p><strong>Day:</strong> ${contact.daysSinceSubmission}</p>
+            <p><strong>Lead Score:</strong> ${contact.leadScore}/100</p>
+        </div>
+        
+        <div style="background: #fffbeb; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+            <h3>Proposed Email:</h3>
+            <p><strong>Subject:</strong> ${followupEmail.subject}</p>
+            <div style="background: white; padding: 16px; border: 1px solid #ddd; margin-top: 16px;">
+                ${followupEmail.content.replace(/\n/g, '<br>')}
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 32px 0;">
+            <a href="https://estate-intake-system.onrender.com/api/approve-followup?id=${reviewId}" 
+               style="background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 8px; font-weight: 600;">
+               ✅ APPROVE & SEND
+            </a>
+            <a href="https://estate-intake-system.onrender.com/api/reject-followup?id=${reviewId}" 
+               style="background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 8px; font-weight: 600;">
+               ❌ REJECT
+            </a>
+        </div>
+        
+    </div>
+</body>
+</html>`;
+
+  await sendEnhancedEmail({
+    to: [HIGH_VALUE_NOTIFY_TO],
+    subject: `🤖 Review Follow-up: ${contact.firstName} (Day ${contact.daysSinceSubmission})`,
+    html: reviewHTML
+  });
+}
+
+// Approval endpoints
+app.get('/api/approve-followup', async (req, res) => {
+  const { id } = req.query;
+  const review = pendingReviews.get(id);
+  
+  if (!review) {
+    return res.status(404).send('Review not found');
+  }
+  
+  try {
+    await sendEnhancedEmail({
+      to: [review.contact.email],
+      subject: review.email.subject,
+      html: formatFollowupHTML(review.email.content, review.contact)
+    });
+    
+    await markAsFollowedUp(review.contact.email, `day-${review.contact.daysSinceSubmission}-followup`);
+    pendingReviews.delete(id);
+    
+    res.send(`<h2>✅ Follow-up Approved & Sent</h2><p>Email sent to: ${review.contact.email}</p>`);
+  } catch (error) {
+    res.status(500).send('Failed to send email');
+  }
+});
+
+app.get('/api/reject-followup', async (req, res) => {
+  const { id } = req.query;
+  pendingReviews.delete(id);
+  res.send(`<h2>❌ Follow-up Rejected</h2><p>Email was not sent.</p>`);
+});
+
+function formatFollowupHTML(content, contact) {
+  const unsubscribeLink = `https://estate-intake-system.onrender.com/api/unsubscribe/${encodeURIComponent(contact.email)}`;
+  
+  return `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="border-left: 4px solid #ff4d00; padding-left: 20px;">
+        ${content.replace(/\n/g, '<br><br>')}
+    </div>
+    
+    <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 24px 0; text-align: center;">
+        <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
+           style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600;">
+           📅 Schedule Consultation
+        </a>
+    </div>
+    
+    <p style="font-size: 14px; color: #64748b; margin-top: 32px;">
+        Drew Jacobs, Esq. | Jacobs Counsel LLC<br>
+        <a href="${unsubscribeLink}" style="color: #94a3b8; font-size: 12px;">Unsubscribe</a>
+    </p>
+</body>
+</html>`;
+}
+
+// Unsubscribe endpoint
+app.get('/api/unsubscribe/:email', async (req, res) => {
+  const email = decodeURIComponent(req.params.email);
+  followupDatabase.delete(email);
+  
+  res.send(`
+    <div style="text-align: center; font-family: Arial; padding: 40px;">
+      <h2>✅ Unsubscribed Successfully</h2>
+      <p>You will no longer receive follow-up emails from Jacobs Counsel.</p>
+    </div>
+  `);
 });
 
 // ==================== AI-POWERED LEAD INTELLIGENCE ====================

@@ -238,6 +238,7 @@ function generateDaySpecificSubject(contact) {
   return subjects[contact.daysSinceSubmission] || `Follow-up on your legal inquiry`;
 }
 
+// MODIFY getContactsNeedingFollowup to use different schedule for newsletters
 function getContactsNeedingFollowup() {
   const contacts = [];
   const now = Date.now();
@@ -246,7 +247,11 @@ function getContactsNeedingFollowup() {
     const daysSince = Math.floor((now - data.submissionTime) / (1000 * 60 * 60 * 24));
     
     let schedule = [];
-    if (data.leadScore >= 70) {
+    
+    // Different schedule for newsletter subscribers
+    if (data.isNewsletter) {
+      schedule = [1, 3, 7, 14, 30]; // Gentler, more spread out
+    } else if (data.leadScore >= 70) {
       schedule = [1, 2, 4, 10];
     } else if (data.leadScore >= 50) {
       schedule = [1, 3, 8];
@@ -263,7 +268,8 @@ function getContactsNeedingFollowup() {
         serviceType: data.serviceType,
         leadScore: data.leadScore,
         formData: data.formData,
-        daysSinceSubmission: daysSince
+        daysSinceSubmission: daysSince,
+        isNewsletter: data.isNewsletter
       });
     }
   });
@@ -2203,45 +2209,6 @@ function generateNewsletterSubject(contact) {
   };
   
   return subjects[contact.daysSinceSubmission] || `Legal tip for ${contact.firstName}`;
-}
-
-// MODIFY getContactsNeedingFollowup to use different schedule for newsletters
-function getContactsNeedingFollowup() {
-  const contacts = [];
-  const now = Date.now();
-  
-  followupDatabase.forEach((data, email) => {
-    const daysSince = Math.floor((now - data.submissionTime) / (1000 * 60 * 60 * 24));
-    
-    let schedule = [];
-    
-    // Different schedule for newsletter subscribers
-    if (data.isNewsletter) {
-      schedule = [1, 3, 7, 14, 30]; // Gentler, more spread out
-    } else if (data.leadScore >= 70) {
-      schedule = [1, 2, 4, 10];
-    } else if (data.leadScore >= 50) {
-      schedule = [1, 3, 8];
-    } else {
-      schedule = [2];
-    }
-    
-    const followupKey = `day-${daysSince}-followup`;
-    
-    if (schedule.includes(daysSince) && !data.followupsSent.includes(followupKey)) {
-      contacts.push({
-        email,
-        firstName: data.firstName,
-        serviceType: data.serviceType,
-        leadScore: data.leadScore,
-        formData: data.formData,
-        daysSinceSubmission: daysSince,
-        isNewsletter: data.isNewsletter
-      });
-    }
-  });
-  
-  return contacts;
 }
 
 // Lead Magnet Subscriber Endpoint

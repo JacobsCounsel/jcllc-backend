@@ -2269,19 +2269,19 @@ app.post('/add-subscriber', async (req, res) => {
    }
 
    // SEND IMMEDIATE WELCOME EMAIL
-    console.log('📨 Sending welcome email to:', email);
-    
-    const firstName = email.split('@')[0]; // Get name from email
-    
-    const welcomeEmailHtml = `
+console.log('📨 Sending welcome email to:', email);
+
+const firstName = email.split('@')[0]; // Get name from email
+
+const welcomeEmailHtml = `
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Welcome to Jacobs Counsel</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f8fafc;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: white;">
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         
         <!-- Orange and Dark Header -->
         <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
@@ -2289,49 +2289,63 @@ app.post('/add-subscriber', async (req, res) => {
             <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">Your Legal Edge Starts Here</p>
         </div>
         
-        <!-- Main Content -->
-        <div style="padding: 40px 30px;">
+        <!-- Main Content - FIXED WHITE BACKGROUND -->
+        <div style="padding: 40px 30px; background-color: #ffffff;">
             <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${firstName}!</h2>
             
             <p style="color: #475569; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
-                Welcome to the Jacobs Counsel community! You're joining thousands of entrepreneurs, creators, and families who are serious about protecting what they build.
+                Welcome to the Jacobs Counsel community! You're joining a growing network of entrepreneurs, creators, and families who are serious about protecting what they build.
             </p>
             
-            <!-- What You Get Box -->
+            <!-- What You Get Box with better contrast -->
             <div style="background: #f8fafc; padding: 25px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0;">
                 <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 18px;">🎁 Here's What You Get:</h3>
                 <ul style="color: #475569; margin: 0; padding-left: 20px; line-height: 1.8;">
-                    <li><strong>Weekly Legal Tips:</strong> Every Tuesday morning</li>
-                    <li><strong>Free Resources:</strong> Templates and guides</li>
-                    <li><strong>Priority Access:</strong> First dibs on consultation slots</li>
-                    <li><strong>Community Support:</strong> Reply anytime with questions</li>
+                    <li><strong style="color: #1a1a1a;">Weekly Legal Tips:</strong> Actionable insights every Tuesday</li>
+                    <li><strong style="color: #1a1a1a;">Exclusive Resources:</strong> Templates and guides for your business</li>
+                    <li><strong style="color: #1a1a1a;">Direct Access:</strong> Reply to any email with your questions</li>
+                    <li><strong style="color: #1a1a1a;">Member Benefits:</strong> Special offers and priority scheduling</li>
                 </ul>
             </div>
             
-            <!-- Green CTA Box -->
-            <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 25px; border-radius: 12px; margin: 30px 0; text-align: center;">
-                <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">🚀 Take Your Free Legal Assessment</h3>
+            <!-- Green CTA Box with proper contrast -->
+            <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 25px; border-radius: 12px; margin: 30px 0; text-align: center; border: 1px solid #bbf7d0;">
+                <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">🚀 Discover Your Legal Blind Spots</h3>
                 <p style="color: #15803d; margin: 0 0 20px 0; font-size: 14px;">
-                    Find your legal blind spots in 2 minutes
+                    Most businesses have 3-5 critical gaps they don't know about
                 </p>
                 <a href="https://www.jacobscounsellaw.com/legal-strategy-builder" 
-                   style="background: #059669; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
-                    Start Assessment →
+                   style="background: #059669; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+                    Take Free 2-Min Assessment →
                 </a>
             </div>
             
+            <!-- Quick tip box -->
+            <div style="background: #fffbeb; padding: 20px; border-radius: 12px; margin: 30px 0; border-left: 4px solid #fbbf24;">
+                <h4 style="color: #92400e; margin: 0 0 10px 0; font-size: 16px;">💡 Quick Tip to Get Started:</h4>
+                <p style="color: #78350f; margin: 0; font-size: 14px; line-height: 1.6;">
+                    The #1 mistake I see? Waiting too long to protect your assets. 
+                    Whether it's your business, brand, or family wealth - the best time to get legal protection 
+                    is BEFORE you need it. Reply to this email if you want to know the top 3 things to protect first.
+                </p>
+            </div>
+            
             <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
-                Best regards,<br>
+                Looking forward to helping you build something lasting,<br><br>
                 <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
-                Founder, Jacobs Counsel LLC
+                <span style="color: #64748b;">Founder, Jacobs Counsel LLC</span><br>
+                <span style="color: #94a3b8; font-style: italic;">Former D1 Athlete turned Entrepreneur's Attorney</span>
             </p>
         </div>
         
-        <!-- Footer -->
-        <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
-            <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center;">
-                You're receiving this because you signed up at jacobscounsellaw.com<br>
-                <a href="https://www.jacobscounsellaw.com" style="color: #ff4d00;">Visit Website</a>
+        <!-- Footer with better contrast -->
+        <div style="background: #f1f5f9; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
+            <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b; text-align: center;">
+                You're receiving this because you signed up at jacobscounsellaw.com
+            </p>
+            <p style="margin: 0; font-size: 12px; text-align: center;">
+                <a href="https://www.jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">Visit Website</a> | 
+                <a href="mailto:admin@jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">Contact Us</a>
             </p>
         </div>
     </div>

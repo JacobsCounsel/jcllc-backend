@@ -2374,6 +2374,21 @@ app.post('/add-subscriber', async (req, res) => {
    console.error('❌ Mailchimp subscription error:', error);
    res.status(500).json({ ok: false, error: 'Subscription failed' });
  }
+
+  // Track newsletter subscriber for AI follow-ups
+if (email) {
+  followupDatabase.set(email, {
+    submissionTime: Date.now(),
+    firstName: firstName,
+    serviceType: 'newsletter',
+    leadScore: 30, // Low score for gentle nurturing
+    formData: { email, firstName, source },
+    followupsSent: [],
+    mailchimpHandoffScheduled: false,
+    isNewsletter: true // Special flag for newsletter sequence
+  });
+  console.log(`📊 Newsletter subscriber tracked for AI nurturing: ${email}`);
+}
 });
 
 // Legal Guide Download Endpoint

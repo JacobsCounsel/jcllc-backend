@@ -2300,6 +2300,106 @@ app.post('/add-subscriber', async (req, res) => {
    } else {
      console.log('✅ New subscriber added to Mailchimp');
    }
+
+   // SEND IMMEDIATE WELCOME EMAIL
+    console.log('📨 Sending welcome email to:', email);
+    
+    const firstName = email.split('@')[0]; // Get name from email
+    
+    const welcomeEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Jacobs Counsel</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f8fafc;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white;">
+        
+        <!-- Orange and Dark Header -->
+        <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Welcome to Jacobs Counsel!</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">Your Legal Edge Starts Here</p>
+        </div>
+        
+        <!-- Main Content -->
+        <div style="padding: 40px 30px;">
+            <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${firstName}!</h2>
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+                Welcome to the Jacobs Counsel community! You're joining thousands of entrepreneurs, creators, and families who are serious about protecting what they build.
+            </p>
+            
+            <!-- What You Get Box -->
+            <div style="background: #f8fafc; padding: 25px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0;">
+                <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 18px;">🎁 Here's What You Get:</h3>
+                <ul style="color: #475569; margin: 0; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>Weekly Legal Tips:</strong> Every Tuesday morning</li>
+                    <li><strong>Free Resources:</strong> Templates and guides</li>
+                    <li><strong>Priority Access:</strong> First dibs on consultation slots</li>
+                    <li><strong>Community Support:</strong> Reply anytime with questions</li>
+                </ul>
+            </div>
+            
+            <!-- Green CTA Box -->
+            <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 25px; border-radius: 12px; margin: 30px 0; text-align: center;">
+                <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">🚀 Take Your Free Legal Assessment</h3>
+                <p style="color: #15803d; margin: 0 0 20px 0; font-size: 14px;">
+                    Find your legal blind spots in 2 minutes
+                </p>
+                <a href="https://www.jacobscounsellaw.com/legal-strategy-builder" 
+                   style="background: #059669; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+                    Start Assessment →
+                </a>
+            </div>
+            
+            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 30px 0 0 0;">
+                Best regards,<br>
+                <strong style="color: #0b1f1e;">Drew Jacobs, Esq.</strong><br>
+                Founder, Jacobs Counsel LLC
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
+            <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center;">
+                You're receiving this because you signed up at jacobscounsellaw.com<br>
+                <a href="https://www.jacobscounsellaw.com" style="color: #ff4d00;">Visit Website</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>`;
+
+    // Try to send the email
+    try {
+      await sendEnhancedEmail({
+        to: [email],
+        subject: 'Welcome to Jacobs Counsel - Your First Insider Tips Inside',
+        html: welcomeEmailHtml
+      });
+      console.log('✅ Welcome email sent successfully to:', email);
+    } catch (emailError) {
+      console.error('❌ Failed to send welcome email:', emailError.message);
+      // Don't crash if email fails - still return success for the signup
+    }
+    
+    // Also send notification to you
+    try {
+      await sendEnhancedEmail({
+        to: ['drew@jacobscounsellaw.com'],
+        subject: `📧 New Newsletter Subscriber: ${email}`,
+        html: `
+          <h2>New Newsletter Subscriber</h2>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Source:</strong> ${source}</p>
+          <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+        `
+      });
+      console.log('✅ Admin notification sent');
+    } catch (error) {
+      console.error('❌ Admin notification failed:', error.message);
+    }
    
    res.json({ ok: true, message: 'Subscriber added successfully' });
    

@@ -1636,7 +1636,9 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
      : [INTAKE_NOTIFY_TO];
 
-   const internalSubject = `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Estate Intake — ${formData.firstName || ''} ${formData.lastName || ''} (Score: ${leadScore.score})`;
+   const internalSubject = formData.assessmentType === 'smart-quiz-popup' 
+    ? `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Quiz Popup Lead — ${formData.email} (Score: ${leadScore.score})`
+    : `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Legal Strategy Assessment — ${formData.email} (Score: ${leadScore.score})`;
    
    operations.push(
      sendEnhancedEmail({
@@ -2283,11 +2285,19 @@ const welcomeEmailHtml = `
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
     <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         
-        <!-- Orange and Dark Header -->
-        <div style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Welcome to Jacobs Counsel!</h1>
-            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">Your Legal Edge Starts Here</p>
-        </div>
+        <!-- Bulletproof Header -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600; font-family: Arial, sans-serif; mso-line-height-rule: exactly; line-height: 36px;">
+                        Welcome to Jacobs Counsel!
+                    </h1>
+                    <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; font-family: Arial, sans-serif; mso-line-height-rule: exactly; line-height: 24px;">
+                        Your Legal Edge Starts Here
+                    </p>
+                </td>
+            </tr>
+        </table>
         
         <!-- Main Content - FIXED WHITE BACKGROUND -->
         <div style="padding: 40px 30px; background-color: #ffffff;">

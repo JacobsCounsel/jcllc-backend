@@ -60,6 +60,7 @@ function validateEnvironment() {
 
 // ==================== EXPRESS SETUP ====================
 const app = express();
+app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -2394,26 +2395,29 @@ const welcomeEmailHtml = `
    
    res.json({ ok: true, message: 'Subscriber added successfully' });
    
- } catch (error) {
-   console.error('❌ Mailchimp subscription error:', error);
-   res.status(500).json({ ok: false, error: 'Subscription failed' });
- }
-
-  // Track newsletter subscriber for AI follow-ups
-if (email) {
-  followupDatabase.set(email, {
-    submissionTime: Date.now(),
-    firstName: firstName,
-    serviceType: 'newsletter',
-    leadScore: 30, // Low score for gentle nurturing
-    formData: { email, firstName, source },
-    followupsSent: [],
-    mailchimpHandoffScheduled: false,
-    isNewsletter: true // Special flag for newsletter sequence
-  });
-  console.log(`📊 Newsletter subscriber tracked for AI nurturing: ${email}`);
-}
-});
+ // Track newsletter subscriber for AI follow-ups (INSIDE the try block)
+    if (email) {
+      const firstName = email.split('@')[0]; // Define firstName if not already
+      followupDatabase.set(email, {
+        submissionTime: Date.now(),
+        firstName: firstName,
+        serviceType: 'newsletter',
+        leadScore: 30,
+        formData: { email, firstName, source },
+        followupsSent: [],
+        mailchimpHandoffScheduled: false,
+        isNewsletter: true
+      });
+      console.log(`📊 Newsletter subscriber tracked for AI nurturing: ${email}`);
+    }
+    
+    res.json({ ok: true, message: 'Subscriber added successfully' });
+    
+  } catch (error) {
+    console.error('❌ Mailchimp subscription error:', error);
+    res.status(500).json({ ok: false, error: 'Subscription failed' });
+  }
+}); // End of /add-subscriber
 
 // Legal Guide Download Endpoint
 app.post('/legal-guide', upload.none(), async (req, res) => {

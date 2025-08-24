@@ -866,7 +866,7 @@ async function createClioLead(formData, submissionType, leadScore) {
 
 function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId) {
   const isHighValue = leadScore.score >= 70;
-  const isConversion = formData.conversionSource === 'legal-strategy-builder'; // ✅ ADD THIS
+  const isConversion = formData.conversionSource === 'legal-strategy-builder';
   const urgentFlag = formData.urgency?.includes('Immediate') || aiAnalysis?.riskFlags?.includes('urgent');
 
   return `
@@ -876,76 +876,76 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
     <meta charset="utf-8">
     <title>${isHighValue ? '🔥 HIGH VALUE' : ''}${isConversion ? ' 🎯 ASSESSMENT CONVERSION' : ''} ${urgentFlag ? '⚡ URGENT' : ''} New ${submissionType.toUpperCase()} Intake</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #0f172a;">
-    <div style="max-width: 700px; margin: 0 auto; padding: 20px;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #1a1a1a; background-color: #f5f5f5; margin: 0; padding: 20px;">
+    <div style="max-width: 700px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         
         ${isConversion ? `
-        <div style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
-            <h2 style="margin: 0; font-size: 24px;">🎯 ASSESSMENT CONVERSION SUCCESS!</h2>
-            <p style="margin: 8px 0 0; font-size: 16px;">This lead came from the Legal Strategy Builder</p>
+        <div style="background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+            <h2 style="margin: 0; font-size: 24px; color: #ffffff;">🎯 ASSESSMENT CONVERSION SUCCESS!</h2>
+            <p style="margin: 8px 0 0; font-size: 16px; color: #ffffff;">This lead came from the Legal Strategy Builder</p>
         </div>
         ` : ''}
         
         ${isHighValue ? `
-        <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
-            <h2 style="margin: 0; font-size: 24px;">🔥 HIGH VALUE LEAD ALERT</h2>
-            <p style="margin: 8px 0 0; font-size: 18px;">Score: ${leadScore.score}/100</p>
+        <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: #ffffff; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+            <h2 style="margin: 0; font-size: 24px; color: #ffffff;">🔥 HIGH VALUE LEAD ALERT</h2>
+            <p style="margin: 8px 0 0; font-size: 18px; color: #ffffff;">Score: ${leadScore.score}/100</p>
         </div>
         ` : ''}
         
-        <h1 style="color: #ff4d00; margin: 0 0 24px;">New ${submissionType.replace('-', ' ').toUpperCase()} Intake</h1>
+        <h1 style="color: #ff4d00; margin: 0 0 24px; font-size: 28px;">New ${submissionType.replace('-', ' ').toUpperCase()} Intake</h1>
         
         <div style="background: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0; border-left: 6px solid #ff4d00;">
-            <h3 style="margin: 0 0 16px; color: #0b1f1e;">Contact Information</h3>
-            <p><strong>Name:</strong> ${formData.firstName || formData.fullName || formData.contactName || ''} ${formData.lastName || ''}</p>
-            <p><strong>Email:</strong> <a href="mailto:${formData.email}">${formData.email}</a></p>
-            <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
-            <p><strong>Business:</strong> ${formData.businessName || formData.companyName || 'Not specified'}</p>
-            <p><strong>Location:</strong> ${formData.state || formData.businessState || 'Not specified'}</p>
+            <h3 style="margin: 0 0 16px; color: #0b1f1e; font-size: 18px;">Contact Information</h3>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #1a1a1a;">Name:</strong> ${formData.firstName || formData.fullName || formData.contactName || ''} ${formData.lastName || ''}</p>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #1a1a1a;">Email:</strong> <a href="mailto:${formData.email}" style="color: #ff4d00;">${formData.email}</a></p>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #1a1a1a;">Phone:</strong> ${formData.phone || 'Not provided'}</p>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #1a1a1a;">Business:</strong> ${formData.businessName || formData.companyName || 'Not specified'}</p>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #1a1a1a;">Location:</strong> ${formData.state || formData.businessState || 'Not specified'}</p>
         </div>
 
         <div style="background: #f0fdf4; padding: 24px; border-radius: 12px; margin: 24px 0; border-left: 6px solid #059669;">
-            <h3 style="margin: 0 0 16px; color: #166534;">Lead Intelligence</h3>
-            <p><strong>Score:</strong> ${leadScore.score}/100</p>
-            <p><strong>Scoring Factors:</strong></p>
-            <ul style="margin: 8px 0; padding-left: 20px;">
-                ${leadScore.factors.map(factor => `<li style="margin: 4px 0;">${factor}</li>`).join('')}
+            <h3 style="margin: 0 0 16px; color: #166534; font-size: 18px;">Lead Intelligence</h3>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #166534;">Score:</strong> ${leadScore.score}/100</p>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #166534;">Scoring Factors:</strong></p>
+            <ul style="margin: 8px 0; padding-left: 20px; color: #4a4a4a;">
+                ${leadScore.factors.map(factor => `<li style="margin: 4px 0; color: #4a4a4a;">${factor}</li>`).join('')}
             </ul>
         </div>
 
         ${aiAnalysis?.analysis ? `
         <div style="background: #fffbeb; padding: 24px; border-radius: 12px; margin: 24px 0; border-left: 6px solid #d97706;">
-            <h3 style="margin: 0 0 16px; color: #92400e;">AI Strategic Analysis</h3>
-            <p><strong>Situation:</strong> ${aiAnalysis.analysis}</p>
-            <p><strong>Recommendations:</strong> ${aiAnalysis.recommendations}</p>
-            <p><strong>Engagement Strategy:</strong> ${aiAnalysis.engagementStrategy}</p>
-            <p><strong>Lifetime Value:</strong> ${aiAnalysis.lifetimeValue}</p>
-            ${aiAnalysis.riskFlags ? `<p><strong>⚠️ Risk Flags:</strong> ${aiAnalysis.riskFlags}</p>` : ''}
+            <h3 style="margin: 0 0 16px; color: #92400e; font-size: 18px;">AI Strategic Analysis</h3>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #92400e;">Situation:</strong> ${aiAnalysis.analysis}</p>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #92400e;">Recommendations:</strong> ${aiAnalysis.recommendations}</p>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #92400e;">Engagement Strategy:</strong> ${aiAnalysis.engagementStrategy}</p>
+            <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #92400e;">Lifetime Value:</strong> ${aiAnalysis.lifetimeValue}</p>
+            ${aiAnalysis.riskFlags ? `<p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #dc2626;">⚠️ Risk Flags:</strong> ${aiAnalysis.riskFlags}</p>` : ''}
         </div>
         ` : ''}
 
         <div style="background: #e0f2fe; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center;">
-            <h3 style="margin: 0 0 16px; color: #0369a1;">Recommended Actions</h3>
+            <h3 style="margin: 0 0 16px; color: #0369a1; font-size: 18px;">Recommended Actions</h3>
             ${isHighValue ? `
             <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
-               style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px; font-weight: 600;">
+               style="background: #dc2626; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px; font-weight: 600;">
                🔥 Priority Consultation
             </a>
             ` : `
             <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
-               style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px; font-weight: 600;">
+               style="background: #059669; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px; font-weight: 600;">
                📅 Schedule Consultation
             </a>
             `}
             <a href="mailto:${formData.email}?subject=Re: Your ${submissionType} inquiry - Jacobs Counsel" 
-               style="background: #0369a1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px; font-weight: 600;">
+               style="background: #0369a1; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px; font-weight: 600;">
                📧 Direct Response
             </a>
         </div>
 
         <details style="margin: 24px 0;">
             <summary style="cursor: pointer; font-weight: 600; color: #64748b;">Full Form Data</summary>
-            <pre style="background: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 12px; margin: 16px 0;">${JSON.stringify(formData, null, 2)}</pre>
+            <pre style="background: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 12px; margin: 16px 0; color: #4a4a4a;">${JSON.stringify(formData, null, 2)}</pre>
         </details>
 
         <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
@@ -959,13 +959,12 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
 }
 
 function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
-  // 🔧 FIXED: More robust name extraction
+  // More robust name extraction
   let clientName = '';
   
   if (submissionType === 'estate-intake') {
     clientName = formData.firstName || 'there';
   } else if (submissionType === 'business-formation') {
-    // Try multiple sources
     clientName = formData.firstName || 
                  formData.founderName?.split(' ')[0] || 
                  'there';
@@ -985,7 +984,6 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
                  'there';
   }
   
-  // Ensure email exists
   if (!formData.email) {
     console.error('❌ No email provided for client confirmation');
     return null;
@@ -998,50 +996,95 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your ${submissionType.replace('-', ' ')} Intake - Next Steps</title>
 </head>
-<body style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); height: 6px; border-radius: 3px; margin-bottom: 24px;"></div>
+<body style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Arial, sans-serif; line-height: 1.6; color: #1a1a1a; margin: 0; padding: 0; background-color: #f5f5f5;">
+    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         
-        <h1 style="color: #ff4d00; font-size: 28px; margin: 0 0 16px; font-weight: 700;">Thank you for choosing Jacobs Counsel</h1>
-        
-        <p style="font-size: 16px; margin: 16px 0;">Hi <strong>${clientName}</strong>,</p>
-        
-        <p style="font-size: 16px; margin: 16px 0;">We've received your ${submissionType.replace('-', ' ')} intake and will review it within <strong>1 business day</strong>. Our AI analysis has identified key opportunities for your situation.</p>
-        
-        ${leadScore >= 70 ? `
-        <div style="background: #fef2f2; border: 2px solid #fecaca; padding: 20px; border-radius: 12px; margin: 24px 0;">
-            <h3 style="color: #dc2626; margin: 0 0 12px;">Priority Review</h3>
-            <p style="margin: 0; color: #7f1d1d;">Based on your responses, we've marked your intake for priority review. You can expect to hear from us within a few hours.</p>
-        </div>
-        ` : ''}
-        
-        ${price ? `
-        <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 24px 0; border: 2px solid #bbf7d0; text-align: center;">
-            <p style="margin: 0; font-size: 18px; font-weight: 600; color: #166534;">Estimated Investment: ${typeof price === 'number' ? '$' + price.toLocaleString() : price}</p>
-            <p style="margin: 8px 0 0; font-size: 14px; color: #059669;">Final pricing confirmed after review</p>
-        </div>
-        ` : ''}
-        
-        <div style="background: #e3f2fd; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center; border: 2px solid #7dd3fc;">
-            <p style="margin: 0 0 16px; font-weight: 600; color: #0369a1; font-size: 16px;">Ready to schedule your consultation?</p>
-            <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
-               style="background: linear-gradient(135deg, #ff4d00, #0b1f1e); color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: 600; font-size: 16px;">
-               📅 Book Your Consultation
-            </a>
+        <!-- Header with gradient - text is white here, which is fine -->
+        <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
+            <h1 style="color: #ffffff; font-size: 28px; margin: 0 0 8px; font-weight: 700;">Thank you for choosing Jacobs Counsel</h1>
+            <p style="color: #ffffff; font-size: 16px; margin: 0; opacity: 0.95;">Your legal journey begins here</p>
         </div>
         
-        <p style="font-size: 16px; margin: 24px 0 16px;">Questions? Simply reply to this email or call us directly.</p>
+        <!-- Main content with dark text on white background -->
+        <div style="padding: 40px 30px; background-color: #ffffff;">
+            <p style="font-size: 18px; margin: 0 0 8px; color: #1a1a1a;">Hi <strong style="color: #ff4d00;">${clientName}</strong>,</p>
+            
+            <p style="font-size: 16px; margin: 20px 0; color: #4a4a4a; line-height: 1.7;">
+                We've received your ${submissionType.replace('-', ' ')} intake and will review it within <strong style="color: #1a1a1a;">1 business day</strong>. 
+                Our AI analysis has identified key opportunities for your situation.
+            </p>
+            
+            ${leadScore >= 70 ? `
+            <div style="background: linear-gradient(135deg, #fff5f5, #ffe0e0); border: 2px solid #ff4d00; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                <h3 style="color: #d32f2f; margin: 0 0 12px; font-size: 18px;">🔥 Priority Review Status</h3>
+                <p style="margin: 0; color: #6a1b1b; font-size: 15px; line-height: 1.6;">
+                    Based on your responses, we've marked your intake for <strong>priority review</strong>. 
+                    You can expect to hear from us within a few hours.
+                </p>
+            </div>
+            ` : ''}
+            
+            ${price ? `
+            <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px solid #22c55e; text-align: center;">
+                <p style="margin: 0; font-size: 20px; font-weight: 700; color: #14532d;">
+                    Estimated Investment: <span style="color: #059669;">${typeof price === 'number' ? '$' + price.toLocaleString() : price}</span>
+                </p>
+                <p style="margin: 12px 0 0; font-size: 14px; color: #166534;">
+                    Final pricing will be confirmed after attorney review
+                </p>
+            </div>
+            ` : ''}
+            
+            <!-- CTA Section with proper contrast -->
+            <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center; border: 2px solid #0369a1;">
+                <p style="margin: 0 0 20px; font-weight: 700; color: #0c4a6e; font-size: 18px;">
+                    Ready to schedule your consultation?
+                </p>
+                <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
+                   style="background: linear-gradient(135deg, #ff4d00, #cc3d00); color: #ffffff; padding: 16px 36px; text-decoration: none; border-radius: 10px; display: inline-block; font-weight: 700; font-size: 17px; box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3); transition: all 0.3s;">
+                   📅 Book Your Consultation Now
+                </a>
+                <p style="margin: 20px 0 0; font-size: 14px; color: #0c4a6e;">
+                    Or call us directly at <strong>(555) 123-4567</strong>
+                </p>
+            </div>
+            
+            <!-- Next steps section -->
+            <div style="background-color: #f8fafc; padding: 24px; border-radius: 12px; margin: 24px 0; border-left: 4px solid #ff4d00;">
+                <h3 style="color: #1a1a1a; margin: 0 0 16px; font-size: 18px;">What happens next?</h3>
+                <ol style="margin: 0; padding-left: 20px; color: #4a4a4a;">
+                    <li style="margin: 8px 0; line-height: 1.6;">Our team reviews your intake within 1 business day</li>
+                    <li style="margin: 8px 0; line-height: 1.6;">We'll send you a detailed strategy outline</li>
+                    <li style="margin: 8px 0; line-height: 1.6;">Schedule your consultation when you're ready</li>
+                    <li style="margin: 8px 0; line-height: 1.6;">Begin your legal journey with confidence</li>
+                </ol>
+            </div>
+            
+            <p style="font-size: 16px; margin: 28px 0 20px; color: #4a4a4a;">
+                Questions? Simply <a href="mailto:${INTAKE_NOTIFY_TO}" style="color: #ff4d00; text-decoration: none; font-weight: 600;">reply to this email</a> 
+                or call us directly.
+            </p>
+            
+            <p style="font-size: 16px; margin: 20px 0; color: #4a4a4a;">
+                Best regards,<br>
+                <strong style="color: #0b1f1e; font-size: 17px;">The Jacobs Counsel Team</strong>
+            </p>
+        </div>
         
-        <p style="font-size: 16px; margin: 16px 0;">Best regards,<br>
-        <strong style="color: #0b1f1e;">The Jacobs Counsel Team</strong></p>
-        
-        <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
-        <p style="font-size: 13px; color: #64748b; margin: 0;">
-            This email was sent because you completed an intake at jacobscounsellaw.com. 
-            Your information is confidential and this does not create an attorney-client relationship.
-        </p>
+        <!-- Footer with proper contrast -->
+        <div style="background: #f8fafc; padding: 24px 30px; border-top: 1px solid #e2e8f0;">
+            <p style="margin: 0 0 8px; font-size: 13px; color: #6b7280; text-align: center; line-height: 1.5;">
+                <strong style="color: #4a4a4a;">Jacobs Counsel LLC</strong><br>
+                Your trusted legal partner in NY, NJ, and OH
+            </p>
+            <p style="margin: 8px 0 0; font-size: 12px; color: #9ca3af; text-align: center; line-height: 1.5;">
+                This email was sent because you completed an intake at jacobscounsellaw.com.<br>
+                Your information is confidential and this does not create an attorney-client relationship.
+            </p>
+        </div>
     </div>
 </body>
 </html>

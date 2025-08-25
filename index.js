@@ -55,7 +55,10 @@ function validateEnvironment() {
   }
 }
 // ==================== POSTGRESQL SETUP ====================
-const pool = new pg.Pool({ connectionString: process.env.PG_URI });
+const pool = new pg.Pool({
+  connectionString: process.env.PG_URI,
+  ssl: { rejectUnauthorized: false }
+});
 
 // Initialize tables
 async function initDB() {

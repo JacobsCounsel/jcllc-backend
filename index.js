@@ -190,12 +190,6 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-// Save after any modification
-function trackForFollowupWithSave(email, formData, leadScore, submissionType) {
-  trackForFollowupWithSave(email, formData, leadScore, submissionType);
-  saveDatabases(); // Save immediately after tracking
-}
-
 // Daily follow-up generation at 8 AM EST
 cron.schedule('0 13 * * *', async () => {
   console.log('🤖 Running daily AI follow-ups...');
@@ -346,6 +340,8 @@ function trackForFollowupWithSave(email, formData, leadScore, submissionType) {
   });
   
   console.log(`📊 Tracking for AI follow-up: ${email} (Score: ${leadScore.score})`);
+
+  saveDatabases(); // ADD THIS LINE to save after tracking
 }
 
 async function markAsFollowedUp(email, followupType) {

@@ -2919,6 +2919,251 @@ async function triggerAbandonmentRecovery(email, formType, lastStep) {
    }, 3600000); // 1 hour
 }
 
+// ==================== DEBUG ENDPOINTS ====================
+
+// Debug endpoint to see who's being tracked for follow-ups
+app.get('/api/debug/followups', async (req, res) => {
+  const followups = [];
+  const now = Date.now();
+  
+  followupDatabase.forEach((data, email) => {
+    const daysSince = Math.floor((now - data.submissionTime) / (1000 * 60 * 60 * 24));
+    
+    // Determine schedule based on lead score
+    let schedule = [];
+    if (data.leadScore >= 70) {
+      schedule = [1, 2, 4, 10];
+    } else if (data.leadScore >= 50) {
+      schedule = [1, 3, 8];
+    } else {
+      schedule = [2];
+    }
+    
+    // Find next follow-up day
+    let nextFollowupDay = null;
+    for (const day of schedule) {
+      const followupKey = `day-${day}-followup`;
+      if (day >= daysSince && !data.followupsSent.includes(followupKey)) {
+        nextFollowupDay = day;
+        break;
+      }
+    }
+    
+    followups.push({
+      email,
+      firstName: data.firstName,
+      serviceType: data.serviceType,
+      leadScore: data.leadScore,
+      daysSinceSubmission: daysSince,
+      followupsSent: data.followupsSent,
+      nextFollowupDay,
+      submissionTime: new Date(data.submissionTime).toISOString()
+    });
+  });
+  
+  res.json({
+    totalTracked: followupDatabase.size,
+    followups: followups.sort((a, b) => b.leadScore - a.leadScore),
+    currentTime: new Date().toISOString(),
+    nextCronRun: getNextCronRun()
+  });
+});
+
+// Helper function to calculate next cron run
+function getNextCronRun() {
+  const now = new Date();
+  const next = new Date();
+  next.setUTCHours(13, 0, 0, 0); // 1 PM UTC = 9 AM EDT
+  
+  if (next <= now) {
+    next.setDate(next.getDate() + 1);
+  }
+  
+  return next.toISOString();
+}
+
+// Debug endpoint to see pending reviews
+app.get('/api/debug/reviews', async (req, res) => {
+  const reviews = [];
+  
+  pendingReviews.forEach((review, id) => {
+    reviews.push({
+      id,
+      contact: {
+        email: review.contact.email,
+        firstName: review.contact.firstName,
+        daysSinceSubmission: review.contact.daysSinceSubmission
+      },
+      emailSubject: review.email.subject,
+      generated: review.generated,
+      approveUrl: `https://estate-intake-system.onrender.com/api/approve-followup?id=${id}`,
+      rejectUrl: `https://estate-intake-system.onrender.com/api/reject-followup?id=${id}`
+    });
+  });
+  
+  res.json({
+    totalPending: pendingReviews.size,
+    reviews
+  });
+});
+
+// Manually trigger follow-up generation (for testing)
+app.post('/api/debug/trigger-followups', async (req, res) => {
+  try {
+    console.log('🔧 Manually triggering follow-up generation...');
+    await runDailyFollowups();
+    res.json({ 
+      success: true, 
+      message: 'Follow-ups triggered. Check your email for approval requests.' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// Test AI email generation without sending
+app.post('/api/debug/test-ai-generation', async (req, res) => {
+  const { email = 'test@example.com', firstName = 'Test', serviceType = 'estate-intake', leadScore = 75, daysSinceSubmission = 1 } = req.body;
+  
+  try {
+    const testContact = {
+      email,
+      firstName,
+      serviceType,
+      leadScore,
+      daysSinceSubmission,
+      formData: {
+        email,
+        firstName,
+        grossEstate: '$2,000,000',
+        packagePreference: 'Revocable Trust Package',
+        hasMinorChildren: 'Yes'
+      }
+    };
+    
+    const generatedEmail = await generateHighConversionFollowup(testContact);
+    
+    res.json({
+      success: true,
+      generated: {
+        subject: generatedEmail.subject,
+        content: generatedEmail.content,
+        contact: testContact
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Add test lead to follow-up database
+app.post('/api/debug/add-test-lead', async (req, res) => {
+  const { 
+    email = `test-${Date.now()}@example.com`, 
+    firstName = 'Test',
+    leadScore = 75,
+    daysAgo = 1 
+  } = req.body;
+  
+  const submissionTime = Date.now() - (daysAgo * 24 * 60 * 60 * 1000);
+  
+  followupDatabase.set(email, {
+    submissionTime,
+    firstName,
+    serviceType: 'estate-intake',
+    leadScore,
+    formData: {
+      email,
+      firstName,
+      grossEstate: '$2,000,000',
+      packagePreference: 'Revocable Trust Package'
+    },
+    followupsSent: [],
+    mailchimpHandoffScheduled: false
+  });
+  
+  res.json({
+    success: true,
+    message: `Test lead added: ${email}`,
+    details: {
+      email,
+      firstName,
+      leadScore,
+      daysAgo,
+      nextFollowupCheck: getNextCronRun()
+    }
+  });
+});
+
+// Email Testing Endpoint
+app.post('/test-email', async (req, res) => {
+  try {
+    const { to } = req.body;
+    
+    if (!to) {
+      return res.status(400).json({ error: 'Email address required' });
+    }
+    
+    console.log('🧪 Testing email configuration...');
+    console.log('MS_GRAPH_SENDER:', MS_GRAPH_SENDER ? '✅ Set' : '❌ Missing');
+    console.log('MS_CLIENT_ID:', MS_CLIENT_ID ? '✅ Set' : '❌ Missing');
+    console.log('MS_CLIENT_SECRET:', MS_CLIENT_SECRET ? '✅ Set' : '❌ Missing');
+    console.log('MS_TENANT_ID:', MS_TENANT_ID ? '✅ Set' : '❌ Missing');
+    
+    if (!MS_GRAPH_SENDER || !MS_CLIENT_ID || !MS_CLIENT_SECRET || !MS_TENANT_ID) {
+      return res.status(500).json({ 
+        error: 'Email system not configured. Missing Microsoft Graph credentials.',
+        missing: {
+          MS_GRAPH_SENDER: !MS_GRAPH_SENDER,
+          MS_CLIENT_ID: !MS_CLIENT_ID,
+          MS_CLIENT_SECRET: !MS_CLIENT_SECRET,
+          MS_TENANT_ID: !MS_TENANT_ID
+        }
+      });
+    }
+    
+    const testHtml = `
+      <h2>Test Email from Jacobs Counsel</h2>
+      <p>If you're seeing this, your email system is working!</p>
+      <p>Sent at: ${new Date().toLocaleString()}</p>
+      <p>Configuration:</p>
+      <ul>
+        <li>Sender: ${MS_GRAPH_SENDER}</li>
+        <li>Recipient: ${to}</li>
+      </ul>
+    `;
+    
+    await sendEnhancedEmail({
+      to: [to],
+      subject: '🧪 Test Email - Jacobs Counsel System',
+      html: testHtml
+    });
+    
+    res.json({ 
+      success: true, 
+      message: `Test email sent to ${to}`,
+      configuration: {
+        sender: MS_GRAPH_SENDER,
+        recipient: to
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Test email failed:', error);
+    res.status(500).json({ 
+      error: 'Failed to send test email',
+      details: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 // ==================== ERROR HANDLING ====================
 
 app.use((err, req, res, next) => {

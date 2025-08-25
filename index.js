@@ -9,6 +9,8 @@ import cron from 'node-cron';
 import rateLimit from 'express-rate-limit';
 import validator from 'validator';
 import NodeCache from 'node-cache';
+import pg from 'pg';
+
 // ==================== PERFORMANCE CACHE ====================
 const cache = new NodeCache({ stdTTL: 600 }); // 10 minute cache
 // ==================== CONFIGURATION ====================
@@ -52,6 +54,29 @@ function validateEnvironment() {
     throw new Error('Critical environment variables missing. Server cannot start.');
   }
 }
+// ==================== POSTGRESQL SETUP ====================
+const pool = new pg.Pool({ connectionString: process.env.PG_URI });
+
+// Initialize tables
+async function initDB() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS followups (
+        email TEXT PRIMARY KEY,
+        data JSONB
+      );
+      CREATE TABLE IF NOT EXISTS reviews (
+        id TEXT PRIMARY KEY,
+        data JSONB
+      );
+    `);
+    console.log('✅ Database tables created');
+  } catch (e) {
+    console.error('❌ DB init failed:', e);
+  }
+}
+initDB();
+
 // ==================== EXPRESS SETUP ====================
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy only (Render's proxy)
@@ -138,51 +163,6 @@ class IntakeError extends Error {
   }
 }
 // ==================== AUTOMATED FOLLOW-UP SYSTEM ====================
-// Storage for tracking follow-ups with file persistence
-let followupDatabase = new Map();
-let pendingReviews = new Map();
-// Add persistence
-import { writeFileSync, readFileSync, existsSync } from 'fs';
-// File paths for persistence
-const FOLLOWUP_DB_FILE = '/tmp/followup_database.json';
-const REVIEWS_DB_FILE = '/tmp/pending_reviews.json';
-// TODO: Migrate to persistent DB (e.g., PostgreSQL) as /tmp/ is ephemeral on Render
-// Load saved data on startup
-function loadDatabases() {
-  try {
-    if (existsSync(FOLLOWUP_DB_FILE)) {
-      const data = JSON.parse(readFileSync(FOLLOWUP_DB_FILE, 'utf8'));
-      followupDatabase = new Map(Object.entries(data));
-      console.log(`📂 Loaded ${followupDatabase.size} follow-up records from disk`);
-    }
-    if (existsSync(REVIEWS_DB_FILE)) {
-      const data = JSON.parse(readFileSync(REVIEWS_DB_FILE, 'utf8'));
-      pendingReviews = new Map(Object.entries(data));
-      console.log(`📂 Loaded ${pendingReviews.size} pending reviews from disk`);
-    }
-  } catch (error) {
-    console.error('❌ Error loading saved data:', error);
-  }
-}
-// Save data to disk
-function saveDatabases() {
-  try {
-    writeFileSync(FOLLOWUP_DB_FILE, JSON.stringify(Object.fromEntries(followupDatabase)));
-    writeFileSync(REVIEWS_DB_FILE, JSON.stringify(Object.fromEntries(pendingReviews)));
-    console.log(`💾 Saved ${followupDatabase.size} follow-ups and ${pendingReviews.size} reviews to disk`);
-  } catch (error) {
-    console.error('❌ Error saving data:', error);
-  }
-}
-// Load on startup
-loadDatabases();
-// Save every 5 minutes
-setInterval(saveDatabases, 5 * 60 * 1000);
-// Save before shutdown
-process.on('SIGTERM', () => {
-  saveDatabases();
-  process.exit(0);
-});
 // Daily follow-up generation at 8 AM EST
 cron.schedule('0 13 * * *', async () => {
   console.log('📧 Running daily follow-ups...');
@@ -190,28 +170,25 @@ cron.schedule('0 13 * * *', async () => {
 });
 async function runDailyFollowups() {
   try {
-    const contactsToFollowUp = getContactsNeedingFollowup();
+    const contactsToFollowUp = await getContactsNeedingFollowup();
 
     for (const contact of contactsToFollowUp) {
       try {
-        // Check if this is a newsletter subscriber
-        const isNewsletter = followupDatabase.get(contact.email)?.isNewsletter;
+        const isNewsletter = contact.isNewsletter;
 
         let followupEmail;
         if (isNewsletter) {
-          // Use gentler, educational follow-ups for newsletter subscribers
           followupEmail = await generateNewsletterFollowup(contact);
         } else {
-          // Use existing high-conversion follow-up for intake forms
           followupEmail = await generateHighConversionFollowup(contact);
         }
 
         const reviewId = `review-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-        pendingReviews.set(reviewId, {
+        await pool.query('INSERT INTO reviews (id, data) VALUES ($1, $2)', [reviewId, {
           contact,
           email: followupEmail,
           generated: new Date().toISOString()
-        });
+        }]);
 
         await sendFollowupForReview(contact, followupEmail, reviewId);
         console.log(`📝 Generated follow-up for review: ${contact.email}`);
@@ -274,19 +251,20 @@ function generateDaySpecificSubject(contact) {
 
   return subjects[contact.daysSinceSubmission] || `Follow-up on your legal inquiry`;
 }
-// MODIFY getContactsNeedingFollowup to use different schedule for newsletters
-function getContactsNeedingFollowup() {
+// Get contacts needing followup from DB
+async function getContactsNeedingFollowup() {
   const contacts = [];
   const now = Date.now();
 
-  followupDatabase.forEach((data, email) => {
+  const res = await pool.query('SELECT * FROM followups');
+  const followups = res.rows.map(row => ({ email: row.email, ...row.data }));
+
+  for (const data of followups) {
     const daysSince = Math.floor((now - data.submissionTime) / (1000 * 60 * 60 * 24));
 
     let schedule = [];
-
-    // Different schedule for newsletter subscribers
     if (data.isNewsletter) {
-      schedule = [1, 3, 7, 14, 30]; // Gentler, more spread out
+      schedule = [1, 3, 7, 14, 30];
     } else if (data.leadScore >= 70) {
       schedule = [1, 2, 4, 10];
     } else if (data.leadScore >= 50) {
@@ -299,7 +277,7 @@ function getContactsNeedingFollowup() {
 
     if (schedule.includes(daysSince) && !data.followupsSent.includes(followupKey)) {
       contacts.push({
-        email,
+        email: data.email,
         firstName: data.firstName,
         serviceType: data.serviceType,
         leadScore: data.leadScore,
@@ -308,14 +286,14 @@ function getContactsNeedingFollowup() {
         isNewsletter: data.isNewsletter
       });
     }
-  });
+  }
 
   return contacts;
 }
-function trackForFollowupWithSave(email, formData, leadScore, submissionType) {
+async function trackForFollowupWithSave(email, formData, leadScore, submissionType) {
   if (!email) return;
 
-  followupDatabase.set(email, {
+  const data = {
     submissionTime: Date.now(),
     firstName: formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there',
     serviceType: submissionType,
@@ -323,17 +301,20 @@ function trackForFollowupWithSave(email, formData, leadScore, submissionType) {
     formData: formData,
     followupsSent: [],
     mailchimpHandoffScheduled: false
-  });
+  };
+
+  await pool.query('INSERT INTO followups (email, data) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET data = $2', [email, data]);
 
   console.log(`📊 Tracking for follow-up: ${email} (Score: ${leadScore.score})`);
-  saveDatabases(); // ADD THIS LINE to save after tracking
 }
 async function markAsFollowedUp(email, followupType) {
-  const contact = followupDatabase.get(email);
+  const res = await pool.query('SELECT data FROM followups WHERE email = $1', [email]);
+  const contact = res.rows[0]?.data;
   if (!contact) return;
 
   contact.followupsSent.push(followupType);
-  followupDatabase.set(email, contact);
+
+  await pool.query('UPDATE followups SET data = $1 WHERE email = $2', [contact, email]);
 
   const schedule = getOptimizedFollowupSchedule(contact.leadScore);
   const completedDays = contact.followupsSent.map(f => parseInt(f.split('-')[1]));
@@ -376,7 +357,7 @@ async function automaticMailchimpHandoff(contact) {
 
     if (response.ok) {
       contact.mailchimpHandoffScheduled = true;
-      followupDatabase.set(contact.email, contact);
+      await pool.query('UPDATE followups SET data = $1 WHERE email = $2', [contact, contact.email]);
       console.log(`✅ ${contact.email} handed off to Mailchimp: ${handoffTag}`);
     }
   } catch (error) {
@@ -384,11 +365,11 @@ async function automaticMailchimpHandoff(contact) {
   }
 }
 async function sendFollowupForReview(contact, followupEmail, reviewId) {
-  pendingReviews.set(reviewId, {
+  await pool.query('INSERT INTO reviews (id, data) VALUES ($1, $2)', [reviewId, {
     contact,
     email: followupEmail,
     generated: new Date().toISOString()
-  });
+  }]);
   const reviewHTML = `
 <!DOCTYPE html>
 <html>
@@ -434,7 +415,8 @@ async function sendFollowupForReview(contact, followupEmail, reviewId) {
 // Approval endpoints
 app.get('/api/approve-followup', async (req, res) => {
   const { id } = req.query;
-  const review = pendingReviews.get(id);
+  const resReview = await pool.query('SELECT data FROM reviews WHERE id = $1', [id]);
+  const review = resReview.rows[0]?.data;
 
   if (!review) {
     return res.status(404).send('Review not found');
@@ -448,7 +430,7 @@ app.get('/api/approve-followup', async (req, res) => {
     });
 
     await markAsFollowedUp(review.contact.email, `day-${review.contact.daysSinceSubmission}-followup`);
-    pendingReviews.delete(id);
+    await pool.query('DELETE FROM reviews WHERE id = $1', [id]);
 
     res.send(`<h2>✅ Follow-up Approved & Sent</h2><p>Email sent to: ${review.contact.email}</p>`);
   } catch (error) {
@@ -457,7 +439,7 @@ app.get('/api/approve-followup', async (req, res) => {
 });
 app.get('/api/reject-followup', async (req, res) => {
   const { id } = req.query;
-  pendingReviews.delete(id);
+  await pool.query('DELETE FROM reviews WHERE id = $1', [id]);
   res.send(`<h2>❌ Follow-up Rejected</h2><p>Email was not sent.</p>`);
 });
 function formatFollowupHTML(content, contact) {
@@ -488,7 +470,7 @@ function formatFollowupHTML(content, contact) {
 // Unsubscribe endpoint
 app.get('/api/unsubscribe/:email', async (req, res) => {
   const email = decodeURIComponent(req.params.email);
-  followupDatabase.delete(email);
+  await pool.query('DELETE FROM followups WHERE email = $1', [email]);
 
   res.send(`
     <div style="text-align: center; font-family: Arial; padding: 40px;">
@@ -1640,7 +1622,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
      formData.conversionType = 'assessment-to-estate';
    }
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
+   await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    console.log(`📊 Lead score: ${leadScore.score}/100`);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
    console.log(`🤖 analysis completed`);
@@ -1739,7 +1721,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
      formData.conversionType = 'assessment-to-business';
    }
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
+   await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
    const attachments = files
      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
@@ -1828,7 +1810,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
      formData.conversionType = 'assessment-to-brand';
    }
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
+   await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
    const attachments = files
      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
@@ -1924,7 +1906,7 @@ app.post('/outside-counsel', async (req, res) => {
      formData.conversionType = 'assessment-to-counsel';
    }
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
+   await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
    // PARALLEL PROCESSING
    const operations = [];
@@ -2002,7 +1984,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
    console.log(`📥 New ${submissionType} submission:`, formData.email);
    // Calculate lead score based on assessment answers
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
+   await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    console.log(`📊 Lead score: ${leadScore.score}/100`);
    // Analysis
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
@@ -2087,7 +2069,7 @@ app.post('/newsletter-subscriber-enhanced', async (req, res) => {
 
     // Add to follow-up database with special newsletter flag
     if (email) {
-      followupDatabase.set(email, {
+      const data = {
         submissionTime: Date.now(),
         firstName: firstName,
         serviceType: 'newsletter',
@@ -2095,9 +2077,9 @@ app.post('/newsletter-subscriber-enhanced', async (req, res) => {
         formData: formData,
         followupsSent: [],
         mailchimpHandoffScheduled: false,
-        isNewsletter: true // Special flag for different nurture sequence
-      });
-
+        isNewsletter: true
+      };
+      await pool.query('INSERT INTO followups (email, data) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET data = $2', [email, data]);
       console.log(`📧 Newsletter subscriber tracked for nurturing: ${email}`);
     }
 
@@ -2283,7 +2265,7 @@ app.post('/add-subscriber', async (req, res) => {
            
             <!-- CTA Box -->
             <div style="background: #f0fdf4; padding: 25px; border-radius: 12px; margin: 30px 0; text-align: center; border: 1px solid #bbf7d0;">
-                <h3 style="color: #166534; margin: 0 0 15px 0;font-size: 18px;">🚀 Discover Your Legal Blind Spots</h3>
+                <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">🚀 Discover Your Legal Blind Spots</h3>
                 <p style="color: #15803d; margin: 0 0 20px 0; font-size: 14px;">
                     Most businesses have 3-5 critical gaps they don't know about
                 </p>
@@ -2356,7 +2338,7 @@ app.post('/add-subscriber', async (req, res) => {
 
     // Track newsletter subscriber for follow-ups
     if (email) {
-      followupDatabase.set(email, {
+      const data = {
         submissionTime: Date.now(),
         firstName: firstName,
         serviceType: 'newsletter',
@@ -2365,7 +2347,8 @@ app.post('/add-subscriber', async (req, res) => {
         followupsSent: [],
         mailchimpHandoffScheduled: false,
         isNewsletter: true
-      });
+      };
+      await pool.query('INSERT INTO followups (email, data) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET data = $2', [email, data]);
       console.log(`📊 Newsletter subscriber tracked for nurturing: ${email}`);
     }
 
@@ -2539,7 +2522,7 @@ app.post('/download-primary-guide', async (req, res) => {
    console.log(`📥 Primary guide download:`, formData.email);
    // Calculate lead score
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
+   await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
    // PARALLEL PROCESSING
    const operations = [];
@@ -2664,7 +2647,7 @@ app.post('/api/chat-intake', async (req, res) => {
    // If we have enough data, create a lead
    if (result.extractedData?.email) {
      const leadScore = calculateLeadScore(result.extractedData, 'chat-intake');
-     trackForFollowupWithSave(result.extractedData.email, result.extractedData, leadScore, 'chat-intake');
+     await trackForFollowupWithSave(result.extractedData.email, result.extractedData, leadScore, 'chat-intake');
      await addToMailchimpWithAutomation(result.extractedData, leadScore, 'chat-intake', null);
      await createClioLead(result.extractedData, 'chat-intake', leadScore);
    }
@@ -2794,13 +2777,13 @@ async function triggerAbandonmentRecovery(email, formType, lastStep) {
 // ==================== DEBUG ENDPOINTS ====================
 // Debug endpoint to see who's being tracked for follow-ups
 app.get('/api/debug/followups', async (req, res) => {
-  const followups = [];
+  const resFollowups = await pool.query('SELECT * FROM followups');
+  const followups = resFollowups.rows.map(row => ({ email: row.email, ...row.data }));
   const now = Date.now();
 
-  followupDatabase.forEach((data, email) => {
+  const formatted = followups.map(data => {
     const daysSince = Math.floor((now - data.submissionTime) / (1000 * 60 * 60 * 24));
 
-    // Determine schedule based on lead score
     let schedule = [];
     if (data.leadScore >= 70) {
       schedule = [1, 2, 4, 10];
@@ -2810,7 +2793,6 @@ app.get('/api/debug/followups', async (req, res) => {
       schedule = [2];
     }
 
-    // Find next follow-up day
     let nextFollowupDay = null;
     for (const day of schedule) {
       const followupKey = `day-${day}-followup`;
@@ -2820,8 +2802,8 @@ app.get('/api/debug/followups', async (req, res) => {
       }
     }
 
-    followups.push({
-      email,
+    return {
+      email: data.email,
       firstName: data.firstName,
       serviceType: data.serviceType,
       leadScore: data.leadScore,
@@ -2829,12 +2811,12 @@ app.get('/api/debug/followups', async (req, res) => {
       followupsSent: data.followupsSent,
       nextFollowupDay,
       submissionTime: new Date(data.submissionTime).toISOString()
-    });
+    };
   });
 
   res.json({
-    totalTracked: followupDatabase.size,
-    followups: followups.sort((a, b) => b.leadScore - a.leadScore),
+    totalTracked: followups.length,
+    followups: formatted.sort((a, b) => b.leadScore - a.leadScore),
     currentTime: new Date().toISOString(),
     nextCronRun: getNextCronRun()
   });
@@ -2853,26 +2835,25 @@ function getNextCronRun() {
 }
 // Debug endpoint to see pending reviews
 app.get('/api/debug/reviews', async (req, res) => {
-  const reviews = [];
+  const resReviews = await pool.query('SELECT * FROM reviews');
+  const reviews = resReviews.rows.map(row => ({ id: row.id, ...row.data }));
 
-  pendingReviews.forEach((review, id) => {
-    reviews.push({
-      id,
-      contact: {
-        email: review.contact.email,
-        firstName: review.contact.firstName,
-        daysSinceSubmission: review.contact.daysSinceSubmission
-      },
-      emailSubject: review.email.subject,
-      generated: review.generated,
-      approveUrl: `https://estate-intake-system.onrender.com/api/approve-followup?id=${id}`,
-      rejectUrl: `https://estate-intake-system.onrender.com/api/reject-followup?id=${id}`
-    });
-  });
+  const formatted = reviews.map(review => ({
+    id: review.id,
+    contact: {
+      email: review.contact.email,
+      firstName: review.contact.firstName,
+      daysSinceSubmission: review.contact.daysSinceSubmission
+    },
+    emailSubject: review.email.subject,
+    generated: review.generated,
+    approveUrl: `https://estate-intake-system.onrender.com/api/approve-followup?id=${review.id}`,
+    rejectUrl: `https://estate-intake-system.onrender.com/api/reject-followup?id=${review.id}`
+  }));
 
   res.json({
-    totalPending: pendingReviews.size,
-    reviews
+    totalPending: reviews.length,
+    reviews: formatted
   });
 });
 // Manually trigger follow-up generation (for testing)
@@ -2906,8 +2887,7 @@ app.post('/api/debug/test-ai-generation', async (req, res) => {
         email,
         firstName,
         grossEstate: '$2,000,000',
-        packagePreference: 'Revocable Trust Package',
-        hasMinorChildren: 'Yes'
+        packagePreference: 'Revocable Trust Package'
       }
     };
 
@@ -2939,7 +2919,7 @@ app.post('/api/debug/add-test-lead', async (req, res) => {
 
   const submissionTime = Date.now() - (daysAgo * 24 * 60 * 60 * 1000);
 
-  followupDatabase.set(email, {
+  const data = {
     submissionTime,
     firstName,
     serviceType: 'estate-intake',
@@ -2952,7 +2932,9 @@ app.post('/api/debug/add-test-lead', async (req, res) => {
     },
     followupsSent: [],
     mailchimpHandoffScheduled: false
-  });
+  };
+
+  await pool.query('INSERT INTO followups (email, data) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET data = $2', [email, data]);
 
   res.json({
     success: true,

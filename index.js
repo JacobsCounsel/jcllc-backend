@@ -3014,6 +3014,138 @@ app.post('/test-email', async (req, res) => {
   }
 });
 
+// Admin Dashboard - Basic Auth Middleware
+function basicAuth(req, res, next) {
+  const auth = { login: process.env.ADMIN_USER || 'admin', password: process.env.ADMIN_PASS || 'password' };
+  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+  if (login && password && login === auth.login && password === auth.password) {
+    return next();
+  }
+  res.set('WWW-Authenticate', 'Basic realm="Admin"');
+  res.status(401).send('Authentication required.');
+}
+
+app.get('/admin', basicAuth, async (req, res) => {
+  try {
+    const followupsRes = await pool.query('SELECT * FROM followups');
+    const followups = followupsRes.rows.map(row => ({ email: row.email, ...row.data }));
+    const reviewsRes = await pool.query('SELECT * FROM reviews');
+    const reviews = reviewsRes.rows.map(row => ({ id: row.id, ...row.data }));
+    
+    const now = Date.now();
+    const formattedFollowups = followups.map(data => {
+      const daysSince = Math.floor((now - data.submissionTime) / (1000 * 60 * 60 * 24));
+      let schedule = [];
+      if (data.isNewsletter) {
+        schedule = [1, 3, 7, 14, 30];
+      } else if (data.leadScore >= 70) {
+        schedule = [1, 2, 4, 10];
+      } else if (data.leadScore >= 50) {
+        schedule = [1, 3, 8];
+      } else {
+        schedule = [2];
+      }
+      let nextFollowupDay = null;
+      for (const day of schedule) {
+        const followupKey = `day-${day}-followup`;
+        if (day >= daysSince && !data.followupsSent.includes(followupKey)) {
+          nextFollowupDay = day;
+          break;
+        }
+      }
+      return {
+        email: data.email,
+        firstName: data.firstName,
+        serviceType: data.serviceType,
+        leadScore: data.leadScore,
+        daysSinceSubmission: daysSince,
+        followupsSent: data.followupsSent,
+        nextFollowupDay,
+        submissionTime: new Date(data.submissionTime).toISOString()
+      };
+    });
+
+    const formattedReviews = reviews.map(review => ({
+      id: review.id,
+      contact: {
+        email: review.contact.email,
+        firstName: review.contact.firstName,
+        daysSinceSubmission: review.contact.daysSinceSubmission
+      },
+      emailSubject: review.email.subject,
+      generated: review.generated,
+      approveUrl: `https://estate-intake-system.onrender.com/api/approve-followup?id=${review.id}`,
+      rejectUrl: `https://estate-intake-system.onrender.com/api/reject-followup?id=${review.id}`
+    }));
+
+    res.send(`
+      <html>
+        <head><title>Admin Dashboard</title>
+        <style>
+          body { font-family: Arial; padding: 20px; }
+          table { border-collapse: collapse; width: 100%; margin-bottom: 40px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background: #f2f2f2; }
+          input { padding: 8px; width: 200px; }
+          button { padding: 8px 16px; background: #ff4d00; color: white; border: none; cursor: pointer; }
+        </style>
+        <script>
+          function searchTable(id) {
+            const input = document.getElementById('search-' + id);
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById(id);
+            const tr = table.getElementsByTagName('tr');
+            for (let i = 1; i < tr.length; i++) {
+              const td = tr[i].getElementsByTagName('td');
+              let match = false;
+              for (let j = 0; j < td.length; j++) {
+                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) { match = true; break; }
+              }
+              tr[i].style.display = match ? '' : 'none';
+            }
+          }
+          function exportCSV(id) {
+            const table = document.getElementById(id);
+            let csv = [];
+            for (let row of table.rows) {
+              let cols = [];
+              for (let cell of row.cells) cols.push(cell.innerHTML);
+              csv.push(cols.join(','));
+            }
+            const blob = new Blob([csv.join('\\n')], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = id + '.csv';
+            a.click();
+          }
+        </script>
+      </head>
+      <body>
+        <h1>Leads & Sign-Ups</h1>
+        <input id="search-leads" onkeyup="searchTable('leads-table')" placeholder="Search leads...">
+        <button onclick="exportCSV('leads-table')">Export CSV</button>
+        <table id="leads-table">
+          <tr><th>Email</th><th>Name</th><th>Score</th><th>Days Since</th><th>Follow-Ups Sent</th><th>Next</th></tr>
+          ${formattedFollowups.map(f => `<tr><td>${f.email}</td><td>${f.firstName}</td><td>${f.leadScore}</td><td>${f.daysSinceSubmission}</td><td>${f.followupsSent.join(', ')}</td><td>${f.nextFollowupDay || 'None'}</td></tr>`).join('')}
+        </table>
+        
+        <h1>Pending Follow-Ups</h1>
+        <input id="search-reviews" onkeyup="searchTable('reviews-table')" placeholder="Search reviews...">
+        <button onclick="exportCSV('reviews-table')">Export CSV</button>
+        <table id="reviews-table">
+          <tr><th>ID</th><th>Email</th><th>Subject</th><th>Generated</th><th>Approve</th><th>Reject</th></tr>
+          ${formattedReviews.map(r => `<tr><td>${r.id}</td><td>${r.contact.email}</td><td>${r.emailSubject}</td><td>${r.generated}</td><td><a href="${r.approveUrl}">Approve</a></td><td><a href="${r.rejectUrl}">Reject</a></td></tr>`).join('')}
+        </table>
+      </body>
+    </html>
+    `);
+  } catch (e) {
+    res.status(500).send('Dashboard error: ' + e.message);
+  }
+});
+
 // ==================== ERROR HANDLING ====================
 app.use((err, req, res, next) => {
   if (err && err.code) {

@@ -3308,3 +3308,4 @@ app.listen(PORT, () => {
  console.log(`📊 Features: Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Performance Caching, Security`);
  console.log(`🎯 ENHANCED MODE: ACTIVATED`);
 });
+}

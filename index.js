@@ -1502,7 +1502,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
        
        <!-- Header with gradient -->
-       <div style="background: linear-gradient(90deg, #ff4d00, #0b1f1e); padding: 40px 30px; text-align: center;">
+       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
            <h1 style="color: #ffffff; font-size: 28px; margin: 0 0 8px; font-weight: 700;">Thank you for choosing Jacobs Counsel</h1>
            <p style="color: #ffffff; font-size: 16px; margin: 0; opacity: 0.95;">Your legal journey begins here</p>
        </div>
@@ -1517,7 +1517,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            </p>
            
            ${leadScore >= 70 ? `
-           <div style="background: linear-gradient(135deg, #fff5f5, #ffe0e0); border: 2px solid #ff4d00; padding: 20px; border-radius: 12px; margin: 24px 0;">
+           <div style="background: background-color: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 12px; margin: 24px 0;">
                <h3 style="color: #d32f2f; margin: 0 0 12px; font-size: 18px;">🔥 Priority Review Status</h3>
                <p style="margin: 0; color: #6a1b1b; font-size: 15px; line-height: 1.6;">
                    Based on your responses, we've marked your intake for <strong>priority review</strong>. 
@@ -1527,7 +1527,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            ` : ''}
            
            ${displayPrice ? `
-           <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px solid #22c55e; text-align: center;">
+           <div style="background: background-color: #f0fdf4; padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px solid #22c55e; text-align: center;">
                <p style="margin: 0; font-size: 20px; font-weight: 700; color: #14532d;">
                    Estimated Investment: <span style="color: #059669;">${typeof displayPrice === 'number' ? '$' + displayPrice.toLocaleString() : displayPrice}</span>
                </p>
@@ -1538,12 +1538,12 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            ` : ''}
            
            <!-- CTA Section with proper contrast -->
-           <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center; border: 2px solid #0369a1;">
+           <div style="background: background-color: #e3f2fd; padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center; border: 2px solid #0369a1;">
                <p style="margin: 0 0 20px; font-weight: 700; color: #0c4a6e; font-size: 18px;">
                    Ready to schedule your consultation?
                </p>
                <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
-                  style="background: linear-gradient(135deg, #ff4d00, #cc3d00); color: #ffffff; padding: 16px 36px; text-decoration: none; border-radius: 10px; display: inline-block; font-weight: 700; font-size: 17px; box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3); transition: all 0.3s;">
+   style="background-color: #ff4d00; color: #ffffff; ...">
                   📅 Book Your Consultation Now
                </a>
                <p style="margin: 20px 0 0; font-size: 14px; color: #0c4a6e;">
@@ -2370,7 +2370,7 @@ const welcomeEmailHtml = `
             </div>
             
             <!-- Green CTA Box with proper contrast -->
-            <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 25px; border-radius: 12px; margin: 30px 0; text-align: center; border: 1px solid #bbf7d0;">
+            <div style="background: background-color: #f0fdf4; padding: 25px; border-radius: 12px; margin: 30px 0; text-align: center; border: 1px solid #bbf7d0;">
                 <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">🚀 Discover Your Legal Blind Spots</h3>
                 <p style="color: #15803d; margin: 0 0 20px 0; font-size: 14px;">
                     Most businesses have 3-5 critical gaps they don't know about

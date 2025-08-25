@@ -136,7 +136,7 @@ class IntakeError extends Error {
   }
 }
 
-// ==================== AI FOLLOW-UP AUTOMATION SYSTEM ====================
+// ==================== AUTOMATED FOLLOW-UP SYSTEM ====================
 
 // Storage for tracking follow-ups with file persistence
 let followupDatabase = new Map();
@@ -192,7 +192,7 @@ process.on('SIGTERM', () => {
 
 // Daily follow-up generation at 8 AM EST
 cron.schedule('0 13 * * *', async () => {
-  console.log('🤖 Running daily AI follow-ups...');
+  console.log('📧 Running daily follow-ups...');
   await runDailyFollowups();
 });
 
@@ -339,7 +339,7 @@ function trackForFollowupWithSave(email, formData, leadScore, submissionType) {
     mailchimpHandoffScheduled: false
   });
   
-  console.log(`📊 Tracking for AI follow-up: ${email} (Score: ${leadScore.score})`);
+  console.log(`📊 Tracking for follow-up: ${email} (Score: ${leadScore.score})`);
 
   saveDatabases(); // ADD THIS LINE to save after tracking
 }
@@ -416,7 +416,7 @@ async function sendFollowupForReview(contact, followupEmail, reviewId) {
     <div style="max-width: 600px; margin: 0 auto;">
         
         <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
-            <h2 style="color: #0369a1;">🤖 AI Follow-up Ready for Review</h2>
+            <h2 style="color: #0369a1;">Follow-up Ready for Review</h2>
             <p><strong>Contact:</strong> ${contact.firstName} (${contact.email})</p>
             <p><strong>Service:</strong> ${contact.serviceType}</p>
             <p><strong>Day:</strong> ${contact.daysSinceSubmission}</p>
@@ -448,7 +448,7 @@ async function sendFollowupForReview(contact, followupEmail, reviewId) {
 
   await sendEnhancedEmail({
     to: [HIGH_VALUE_NOTIFY_TO],
-    subject: `🤖 Review Follow-up: ${contact.firstName} (Day ${contact.daysSinceSubmission})`,
+    subject: `📝 Review Follow-up: ${contact.firstName} (Day ${contact.daysSinceSubmission})`,
     html: reviewHTML
   });
 }
@@ -523,7 +523,7 @@ app.get('/api/unsubscribe/:email', async (req, res) => {
   `);
 });
 
-// ==================== AI-POWERED LEAD INTELLIGENCE ====================
+// ==================== LEAD INTELLIGENCE SYSTEM ====================
 
 // Sophisticated lead scoring algorithm
 function calculateLeadScore(formData, submissionType) {
@@ -645,7 +645,7 @@ async function analyzeIntakeWithAI(formData, submissionType, leadScore) {
   const cacheKey = `ai_analysis_${submissionType}_${leadScore.score}_${JSON.stringify(formData).substring(0, 50)}`;
   const cached = cache.get(cacheKey);
   if (cached) {
-    console.log('📦 Using cached AI analysis');
+    console.log('📦 Using cached analysis');
     return cached;
   }
 
@@ -718,7 +718,7 @@ Scoring Factors: ${leadScore.factors.join(', ')}`;
     
     return sections;
   } catch (error) {
-    console.error('AI analysis failed:', error);
+    console.error('analysis failed:', error);
     return { analysis: null, recommendations: null, riskFlags: [] };
   }
 }
@@ -1175,7 +1175,7 @@ Contact: ${formData.email || ''} | ${formData.phone || ''}
 Business: ${formData.businessName || formData.companyName || 'N/A'}
 Location: ${formData.state || formData.businessState || ''}
 
-AI Analysis: ${aiAnalysis?.analysis || 'Not available'}
+Analysis: ${aiAnalysis?.analysis || 'Not available'}
 
 Recommendations: ${aiAnalysis?.recommendations || 'Standard intake process'}
 
@@ -1411,7 +1411,7 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
 
         ${aiAnalysis?.analysis ? `
         <div style="background: #fffbeb; padding: 24px; border-radius: 12px; margin: 24px 0; border-left: 6px solid #d97706;">
-            <h3 style="margin: 0 0 16px; color: #92400e; font-size: 18px;">AI Strategic Analysis</h3>
+            <h3 style="margin: 0 0 16px; color: #92400e; font-size: 18px;">Strategic Analysis</h3>
             <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #92400e;">Situation:</strong> ${aiAnalysis.analysis}</p>
             <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #92400e;">Recommendations:</strong> ${aiAnalysis.recommendations}</p>
             <p style="color: #4a4a4a; margin: 8px 0;"><strong style="color: #92400e;">Engagement Strategy:</strong> ${aiAnalysis.engagementStrategy}</p>
@@ -1513,7 +1513,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            
            <p style="font-size: 16px; margin: 20px 0; color: #4a4a4a; line-height: 1.7;">
                We've received your ${submissionType.replace('-', ' ')} intake and will review it within <strong style="color: #1a1a1a;">1 business day</strong>. 
-               Our AI analysis has identified key opportunities for your situation.
+               Our analysis has identified key opportunities for your situation.
            </p>
            
            ${leadScore >= 70 ? `
@@ -1630,7 +1630,7 @@ app.get('/', (req, res) => {
    service: 'jacobs-counsel-unified-intake',
    version: '3.1.0-ENHANCED',
    endpoints: ['/estate-intake', '/business-formation-intake', '/brand-protection-intake', '/outside-counsel', '/add-subscriber', '/legal-guide', '/api/chat-intake', '/api/generate-document', '/api/predict-clv', '/health'],
-   features: ['AI Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration', 'Clio Grow Integration', 'Conversational AI', 'Document Generation', 'CLV Prediction', 'Performance Caching', 'Input Sanitization', 'Rate Limiting']
+   features: ['Smart Analysis', 'Lead Scoring', 'Smart Mailchimp Automation', 'Motion Integration', 'Clio Grow Integration', 'Conversational AI', 'Document Generation', 'CLV Prediction', 'Performance Caching', 'Input Sanitization', 'Rate Limiting']
  });
 });
 
@@ -1660,7 +1660,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
    console.log(`📊 Lead score: ${leadScore.score}/100`);
 
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-   console.log(`🤖 AI analysis completed`);
+   console.log(`🤖 analysis completed`);
 
    const attachments = files
      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
@@ -2069,7 +2069,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
    trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    console.log(`📊 Lead score: ${leadScore.score}/100`);
 
-   // AI Analysis
+   // Analysis
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
    // PARALLEL PROCESSING
@@ -2133,7 +2133,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
  }
 });
 
-// Newsletter Subscriber with AI Nurturing - ADD THIS NEW ENDPOINT
+// Newsletter Subscriber with Nurturing - ADD THIS NEW ENDPOINT
 app.post('/newsletter-subscriber-enhanced', async (req, res) => {
   try {
     const { email, source = 'newsletter' } = req.body;
@@ -2445,7 +2445,7 @@ const welcomeEmailHtml = `
    
    res.json({ ok: true, message: 'Subscriber added successfully' });
    
- // Track newsletter subscriber for AI follow-ups (INSIDE the try block)
+ // Track newsletter subscriber for follow-ups (INSIDE the try block)
     if (email) {
       const firstName = email.split('@')[0]; // Define firstName if not already
       followupDatabase.set(email, {
@@ -2458,7 +2458,7 @@ const welcomeEmailHtml = `
         mailchimpHandoffScheduled: false,
         isNewsletter: true
       });
-      console.log(`📊 Newsletter subscriber tracked for AI nurturing: ${email}`);
+      console.log(`📊 Newsletter subscriber tracked for nurturing: ${email}`);
     }
     
     res.json({ ok: true, message: 'Subscriber added successfully' });
@@ -3195,6 +3195,6 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
  validateEnvironment();
  console.log(`🚀 Jacobs Counsel ENHANCED System running on port ${PORT}`);
- console.log(`📊 Features: AI Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Performance Caching, Security`);
+ console.log(`📊 Features: Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Performance Caching, Security`);
  console.log(`🎯 ENHANCED MODE: ACTIVATED`);
 });

@@ -1598,7 +1598,6 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
   const concerns = formData.q7 || formData.answers?.q7 || [];
   
   return `
-  }
 <!DOCTYPE html>
 <html>
 <head>

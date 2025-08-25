@@ -3268,42 +3268,42 @@ app.post('/test-email', async (req, res) => {
     });
   }
 });
-
+  
 // ==================== ERROR HANDLING ====================
 
 app.use((err, req, res, next) => {
- if (err && err.code) {
-   if (err.code === 'LIMIT_FILE_SIZE') {
-     return res.status(413).json({ 
-       ok: false, 
-       error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).' 
-     });
-   }
-   if (err.code === 'LIMIT_FILE_COUNT') {
-     return res.status(413).json({ 
-       ok: false, 
-       error: 'Too many files (max 15). Remove some and try again.' 
-     });
-   }
-   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-     return res.status(400).json({ 
-       ok: false, 
-       error: 'Unexpected file field. Please use the file picker in the form.' 
-     });
-   }
- }
- console.error('Unhandled error:', err);
- res.status(500).json({ 
-   ok: false, 
-   error: 'Server error. Please try again or contact us directly.' 
- });
+  if (err && err.code) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ 
+        ok: false, 
+        error: 'One or more files are too large (max 15MB each). Try again without the oversized file(s).' 
+      });
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(413).json({ 
+        ok: false, 
+        error: 'Too many files (max 15). Remove some and try again.' 
+      });
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Unexpected file field. Please use the file picker in the form.' 
+      });
+    }
+  }
+  console.error('Unhandled error:', err);
+  res.status(500).json({ 
+    ok: false, 
+    error: 'Server error. Please try again or contact us directly.' 
+  });
 });
 
 // ==================== SERVER STARTUP ====================
 
 app.listen(PORT, () => {
- validateEnvironment();
- console.log(`🚀 Jacobs Counsel ENHANCED System running on port ${PORT}`);
- console.log(`📊 Features: Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Performance Caching, Security`);
- console.log(`🎯 ENHANCED MODE: ACTIVATED`);
+  validateEnvironment();
+  console.log(`🚀 Jacobs Counsel ENHANCED System running on port ${PORT}`);
+  console.log(`📊 Features: Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Performance Caching, Security`);
+  console.log(`🎯 ENHANCED MODE: ACTIVATED`);
 });

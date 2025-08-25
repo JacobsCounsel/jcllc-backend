@@ -138,9 +138,63 @@ class IntakeError extends Error {
 
 // ==================== AI FOLLOW-UP AUTOMATION SYSTEM ====================
 
-// Storage for tracking follow-ups (consider replacing with database in production)
+// Storage for tracking follow-ups with file persistence
 let followupDatabase = new Map();
 let pendingReviews = new Map();
+
+// Add persistence
+import { writeFileSync, readFileSync, existsSync } from 'fs';
+
+// File paths for persistence
+const FOLLOWUP_DB_FILE = '/tmp/followup_database.json';
+const REVIEWS_DB_FILE = '/tmp/pending_reviews.json';
+
+// Load saved data on startup
+function loadDatabases() {
+  try {
+    if (existsSync(FOLLOWUP_DB_FILE)) {
+      const data = JSON.parse(readFileSync(FOLLOWUP_DB_FILE, 'utf8'));
+      followupDatabase = new Map(Object.entries(data));
+      console.log(`📂 Loaded ${followupDatabase.size} follow-up records from disk`);
+    }
+    if (existsSync(REVIEWS_DB_FILE)) {
+      const data = JSON.parse(readFileSync(REVIEWS_DB_FILE, 'utf8'));
+      pendingReviews = new Map(Object.entries(data));
+      console.log(`📂 Loaded ${pendingReviews.size} pending reviews from disk`);
+    }
+  } catch (error) {
+    console.error('❌ Error loading saved data:', error);
+  }
+}
+
+// Save data to disk
+function saveDatabases() {
+  try {
+    writeFileSync(FOLLOWUP_DB_FILE, JSON.stringify(Object.fromEntries(followupDatabase)));
+    writeFileSync(REVIEWS_DB_FILE, JSON.stringify(Object.fromEntries(pendingReviews)));
+    console.log(`💾 Saved ${followupDatabase.size} follow-ups and ${pendingReviews.size} reviews to disk`);
+  } catch (error) {
+    console.error('❌ Error saving data:', error);
+  }
+}
+
+// Load on startup
+loadDatabases();
+
+// Save every 5 minutes
+setInterval(saveDatabases, 5 * 60 * 1000);
+
+// Save before shutdown
+process.on('SIGTERM', () => {
+  saveDatabases();
+  process.exit(0);
+});
+
+// Save after any modification
+function trackForFollowupWithSave(email, formData, leadScore, submissionType) {
+  trackForFollowupWithSave(email, formData, leadScore, submissionType);
+  saveDatabases(); // Save immediately after tracking
+}
 
 // Daily follow-up generation at 8 AM EST
 cron.schedule('0 13 * * *', async () => {
@@ -278,7 +332,7 @@ function getContactsNeedingFollowup() {
   return contacts;
 }
 
-function trackForFollowup(email, formData, leadScore, submissionType) {
+function trackForFollowupWithSave(email, formData, leadScore, submissionType) {
   if (!email) return;
   
   followupDatabase.set(email, {
@@ -1606,7 +1660,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
    }
 
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowup(formData.email, formData, leadScore, submissionType);
+   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    console.log(`📊 Lead score: ${leadScore.score}/100`);
 
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
@@ -1722,7 +1776,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
    }
 
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowup(formData.email, formData, leadScore, submissionType);
+   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
    const attachments = files
@@ -1826,7 +1880,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
    }
 
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowup(formData.email, formData, leadScore, submissionType);
+   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
    const attachments = files
@@ -1937,7 +1991,7 @@ app.post('/outside-counsel', async (req, res) => {
    }
 
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowup(formData.email, formData, leadScore, submissionType);
+   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
    // PARALLEL PROCESSING
@@ -2016,7 +2070,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
 
    // Calculate lead score based on assessment answers
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowup(formData.email, formData, leadScore, submissionType);
+   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    console.log(`📊 Lead score: ${leadScore.score}/100`);
 
    // AI Analysis
@@ -2592,7 +2646,7 @@ app.post('/download-primary-guide', async (req, res) => {
 
    // Calculate lead score
    const leadScore = calculateLeadScore(formData, submissionType);
-   trackForFollowup(formData.email, formData, leadScore, submissionType);
+   trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
 
    // PARALLEL PROCESSING
@@ -2733,7 +2787,7 @@ app.post('/api/chat-intake', async (req, res) => {
    // If we have enough data, create a lead
    if (result.extractedData?.email) {
      const leadScore = calculateLeadScore(result.extractedData, 'chat-intake');
-     trackForFollowup(result.extractedData.email, result.extractedData, leadScore, 'chat-intake');
+     trackForFollowupWithSave(result.extractedData.email, result.extractedData, leadScore, 'chat-intake');
      await addToMailchimpWithAutomation(result.extractedData, leadScore, 'chat-intake', null);
      await createClioLead(result.extractedData, 'chat-intake', leadScore);
    }

@@ -1588,6 +1588,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
 </body>
 </html>
 `;
+  }
 
   function generateStrategyBuilderEmail(formData, leadScore) {
   const clientName = formData.firstName || formData.email?.split('@')[0] || 'there';

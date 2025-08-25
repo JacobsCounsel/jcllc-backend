@@ -1588,6 +1588,105 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
 </body>
 </html>
 `;
+
+  function generateStrategyBuilderEmail(formData, leadScore) {
+  const clientName = formData.firstName || formData.email?.split('@')[0] || 'there';
+  
+  // Extract their answers for personalization
+  const role = formData.q1 || formData.answers?.q1;
+  const structure = formData.q3 || formData.answers?.q3;
+  const concerns = formData.q7 || formData.answers?.q7 || [];
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Your Legal Strategy Assessment Results</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+        
+        <!-- Solid orange header -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">
+                        Your Legal Roadmap is Ready!
+                    </h1>
+                    <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">
+                        Personalized strategy based on your assessment
+                    </p>
+                </td>
+            </tr>
+        </table>
+        
+        <div style="padding: 40px 30px; background-color: #ffffff;">
+            <p style="font-size: 18px; color: #1a1a1a; margin: 0 0 20px;">
+                Hi ${clientName},
+            </p>
+            
+            <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
+                Thank you for completing your legal strategy assessment. Based on your answers, 
+                we've identified <strong>critical areas that need immediate attention</strong>.
+            </p>
+            
+            <!-- Assessment Summary -->
+            <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff4d00;">
+                <h3 style="color: #1a1a1a; margin: 0 0 10px;">Your Assessment Summary:</h3>
+                <p style="color: #4a4a4a; margin: 5px 0;">
+                    <strong>Score:</strong> ${leadScore}/100
+                </p>
+                ${role ? `<p style="color: #4a4a4a; margin: 5px 0;"><strong>Role:</strong> ${role}</p>` : ''}
+                ${structure === 'none' || structure === 'unsure' ? 
+                  `<p style="color: #dc2626; margin: 5px 0;"><strong>⚠️ No business entity protection</strong></p>` : ''
+                }
+                ${concerns.length > 0 ? 
+                  `<p style="color: #4a4a4a; margin: 5px 0;"><strong>Key Concerns:</strong> ${concerns.length} areas identified</p>` : ''
+                }
+            </div>
+            
+            <!-- Priority Alert -->
+            ${leadScore >= 70 ? `
+            <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #dc2626;">
+                <h3 style="color: #dc2626; margin: 0 0 10px;">⚠️ High Priority Situation</h3>
+                <p style="color: #7f1d1d; margin: 0;">
+                    Your assessment indicates urgent legal needs. We recommend scheduling a consultation within 48 hours.
+                </p>
+            </div>
+            ` : `
+            <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #166534; margin: 0 0 10px;">✅ Your Next Steps:</h3>
+                <ol style="color: #166534; margin: 10px 0; padding-left: 20px;">
+                    <li>Review your detailed roadmap (below)</li>
+                    <li>Schedule your free consultation</li>
+                    <li>Get your custom legal protection plan</li>
+                </ol>
+            </div>
+            `}
+            
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" 
+                   style="display: inline-block; background-color: #ff4d00; color: #ffffff; padding: 18px 40px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px;">
+                    Schedule Your Free Strategy Call →
+                </a>
+            </div>
+            
+            <p style="color: #64748b; font-size: 14px; text-align: center;">
+                Questions? Reply to this email or call (646) 343-7227
+            </p>
+        </div>
+        
+        <div style="background-color: #f8fafc; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
+            <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center;">
+                Jacobs Counsel LLC | Strategic Legal Partner<br>
+                This assessment is for informational purposes only
+            </p>
+        </div>
+    </div>
+</body>
+</html>`;
 }
 
 // ==================== PERFORMANCE-OPTIMIZED INTAKE PROCESSING ====================
@@ -2059,6 +2158,16 @@ app.post('/outside-counsel', async (req, res) => {
 app.post('/legal-strategy-builder', async (req, res) => {
  try {
    const formData = sanitizeInput(req.body);
+   const dedupeKey = `strategy_${formData.email}`;
+    if (cache.get(dedupeKey)) {
+      console.log('⚠️ Duplicate submission blocked:', formData.email);
+      return res.json({ 
+        ok: true, 
+        message: 'Already processed',
+        duplicate: true 
+      });
+    }
+    cache.set(dedupeKey, true, 30);
    const submissionId = `strategy-${Date.now()}`;
    const submissionType = 'legal-strategy-builder';
 
@@ -2106,7 +2215,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
    );
 
    if (formData.email) {
-     const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore.score);
+     const clientEmailHtml = generateStrategyBuilderEmail(formData, leadScore.score);
      if (clientEmailHtml) {
        operations.push(
          sendEnhancedEmail({

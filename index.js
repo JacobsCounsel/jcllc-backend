@@ -2373,69 +2373,68 @@ function generateNewsletterSubject(contact) {
   return subjects[contact.daysSinceSubmission] || `Legal tip for ${contact.firstName}`;
 }
 
-// Lead Magnet Subscriber Endpoint
+// Newsletter Subscriber with Nurturing
 app.post('/add-subscriber', async (req, res) => {
- try {
-   const { email, source, tags = [], merge_fields = {} } = req.body;
-   
-   if (!email || !MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
-     return res.status(400).json({ ok: false, error: 'Missing required data' });
-   }
-   
-   console.log(`📧 New subscriber: ${email} from ${source}`);
-   
-   const memberData = {
-     email_address: email,
-     status: 'subscribed',
-     tags: [...tags, source, `date-${new Date().toISOString().split('T')[0]}`],
-     merge_fields: {
-       LEAD_SOURCE: source,
-       SIGNUP_DATE: new Date().toISOString(),
-       ...merge_fields
-     }
-   };
-   
-   const response = await fetch(
-     `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
-     {
-       method: 'POST',
-       headers: {
-         'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-         'Content-Type': 'application/json'
-       },
-       body: JSON.stringify(memberData)
-     }
-   );
-   
-   if (response.status === 400) {
-     const crypto = await import('crypto');
-     const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
-     
-     await fetch(
-       `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
-       {
-         method: 'POST',
-         headers: {
-           'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-           'Content-Type': 'application/json'
-         },
-         body: JSON.stringify({
-           tags: tags.map(tag => ({ name: tag, status: 'active' }))
-         })
-       }
-     );
-     
-     console.log('✅ Updated existing subscriber tags');
-   } else {
-     console.log('✅ New subscriber added to Mailchimp');
-   }
+  try {
+    const { email, source = 'newsletter', tags = [], merge_fields = {} } = req.body;
+    
+    if (!email || !MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
+      return res.status(400).json({ ok: false, error: 'Missing required data' });
+    }
+    
+    console.log(`📧 New subscriber: ${email} from ${source}`);
+    
+    const memberData = {
+      email_address: email,
+      status: 'subscribed',
+      tags: [...tags, source, `date-${new Date().toISOString().split('T')[0]}`],
+      merge_fields: {
+        LEAD_SOURCE: source,
+        SIGNUP_DATE: new Date().toISOString(),
+        ...merge_fields
+      }
+    };
+    
+    const response = await fetch(
+      `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(memberData)
+      }
+    );
+    
+    if (response.status === 400) {
+      const crypto = await import('crypto');
+      const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+      
+      await fetch(
+        `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            tags: tags.map(tag => ({ name: tag, status: 'active' }))
+          })
+        }
+      );
+      
+      console.log('✅ Updated existing subscriber tags');
+    } else {
+      console.log('✅ New subscriber added to Mailchimp');
+    }
 
-   // SEND IMMEDIATE WELCOME EMAIL
-console.log('📨 Sending welcome email to:', email);
+    // SEND IMMEDIATE WELCOME EMAIL
+    console.log('📨 Sending welcome email to:', email);
+    const firstName = email.split('@')[0];
 
-const firstName = email.split('@')[0]; // Get name from email
-
-const welcomeEmailHtml = `
+    const welcomeEmailHtml = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -2459,7 +2458,7 @@ const welcomeEmailHtml = `
             </tr>
         </table>
         
-        <!-- Main Content - FIXED WHITE BACKGROUND -->
+        <!-- Main Content -->
         <div style="padding: 40px 30px; background-color: #ffffff;">
             <h2 style="color: #0b1f1e; margin: 0 0 20px 0; font-size: 22px;">Hi ${firstName}!</h2>
             
@@ -2467,7 +2466,7 @@ const welcomeEmailHtml = `
                 Welcome to the Jacobs Counsel community! You're joining a growing network of entrepreneurs, creators, and families who are serious about protecting what they build.
             </p>
             
-            <!-- What You Get Box with better contrast -->
+            <!-- What You Get Box -->
             <div style="background: #f8fafc; padding: 25px; border-radius: 12px; border-left: 4px solid #ff4d00; margin: 30px 0;">
                 <h3 style="color: #0b1f1e; margin: 0 0 15px 0; font-size: 18px;">🎁 Here's What You Get:</h3>
                 <ul style="color: #475569; margin: 0; padding-left: 20px; line-height: 1.8;">
@@ -2478,8 +2477,8 @@ const welcomeEmailHtml = `
                 </ul>
             </div>
             
-            <!-- Green CTA Box with proper contrast -->
-            <div style="background: background-color: #f0fdf4; padding: 25px; border-radius: 12px; margin: 30px 0; text-align: center; border: 1px solid #bbf7d0;">
+            <!-- CTA Box -->
+            <div style="background: #f0fdf4; padding: 25px; border-radius: 12px; margin: 30px 0; text-align: center; border: 1px solid #bbf7d0;">
                 <h3 style="color: #166534; margin: 0 0 15px 0; font-size: 18px;">🚀 Discover Your Legal Blind Spots</h3>
                 <p style="color: #15803d; margin: 0 0 20px 0; font-size: 14px;">
                     Most businesses have 3-5 critical gaps they don't know about
@@ -2508,7 +2507,7 @@ const welcomeEmailHtml = `
             </p>
         </div>
         
-        <!-- Footer with better contrast -->
+        <!-- Footer -->
         <div style="background: #f1f5f9; padding: 20px 30px; border-top: 1px solid #e2e8f0;">
             <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b; text-align: center;">
                 You're receiving this because you signed up at jacobscounsellaw.com
@@ -2535,7 +2534,7 @@ const welcomeEmailHtml = `
       // Don't crash if email fails - still return success for the signup
     }
     
-    // Also send notification to you
+    // Also send notification to admin
     try {
       await sendEnhancedEmail({
         to: ['drew@jacobscounsellaw.com'],
@@ -2551,12 +2550,9 @@ const welcomeEmailHtml = `
     } catch (error) {
       console.error('❌ Admin notification failed:', error.message);
     }
-   
-   res.json({ ok: true, message: 'Subscriber added successfully' });
-   
- // Track newsletter subscriber for follow-ups (INSIDE the try block)
+    
+    // Track newsletter subscriber for follow-ups
     if (email) {
-      const firstName = email.split('@')[0]; // Define firstName if not already
       followupDatabase.set(email, {
         submissionTime: Date.now(),
         firstName: firstName,
@@ -2576,7 +2572,7 @@ const welcomeEmailHtml = `
     console.error('❌ Mailchimp subscription error:', error);
     res.status(500).json({ ok: false, error: 'Subscription failed' });
   }
-}); // End of /add-subscriber
+}); // <-- THIS CLOSES THE ROUTE PROPERLY
 
 // Legal Guide Download Endpoint
 app.post('/legal-guide', upload.none(), async (req, res) => {
@@ -3307,4 +3303,3 @@ app.listen(PORT, () => {
   console.log(`📊 Features: Analysis, Lead Scoring, Smart Mailchimp, Motion, Clio, Performance Caching, Security`);
   console.log(`🎯 ENHANCED MODE: ACTIVATED`);
 });
-}});

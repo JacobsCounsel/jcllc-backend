@@ -26,14 +26,14 @@ const MS_GRAPH_SENDER = process.env.MS_GRAPH_SENDER || '';
 const MAILCHIMP_API_KEY = process.env.MAILCHIMP_API_KEY || '';
 const MAILCHIMP_SERVER = process.env.MAILCHIMP_SERVER || 'us21';
 const MAILCHIMP_AUDIENCE_ID = process.env.MAILCHIMP_AUDIENCE_ID || '';
-// Calendly - UPDATE THESE AFTER CALENDLY SETUP
-const CALENDLY_WEBHOOK_SECRET = process.env.CALENDLY_WEBHOOK_SECRET || ''; // UPDATE #1
+// Calendly - YOUR ACTUAL LINKS
 const CALENDLY_LINKS = {
-  'estate-planning': process.env.CALENDLY_ESTATE_LINK || 'https://calendly.com/your-calendly/estate-planning', // UPDATE #2
-  'business-formation': process.env.CALENDLY_BUSINESS_LINK || 'https://calendly.com/your-calendly/business-formation', // UPDATE #3
-  'brand-protection': process.env.CALENDLY_BRAND_LINK || 'https://calendly.com/your-calendly/brand-protection', // UPDATE #4
-  'priority': process.env.CALENDLY_PRIORITY_LINK || 'https://calendly.com/your-calendly/priority-consultation', // UPDATE #5
-  'general': process.env.CALENDLY_GENERAL_LINK || 'https://calendly.com/your-calendly/consultation' // UPDATE #6
+  'estate-planning': 'https://calendly.com/jacobscounsel/wealth-protection-consultation',
+  'business-formation': 'https://calendly.com/jacobscounsel/business-protection-consultation',
+  'brand-protection': 'https://calendly.com/jacobscounsel/brand-protection-consultation',
+  'outside-counsel': 'https://calendly.com/jacobscounsel/outside-counsel-consultation',
+  'priority': 'https://calendly.com/jacobscounsel/priority-consultation',
+  'general': 'https://calendly.com/jacobscounsel/general-consultation'
 };
 // Clio Grow
 const CLIO_GROW_BASE = process.env.CLIO_GROW_BASE || 'https://grow.clio.com';
@@ -46,7 +46,6 @@ const HIGH_VALUE_NOTIFY_TO = process.env.HIGH_VALUE_NOTIFY_TO || 'drew@jacobscou
 function validateEnvironment() {
   const requiredVars = {
     'Email Service': MS_CLIENT_ID && MS_CLIENT_SECRET && MS_TENANT_ID && MS_GRAPH_SENDER,
-    'OpenAI': OPENAI_API_KEY,
     'Mailchimp': MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID,
   };
 
@@ -139,7 +138,7 @@ function getCalendlyLink(submissionType, leadScore) {
     'estate-intake': 'estate-planning',
     'business-formation': 'business-formation',
     'brand-protection': 'brand-protection',
-    'outside-counsel': 'general',
+    'outside-counsel': 'outside-counsel',
     'legal-strategy-builder': 'general',
     'newsletter': 'general'
   };
@@ -247,14 +246,8 @@ async function analyzeIntakeWithAI(formData, submissionType, leadScore) {
 
   const cacheKey = `ai_analysis_${submissionType}_${leadScore.score}_${JSON.stringify(formData).substring(0, 50)}`;
   const cached = cache.get(cacheKey);
-  if (cached) {
-    console.log('📦 Using cached analysis');
-    return cached;
-  }
+  if (cached) return cached;
 
-  const systemPrompt = `You are a senior legal strategist. Analyze this intake briefly.
-Provide: ANALYSIS: [2-3 sentences] RECOMMENDATIONS: [Brief suggestions] RISK_FLAGS: [Any concerns]`;
-  
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -267,7 +260,7 @@ Provide: ANALYSIS: [2-3 sentences] RECOMMENDATIONS: [Brief suggestions] RISK_FLA
         temperature: 0.3,
         max_tokens: 500,
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: 'Analyze this legal intake briefly. Provide: ANALYSIS: [2-3 sentences] RECOMMENDATIONS: [Brief suggestions] RISK_FLAGS: [Any concerns]' },
           { role: 'user', content: `${submissionType}: ${JSON.stringify(formData)}` }
         ]
       })
@@ -365,7 +358,7 @@ function buildSmartFields(formData, leadScore, submissionType) {
   return fields;
 }
 
-async function addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis) {
+async function addToMailchimpWithAutomation(formData, leadScore, submissionType) {
   if (!MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
     console.log('Mailchimp not configured, skipping');
     return { skipped: true };
@@ -525,6 +518,7 @@ async function createClioLead(formData, submissionType, leadScore) {
   }
 
   let message = `${submissionType.replace('-', ' ').toUpperCase()} Lead (Score: ${leadScore.score}/100)\n\n`;
+  message += `Calendly Link: ${getCalendlyLink(submissionType, leadScore)}\n\n`;
   message += `Details:\n${JSON.stringify(formData, null, 2)}`;
   
   const clioPayload = {
@@ -610,7 +604,7 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
        </details>
        
        <p style="font-size: 14px; color: #64748b;">
-           Submission ID: ${submissionId} | Mailchimp automation triggered
+           Submission ID: ${submissionId} | Calendly: ${isHighValue ? 'Priority' : 'Standard'} Booking
        </p>
    </div>
 </body>
@@ -647,7 +641,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            ${leadScore.score >= 70 ? `
            <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
                <h3 style="color: #d32f2f;">🔥 Priority Review Status</h3>
-               <p>Based on your responses, we've marked your intake for priority review.</p>
+               <p>Based on your responses, we've marked your intake for priority review. A 15-minute priority consultation slot is available.</p>
            </div>
            ` : ''}
           
@@ -677,17 +671,15 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
 // ==================== CALENDLY WEBHOOK ====================
 app.post('/webhook/calendly', async (req, res) => {
   try {
-    // Verify webhook signature if configured - UPDATE #7
-    if (CALENDLY_WEBHOOK_SECRET) {
-      const signature = req.headers['calendly-webhook-signature'];
-      // Implement signature verification based on Calendly's docs
-      // This is a placeholder - actual implementation depends on Calendly's signature format
-    }
+    console.log('Calendly webhook received:', JSON.stringify(req.body));
     
     const { event, payload } = req.body;
     
     if (event === 'invitee.created') {
-      const { email, name, scheduled_event } = payload;
+      const invitee = payload.invitee || {};
+      const email = invitee.email;
+      const name = invitee.name;
+      const scheduled_event = payload.scheduled_event || {};
       
       console.log(`📅 Meeting booked: ${email}`);
       
@@ -699,27 +691,31 @@ app.post('/webhook/calendly', async (req, res) => {
         });
       }
       
-      // Update Mailchimp tags
-      if (MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID) {
-        const crypto = await import('crypto');
-        const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
-        
-        await fetch(
-          `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              tags: [
-                { name: 'consultation-booked', status: 'active' },
-                { name: 'stop-booking-reminders', status: 'active' }
-              ]
-            })
-          }
-        );
+      // Update Mailchimp tags to stop booking reminders
+      if (MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID && email) {
+        try {
+          const crypto = await import('crypto');
+          const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+          
+          await fetch(
+            `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                tags: [
+                  { name: 'consultation-booked', status: 'active' },
+                  { name: 'stop-booking-reminders', status: 'active' }
+                ]
+              })
+            }
+          );
+        } catch (e) {
+          console.error('Failed to update Mailchimp tags:', e);
+        }
       }
       
       // Send notification
@@ -732,11 +728,12 @@ app.post('/webhook/calendly', async (req, res) => {
           <p><strong>Event:</strong> ${scheduled_event.name}</p>
           <p><strong>Time:</strong> ${new Date(scheduled_event.start_time).toLocaleString()}</p>
         `
-      });
+      }).catch(e => console.error('Failed to send booking notification:', e));
     }
     
     if (event === 'invitee.canceled') {
-      const { email, name } = payload;
+      const invitee = payload.invitee || {};
+      const email = invitee.email;
       
       console.log(`❌ Meeting canceled: ${email}`);
       
@@ -747,26 +744,31 @@ app.post('/webhook/calendly', async (req, res) => {
       }
       
       // Restart nurture sequence
-      if (MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID) {
-        const crypto = await import('crypto');
-        const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
-        
-        await fetch(
-          `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              tags: [
-                { name: 'consultation-canceled', status: 'active' },
-                { name: 'restart-nurture', status: 'active' }
-              ]
-            })
-          }
-        );
+      if (MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID && email) {
+        try {
+          const crypto = await import('crypto');
+          const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+          
+          await fetch(
+            `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                tags: [
+                  { name: 'consultation-canceled', status: 'active' },
+                  { name: 'restart-nurture', status: 'active' },
+                  { name: 'consultation-booked', status: 'inactive' }
+                ]
+              })
+            }
+          );
+        } catch (e) {
+          console.error('Failed to update Mailchimp tags:', e);
+        }
       }
     }
     
@@ -845,7 +847,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     );
     
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+      addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
     
@@ -934,7 +936,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     );
     
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+      addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
     
@@ -1028,7 +1030,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
     );
     
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+      addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
     
@@ -1099,7 +1101,7 @@ app.post('/outside-counsel', async (req, res) => {
     );
     
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+      addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
     
@@ -1139,77 +1141,7 @@ app.post('/outside-counsel', async (req, res) => {
   }
 });
 
-// Legal Strategy Builder
-app.post('/legal-strategy-builder', async (req, res) => {
-  try {
-    const formData = sanitizeInput(req.body);
-    const submissionId = `strategy-${Date.now()}`;
-    const submissionType = 'legal-strategy-builder';
-    
-    const leadScore = calculateLeadScore(formData, submissionType);
-    
-    if (mixpanel) {
-      mixpanel.track('Assessment Completed', {
-        distinct_id: formData.email,
-        service: submissionType,
-        score: leadScore.score
-      });
-    }
-    
-    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-    
-    const operations = [];
-    const alertRecipients = leadScore.score >= 70
-      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
-      : [INTAKE_NOTIFY_TO];
-    
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Legal Strategy Assessment — ${formData.email} (Score: ${leadScore.score})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
-        priority: leadScore.score >= 70 ? 'high' : 'normal'
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-    
-    operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
-    );
-    
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-    
-    if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
-      if (clientEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'Your Legal Strategy Assessment Results',
-            html: clientEmailHtml
-          }).catch(e => console.error('❌ Client email failed:', e.message))
-        );
-      }
-    }
-    
-    await processIntakeOperations(operations);
-    
-    res.json({
-      ok: true,
-      submissionId,
-      leadScore: leadScore.score,
-      aiAnalysisAvailable: !!aiAnalysis?.analysis
-    });
-  } catch (error) {
-    console.error('💥 Strategy builder error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-// Newsletter Subscriber
+// Other endpoints (newsletter, guides, etc.)
 app.post('/add-subscriber', async (req, res) => {
   try {
     const { email, source = 'newsletter' } = req.body;
@@ -1221,7 +1153,7 @@ app.post('/add-subscriber', async (req, res) => {
     const leadScore = { score: 30, factors: ['Newsletter signup'] };
     const formData = { email, source };
     
-    await addToMailchimpWithAutomation(formData, leadScore, 'newsletter', null);
+    await addToMailchimpWithAutomation(formData, leadScore, 'newsletter');
     
     if (mixpanel) {
       mixpanel.track('Newsletter Signup', {
@@ -1237,104 +1169,6 @@ app.post('/add-subscriber', async (req, res) => {
   }
 });
 
-// Legal Guide Download
-app.post('/legal-guide', upload.none(), async (req, res) => {
-  try {
-    const { email, firstName, guideName } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({ success: false, error: 'Email required' });
-    }
-    
-    const guideUrls = {
-      'complete-playbook': 'https://www.jacobscounsellaw.com/s/Protect-Your-Dreams-Maximize-Your-Impact-and-Grow-Smart.pdf',
-      'vc-formation': 'https://www.jacobscounsellaw.com/s/The-VC-Ready-Business-Formation-Blueprint.pdf',
-      'estate-planning': 'https://www.jacobscounsellaw.com/s/Estate-Planning-for-High-Achievers.pdf',
-      'brand-protection': 'https://www.jacobscounsellaw.com/s/Emergency-Brand-Protection-Playbook.pdf'
-    };
-    
-    const finalPdfUrl = guideUrls[guideName] || guideUrls['complete-playbook'];
-    const name = firstName || email.split('@')[0];
-    
-    const guideEmailHtml = `
-<!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; padding: 20px;">
-  <div style="max-width: 600px; margin: 0 auto;">
-    <h1>Your Legal Strategy Guide</h1>
-    <p>Hi ${name},</p>
-    <p>Thank you for downloading our Legal Strategy Guide!</p>
-    <div style="text-align: center; margin: 40px 0;">
-      <a href="${finalPdfUrl}" style="background: #ff4d00; color: white; padding: 20px 40px; text-decoration: none; border-radius: 8px;">
-        📥 Download Your Guide
-      </a>
-    </div>
-    <p>Best regards,<br>Drew Jacobs, Esq.</p>
-  </div>
-</body>
-</html>`;
-    
-    await sendEnhancedEmail({
-      to: [email],
-      subject: `Your ${guideName || 'Legal Strategy Guide'} - Jacobs Counsel`,
-      html: guideEmailHtml
-    });
-    
-    const leadScore = { score: 40, factors: ['Guide download'] };
-    await addToMailchimpWithAutomation({ email, firstName: name }, leadScore, 'guide-download', null);
-    
-    res.json({ success: true, message: 'Guide sent successfully!' });
-  } catch (error) {
-    console.error('Guide download error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Analytics Conversion Tracking
-app.post('/api/analytics/conversion', async (req, res) => {
-  try {
-    const { email, fromService, toService, assessmentScore } = req.body;
-    
-    console.log(`📈 Conversion: ${email} from ${fromService} to ${toService}`);
-    
-    if (mixpanel) {
-      mixpanel.track('Conversion', {
-        distinct_id: email,
-        from: fromService,
-        to: toService,
-        score: assessmentScore
-      });
-    }
-    
-    res.json({ success: true, message: 'Conversion tracked' });
-  } catch (error) {
-    console.error('Conversion tracking error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Test Email Endpoint
-app.post('/test-email', async (req, res) => {
-  try {
-    const { to } = req.body;
-    
-    if (!to) {
-      return res.status(400).json({ error: 'Email address required' });
-    }
-    
-    await sendEnhancedEmail({
-      to: [to],
-      subject: '🧪 Test Email - Jacobs Counsel System',
-      html: '<h2>Test Email</h2><p>If you see this, email is working!</p>'
-    });
-    
-    res.json({ success: true, message: `Test email sent to ${to}` });
-  } catch (error) {
-    console.error('Test email failed:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Health Check
 app.get('/health', async (req, res) => {
   res.json({
@@ -1344,7 +1178,8 @@ app.get('/health', async (req, res) => {
       openai: OPENAI_API_KEY ? 'configured' : 'not configured',
       mailchimp: MAILCHIMP_API_KEY ? 'configured' : 'not configured',
       clio: CLIO_GROW_INBOX_TOKEN ? 'configured' : 'not configured',
-      email: MS_CLIENT_ID ? 'configured' : 'not configured'
+      email: MS_CLIENT_ID ? 'configured' : 'not configured',
+      calendly: 'webhook active'
     }
   });
 });
@@ -1361,11 +1196,10 @@ app.get('/', (req, res) => {
       '/brand-protection-intake',
       '/outside-counsel',
       '/add-subscriber',
-      '/legal-guide',
-      '/legal-strategy-builder',
       '/webhook/calendly',
       '/health'
-    ]
+    ],
+    features: ['Lead Scoring', 'Mailchimp', 'Calendly', 'Clio', 'Email Notifications']
   });
 });
 
@@ -1387,6 +1221,7 @@ app.listen(PORT, () => {
     process.exit(1);
   }
   console.log(`🚀 Jacobs Counsel System running on port ${PORT}`);
-  console.log(`📊 Features: Lead Scoring, Mailchimp Automation, Calendly Integration, Clio Integration`);
+  console.log(`📊 Features: Lead Scoring, Mailchimp, Calendly, Clio`);
   console.log(`✅ Database removed - all data in Mailchimp/Clio`);
+  console.log(`📅 Calendly webhook active at /webhook/calendly`);
 });

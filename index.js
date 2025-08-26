@@ -10,6 +10,8 @@ import rateLimit from 'express-rate-limit';
 import validator from 'validator';
 import NodeCache from 'node-cache';
 import pg from 'pg';
+import Mixpanel from 'mixpanel';
+const mixpanel = process.env.MIXPANEL_TOKEN ? Mixpanel.init(process.env.MIXPANEL_TOKEN) : null;
 
 // ==================== PERFORMANCE CACHE ====================
 const cache = new NodeCache({ stdTTL: 600 }); // 10 minute cache
@@ -1644,6 +1646,14 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
    let price = null;
    if (pkg.includes('trust')) price = married ? 3650 : 2900;
    else if (pkg.includes('will')) price = married ? 1900 : 1500;
+   if (mixpanel) {
+  mixpanel.track('Intake Submitted', {
+    distinct_id: formData.email,
+    service: submissionType,
+    score: leadScore.score,
+    value: price || 0
+  });
+}
    // PARALLEL PROCESSING - All operations at once
    const operations = [];
    // Internal alert email
@@ -1740,6 +1750,14 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
    if (packageType.includes('bronze')) price = 2995;
    else if (packageType.includes('silver')) price = 4995;
    else if (packageType.includes('gold')) price = 7995;
+   if (mixpanel) {
+  mixpanel.track('Intake Submitted', {
+    distinct_id: formData.email,
+    service: submissionType,
+    score: leadScore.score,
+    value: price || 0
+  });
+}
    // PARALLEL PROCESSING
    const operations = [];
   
@@ -1837,6 +1855,14 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
    } else if (service.includes('enforcement')) {
      priceEstimate = 'Custom Quote';
    }
+   if (mixpanel) {
+  mixpanel.track('Intake Submitted', {
+    distinct_id: formData.email,
+    service: submissionType,
+    score: leadScore.score,
+    value: price || 0
+  });
+}
    // PARALLEL PROCESSING
    const operations = [];
   
@@ -1911,6 +1937,14 @@ app.post('/outside-counsel', async (req, res) => {
    const leadScore = calculateLeadScore(formData, submissionType);
    await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+   if (mixpanel) {
+  mixpanel.track('Intake Submitted', {
+    distinct_id: formData.email,
+    service: submissionType,
+    score: leadScore.score,
+    value: price || 0
+  });
+}
    // PARALLEL PROCESSING
    const operations = [];
   
@@ -1989,6 +2023,14 @@ app.post('/legal-strategy-builder', async (req, res) => {
    const leadScore = calculateLeadScore(formData, submissionType);
    await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    console.log(`📊 Lead score: ${leadScore.score}/100`);
+   if (mixpanel) {
+  mixpanel.track('Assessment Completed', {
+    distinct_id: formData.email,
+    service: submissionType,
+    score: leadScore.score,
+    value: 0  // No price for assessments
+  });
+}
    // Analysis
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
    // PARALLEL PROCESSING
@@ -2527,6 +2569,14 @@ app.post('/download-primary-guide', async (req, res) => {
    const leadScore = calculateLeadScore(formData, submissionType);
    await trackForFollowupWithSave(formData.email, formData, leadScore, submissionType);
    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+   if (mixpanel) {
+  mixpanel.track('Assessment Completed', {
+    distinct_id: formData.email,
+    service: submissionType,
+    score: leadScore.score,
+    value: 0  // No price for assessments
+  });
+}
    // PARALLEL PROCESSING
    const operations = [];
   

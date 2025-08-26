@@ -2262,6 +2262,14 @@ app.post('/add-subscriber', async (req, res) => {
     } else {
       console.log('✅ New subscriber added to Mailchimp');
     }
+    // Track in Mixpanel
+if (mixpanel) {
+  mixpanel.track('Newsletter Signup', {
+    distinct_id: email,
+    source: source,
+    timestamp: new Date().toISOString()
+  });
+}
     // SEND IMMEDIATE WELCOME EMAIL
     console.log('📨 Sending welcome email to:', email);
     const firstName = email.split('@')[0];

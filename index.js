@@ -2228,52 +2228,62 @@ app.post('/add-subscriber', async (req, res) => {
       }
     };
 
-    const response = await fetch(
-      `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(memberData)
-      }
-    );
+   const response = await fetch(
+  `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(memberData)
+  }
+);
 
-    if (response.status === 400) {
-      const crypto = await import('crypto');
-      const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
-
-      await fetch(
-        `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            tags: tags.map(tag => ({ name: tag, status: 'active' }))
-          })
+if (response.status === 400) {
+    const errorBody = await response.json();
+    
+    // Check if it's because they already exist
+    if (errorBody.title === 'Member Exists') {
+        // Track duplicate attempt in Mixpanel
+        if (mixpanel) {
+            mixpanel.track('Newsletter Duplicate Attempt', {
+                distinct_id: email,
+                source: source
+            });
         }
-      );
-
-      console.log('✅ Updated existing subscriber tags');
-    } else {
-      console.log('✅ New subscriber added to Mailchimp');
+        
+        // Return 409 status so frontend knows they're already subscribed
+        return res.status(409).json({ 
+            ok: false, 
+            error: 'already_subscribed',
+            message: "You're already subscribed to our newsletter"
+        });
     }
-    // Track in Mixpanel
-if (mixpanel) {
-  mixpanel.track('Newsletter Signup', {
-    distinct_id: email,
-    source: source,
-    timestamp: new Date().toISOString()
-  });
+    
+    // If error is something else, handle normally
+    return res.status(400).json({ 
+        ok: false, 
+        error: errorBody.detail || 'Subscription failed'
+    });
+} else {
+    // Success - new subscriber added
+    console.log('✅ New subscriber added to Mailchimp');
+    
+    // Track successful signup in Mixpanel
+    if (mixpanel) {
+        mixpanel.track('Newsletter Signup', {
+            distinct_id: email,
+            source: source,
+            timestamp: new Date().toISOString()
+        });
+    }
 }
-    // SEND IMMEDIATE WELCOME EMAIL
-    console.log('📨 Sending welcome email to:', email);
-    const firstName = email.split('@')[0];
-    const welcomeEmailHtml = `
+
+// SEND IMMEDIATE WELCOME EMAIL (only gets here for new subscribers)
+console.log('📨 Sending welcome email to:', email);
+const firstName = email.split('@')[0];
+const welcomeEmailHtml = `...`;
 <!DOCTYPE html>
 <html>
 <head>

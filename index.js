@@ -2372,22 +2372,76 @@ if (mixpanel) {
       // Don't crash if email fails - still return success for the signup
     }
 
-    // Also send notification to admin
-    try {
-      await sendEnhancedEmail({
-        to: ['drew@jacobscounsellaw.com'],
-        subject: `📧 New Newsletter Subscriber: ${email}`,
-        html: `
-          <h2>New Newsletter Subscriber</h2>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Source:</strong> ${source}</p>
-          <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-        `
-      });
-      console.log('✅ Admin notification sent');
-    } catch (error) {
-      console.error('❌ Admin notification failed:', error.message);
-    }
+   // Send ACTIONABLE notification to admin
+try {
+  // Quick lookup to see if this is a returning visitor
+  const existingLeadCheck = await pool.query(
+    'SELECT data FROM followups WHERE email = $1', 
+    [email]
+  );
+  const isExistingLead = existingLeadCheck.rows.length > 0;
+  const previousScore = existingLeadCheck.rows[0]?.data?.leadScore || null;
+  
+  // Check email domain for intent signals
+  const domain = email.split('@')[1];
+  const isBusinessEmail = !['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'].includes(domain);
+  
+  const adminHtml = `
+    <div style="font-family: Arial; max-width: 600px;">
+      <div style="background: ${isBusinessEmail ? '#fef3c7' : '#f3f4f6'}; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h2 style="margin: 0; color: #111827;">
+          ${isBusinessEmail ? '🏢 BUSINESS EMAIL' : '📧 Personal Email'} Newsletter Signup
+        </h2>
+        ${isExistingLead ? `<p style="color: #dc2626; font-weight: bold;">⚠️ RETURNING LEAD - Previous Score: ${previousScore}/100</p>` : ''}
+      </div>
+      
+      <div style="background: white; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+        <h3 style="color: #111827; margin-top: 0;">Quick Actions:</h3>
+        <div>
+          <a href="mailto:${email}?subject=Welcome to Jacobs Counsel - Quick Question" 
+             style="display: inline-block; background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin: 5px;">
+            📧 Send Personal Welcome
+          </a>
+          <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(email.split('@')[0])}" 
+             style="display: inline-block; background: #0077b5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin: 5px;">
+            🔍 LinkedIn Lookup
+          </a>
+        </div>
+        
+        <h3 style="color: #111827; margin-top: 20px;">Intel:</h3>
+        <ul style="color: #4b5563;">
+          <li><strong>Email:</strong> ${email}</li>
+          <li><strong>Domain:</strong> ${domain} ${isBusinessEmail ? '(Potential B2B)' : ''}</li>
+          <li><strong>Source:</strong> ${source}</li>
+          <li><strong>Time:</strong> ${new Date().toLocaleString()} (${new Date().getDay() === 0 || new Date().getDay() === 6 ? 'Weekend' : 'Weekday'})</li>
+          <li><strong>Status:</strong> ${isExistingLead ? 'Re-engaged previous lead' : 'Brand new contact'}</li>
+        </ul>
+        
+        ${isBusinessEmail ? `
+        <div style="background: #fef3c7; padding: 15px; border-radius: 6px; margin-top: 20px;">
+          <strong>🎯 High Intent Signal:</strong> Business email suggests professional interest. 
+          Consider immediate personal outreach.
+        </div>
+        ` : ''}
+        
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
+          <strong>Next Steps:</strong><br>
+          • Automated welcome email sent<br>
+          • Added to ${isBusinessEmail ? 'premium' : 'standard'} nurture sequence<br>
+          • Follow-up scheduled for Day ${isBusinessEmail ? '1' : '3'}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  await sendEnhancedEmail({
+    to: ['drew@jacobscounsellaw.com'],
+    subject: `${isBusinessEmail ? '🏢 Business' : '📧'} Newsletter: ${email.split('@')[0]} from ${domain}`,
+    html: adminHtml
+  });
+} catch (error) {
+  console.error('Admin notification failed:', error.message);
+}
 
     // Track newsletter subscriber for follow-ups
     if (email) {

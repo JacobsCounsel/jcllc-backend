@@ -2283,8 +2283,7 @@ if (response.status === 400) {
 // SEND IMMEDIATE WELCOME EMAIL (only gets here for new subscribers)
 console.log('📨 Sending welcome email to:', email);
 const firstName = email.split('@')[0];
-const welcomeEmailHtml = `...`;
-<!DOCTYPE html>
+const welcomeEmailHtml = `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">

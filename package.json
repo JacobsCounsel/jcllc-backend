@@ -1,38 +1,19 @@
 {
-  "name": "jacobs-counsel-unified-intake",
-  "version": "3.1.0",
-  "description": "Enhanced unified AI-powered intake system with performance optimizations and security",
+  "name": "jacobs-counsel-backend",
+  "version": "3.0.0",
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
+    "cors": "^2.8.5",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.2",
-    "node-cron": "^3.0.3",
-    "node-cache": "^5.1.2",
+    "express-rate-limit": "^7.1.5",
     "validator": "^13.11.0",
-    "pg": "^8.12.0",
+    "node-cache": "^5.1.2",
     "mixpanel": "^0.18.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "keywords": [
-    "legal-tech",
-    "intake-automation",
-    "ai-powered",
-    "lead-scoring",
-    "client-management",
-    "performance-optimized",
-    "security-enhanced"
-  ],
-  "author": "Jacobs Counsel LLC",
-  "license": "UNLICENSED",
-  "private": true
+  }
 }

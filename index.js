@@ -1,4 +1,4 @@
-// index.js - Complete file
+// index.js - Simplified with Calendly integration, no database
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -7,7 +7,6 @@ import { Buffer } from 'buffer';
 import rateLimit from 'express-rate-limit';
 import validator from 'validator';
 import NodeCache from 'node-cache';
-import pg from 'pg';
 import Mixpanel from 'mixpanel';
 
 const mixpanel = process.env.MIXPANEL_TOKEN ? Mixpanel.init(process.env.MIXPANEL_TOKEN) : null;
@@ -15,60 +14,56 @@ const cache = new NodeCache({ stdTTL: 600 });
 
 // ==================== CONFIGURATION ====================
 const PORT = process.env.PORT || 3000;
+// AI Configuration
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+// Microsoft Graph
 const MS_TENANT_ID = process.env.MS_TENANT_ID || '';
 const MS_CLIENT_ID = process.env.MS_CLIENT_ID || '';
 const MS_CLIENT_SECRET = process.env.MS_CLIENT_SECRET || '';
 const MS_GRAPH_SENDER = process.env.MS_GRAPH_SENDER || '';
+// Mailchimp
 const MAILCHIMP_API_KEY = process.env.MAILCHIMP_API_KEY || '';
 const MAILCHIMP_SERVER = process.env.MAILCHIMP_SERVER || 'us21';
 const MAILCHIMP_AUDIENCE_ID = process.env.MAILCHIMP_AUDIENCE_ID || '';
+// Calendly - UPDATE THESE AFTER CALENDLY SETUP
+const CALENDLY_WEBHOOK_SECRET = process.env.CALENDLY_WEBHOOK_SECRET || ''; // UPDATE #1
+const CALENDLY_LINKS = {
+  'estate-planning': process.env.CALENDLY_ESTATE_LINK || 'https://calendly.com/your-calendly/estate-planning', // UPDATE #2
+  'business-formation': process.env.CALENDLY_BUSINESS_LINK || 'https://calendly.com/your-calendly/business-formation', // UPDATE #3
+  'brand-protection': process.env.CALENDLY_BRAND_LINK || 'https://calendly.com/your-calendly/brand-protection', // UPDATE #4
+  'priority': process.env.CALENDLY_PRIORITY_LINK || 'https://calendly.com/your-calendly/priority-consultation', // UPDATE #5
+  'general': process.env.CALENDLY_GENERAL_LINK || 'https://calendly.com/your-calendly/consultation' // UPDATE #6
+};
+// Clio Grow
 const CLIO_GROW_BASE = process.env.CLIO_GROW_BASE || 'https://grow.clio.com';
 const CLIO_GROW_INBOX_TOKEN = process.env.CLIO_GROW_INBOX_TOKEN || '';
+// Internal notifications
 const INTAKE_NOTIFY_TO = process.env.INTAKE_NOTIFY_TO || 'intake@jacobscounsellaw.com';
 const HIGH_VALUE_NOTIFY_TO = process.env.HIGH_VALUE_NOTIFY_TO || 'drew@jacobscounsellaw.com';
-const MOTION_LINK = process.env.MOTION_LINK || 'https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm';
-const LEGAL_GUIDE_PDF_URL = process.env.LEGAL_GUIDE_PDF_URL || '';
 
-// ==================== DATABASE SETUP ====================
-const pool = new pg.Pool({
-  connectionString: process.env.PG_URI,
-  ssl: { rejectUnauthorized: false },
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+// ==================== ENVIRONMENT VALIDATION ====================
+function validateEnvironment() {
+  const requiredVars = {
+    'Email Service': MS_CLIENT_ID && MS_CLIENT_SECRET && MS_TENANT_ID && MS_GRAPH_SENDER,
+    'OpenAI': OPENAI_API_KEY,
+    'Mailchimp': MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID,
+  };
 
-async function initDB() {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS intakes (
-        id SERIAL PRIMARY KEY,
-        email TEXT,
-        type TEXT,
-        score INTEGER,
-        data JSONB,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-      CREATE INDEX IF NOT EXISTS idx_intakes_email ON intakes(email);
-      CREATE INDEX IF NOT EXISTS idx_intakes_type ON intakes(type);
-      CREATE INDEX IF NOT EXISTS idx_intakes_created ON intakes(created_at);
-    `);
-    console.log('✅ Database ready');
-  } catch (e) {
-    console.error('⚠️ Database init failed (will work without it):', e.message);
+  console.log('🔍 Environment Check:');
+  Object.entries(requiredVars).forEach(([service, isConfigured]) => {
+    console.log(` ${service}: ${isConfigured ? '✅ Configured' : '⚠️ Not configured'}`);
+  });
+
+  if (!MS_CLIENT_ID || !MS_CLIENT_SECRET || !MS_TENANT_ID || !MS_GRAPH_SENDER) {
+    throw new Error('Critical environment variables missing. Server cannot start.');
   }
 }
-initDB();
 
 // ==================== EXPRESS SETUP ====================
 const app = express();
 app.set('trust proxy', 1);
-app.use(cors({
-  origin: ['https://jacobscounsellaw.com', 'http://localhost:3000'],
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -76,7 +71,7 @@ app.use(express.urlencoded({ extended: true }));
 const standardLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
-  message: 'Too many requests, please try again later.',
+  message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -104,18 +99,18 @@ function escapeHtml(unsafe) {
 
 function sanitizeInput(data) {
   if (!data || typeof data !== 'object') return {};
-  
+
   const sanitized = {};
   for (const [key, value] of Object.entries(data)) {
     if (value === null || value === undefined) {
       sanitized[key] = '';
       continue;
     }
-    
+
     if (typeof value === 'string') {
       let cleanValue = value.trim();
       cleanValue = escapeHtml(cleanValue);
-      
+
       if (key === 'email' && cleanValue) {
         sanitized[key] = validator.isEmail(cleanValue) ? validator.normalizeEmail(cleanValue) : '';
       } else if (key === 'phone' && cleanValue) {
@@ -132,97 +127,308 @@ function sanitizeInput(data) {
   return sanitized;
 }
 
+// Get appropriate Calendly link based on type and score
+function getCalendlyLink(submissionType, leadScore) {
+  // High value leads get priority booking
+  if (leadScore.score >= 70) {
+    return CALENDLY_LINKS['priority'];
+  }
+  
+  // Map intake types to appropriate Calendly links
+  const typeMap = {
+    'estate-intake': 'estate-planning',
+    'business-formation': 'business-formation',
+    'brand-protection': 'brand-protection',
+    'outside-counsel': 'general',
+    'legal-strategy-builder': 'general',
+    'newsletter': 'general'
+  };
+  
+  return CALENDLY_LINKS[typeMap[submissionType]] || CALENDLY_LINKS['general'];
+}
+
 // ==================== LEAD SCORING ====================
 function calculateLeadScore(formData, submissionType) {
   let score = 0;
-  let factors = [];
+  let scoreFactors = [];
   
   const baseScores = {
     'estate-intake': 40,
     'business-formation': 50,
     'brand-protection': 35,
     'outside-counsel': 45,
-    'legal-strategy-builder': 55,
     'legal-guide-download': 30,
-    'newsletter': 20
+    'legal-strategy-builder': 55
   };
   
   score += baseScores[submissionType] || 30;
-  factors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
+  scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
+  
+  if (formData.fromAssessment === 'true' || formData.source === 'legal-strategy-builder-conversion') {
+    score += 20;
+    scoreFactors.push('Strategy Builder conversion: +20');
+
+    if (formData.assessmentScore) {
+      const assessmentScore = parseInt(formData.assessmentScore);
+      if (assessmentScore >= 70) {
+        score += 15;
+        scoreFactors.push('High assessment score: +15');
+      } else if (assessmentScore >= 50) {
+        score += 10;
+        scoreFactors.push('Good assessment score: +10');
+      }
+    }
+  }
   
   // Estate Planning Scoring
   if (submissionType === 'estate-intake') {
     const grossEstate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
-    
-    if (grossEstate > 5000000) { 
-      score += 50; 
-      factors.push('High net worth (>$5M): +50'); 
-    } else if (grossEstate > 2000000) { 
-      score += 35; 
-      factors.push('Significant assets (>$2M): +35'); 
-    } else if (grossEstate > 1000000) { 
-      score += 25; 
-      factors.push('Substantial assets (>$1M): +25'); 
-    }
-    
+
+    if (grossEstate > 5000000) { score += 50; scoreFactors.push('High net worth (>$5M): +50'); }
+    else if (grossEstate > 2000000) { score += 35; scoreFactors.push('Significant assets (>$2M): +35'); }
+    else if (grossEstate > 1000000) { score += 25; scoreFactors.push('Substantial assets (>$1M): +25'); }
+
     if (formData.packagePreference?.toLowerCase().includes('trust')) {
-      score += 30; 
-      factors.push('Trust preference: +30');
+      score += 30; scoreFactors.push('Trust preference: +30');
     }
-    
-    if (formData.ownBusiness === 'Yes') { 
-      score += 20; 
-      factors.push('Business owner: +20'); 
-    }
+
+    if (formData.ownBusiness === 'Yes') { score += 20; scoreFactors.push('Business owner: +20'); }
+    if (formData.otherRealEstate === 'Yes') { score += 15; scoreFactors.push('Multiple properties: +15'); }
+    if (formData.planningGoal === 'complex') { score += 25; scoreFactors.push('Complex situation: +25'); }
   }
   
   // Business Formation Scoring
   if (submissionType === 'business-formation') {
-    if (formData.investmentPlan === 'vc') { 
-      score += 60; 
-      factors.push('VC-backed startup: +60'); 
-    } else if (formData.investmentPlan === 'angel') { 
-      score += 40; 
-      factors.push('Angel funding: +40'); 
+    if (formData.investmentPlan === 'vc') { score += 60; scoreFactors.push('VC-backed startup: +60'); }
+    else if (formData.investmentPlan === 'angel') { score += 40; scoreFactors.push('Angel funding: +40'); }
+
+    const revenue = formData.projectedRevenue || '';
+    if (revenue.includes('over25m')) { score += 50; scoreFactors.push('High revenue projection: +50'); }
+    else if (revenue.includes('5m-25m')) { score += 35; scoreFactors.push('Significant revenue: +35'); }
+
+    if (formData.businessGoal === 'startup') { score += 20; scoreFactors.push('High-growth startup: +20'); }
+    if (formData.selectedPackage === 'gold') { score += 25; scoreFactors.push('Premium package: +25'); }
+  }
+  
+  // Brand Protection Scoring
+  if (submissionType === 'brand-protection') {
+    if (formData.servicePreference?.includes('Portfolio') || formData.servicePreference?.includes('7500')) {
+      score += 40; scoreFactors.push('Comprehensive portfolio: +40');
     }
-    
-    if (formData.selectedPackage === 'gold') { 
-      score += 25; 
-      factors.push('Premium package: +25'); 
-    }
+
+    if (formData.businessStage === 'Mature (5+ years)') { score += 20; scoreFactors.push('Established business: +20'); }
+    if (formData.protectionGoal === 'enforcement') { score += 35; scoreFactors.push('Enforcement need: +35'); }
   }
   
   // Outside Counsel Scoring
   if (submissionType === 'outside-counsel') {
-    if (formData.budget?.includes('10K+')) { 
-      score += 40; 
-      factors.push('High budget (>$10K): +40'); 
-    } else if (formData.budget?.includes('5K-10K')) { 
-      score += 25; 
-      factors.push('Substantial budget: +25'); 
-    }
+    if (formData.budget?.includes('10K+')) { score += 40; scoreFactors.push('High budget (>$10K): +40'); }
+    else if (formData.budget?.includes('5K-10K')) { score += 25; scoreFactors.push('Substantial budget: +25'); }
+
+    if (formData.timeline === 'Immediately') { score += 30; scoreFactors.push('Immediate need: +30'); }
   }
   
-  // Urgency scoring
-  if (formData.urgency?.toLowerCase().includes('immediate')) {
-    score += 40; 
-    factors.push('Urgent timeline: +40');
+  // Universal scoring factors
+  if (formData.urgency?.includes('Immediate') || formData.urgency?.includes('urgent')) {
+    score += 40; scoreFactors.push('Urgent timeline: +40');
+  }
+
+  const email = formData.email || '';
+  if (email && !email.includes('@gmail.com') && !email.includes('@yahoo.com') && !email.includes('@hotmail.com')) {
+    score += 10; scoreFactors.push('Business email: +10');
   }
   
-  return { 
-    score: Math.min(score, 100), 
-    factors,
-    isHighValue: score >= 70,
-    isUrgent: formData.urgency?.toLowerCase().includes('immediate')
-  };
+  return { score: Math.min(score, 100), factors: scoreFactors };
 }
 
-// ==================== MICROSOFT GRAPH EMAIL ====================
+// ==================== AI ANALYSIS (Optional - can remove if not using) ====================
+async function analyzeIntakeWithAI(formData, submissionType, leadScore) {
+  if (!OPENAI_API_KEY) return { analysis: null, recommendations: null, riskFlags: [] };
+
+  const cacheKey = `ai_analysis_${submissionType}_${leadScore.score}_${JSON.stringify(formData).substring(0, 50)}`;
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('📦 Using cached analysis');
+    return cached;
+  }
+
+  const systemPrompt = `You are a senior legal strategist. Analyze this intake briefly.
+Provide: ANALYSIS: [2-3 sentences] RECOMMENDATIONS: [Brief suggestions] RISK_FLAGS: [Any concerns]`;
+  
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        temperature: 0.3,
+        max_tokens: 500,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `${submissionType}: ${JSON.stringify(formData)}` }
+        ]
+      })
+    });
+    
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    
+    const sections = {
+      analysis: content.match(/ANALYSIS: (.+?)(?=RECOMMENDATIONS:|$)/s)?.[1]?.trim(),
+      recommendations: content.match(/RECOMMENDATIONS: (.+?)(?=RISK_FLAGS:|$)/s)?.[1]?.trim(),
+      riskFlags: content.match(/RISK_FLAGS: (.+?)$/s)?.[1]?.trim()
+    };
+    
+    cache.set(cacheKey, sections);
+    return sections;
+  } catch (error) {
+    console.error('AI analysis failed:', error);
+    return { analysis: null, recommendations: null, riskFlags: [] };
+  }
+}
+
+// ==================== MAILCHIMP FUNCTIONS ====================
+function generateSmartTags(formData, leadScore, submissionType) {
+  const tags = [
+    `intake-${submissionType}`,
+    `date-${new Date().toISOString().split('T')[0]}`
+  ];
+
+  if (leadScore.score >= 70) {
+    tags.push('high-priority');
+    tags.push('trigger-vip-sequence');
+  } else if (leadScore.score >= 50) {
+    tags.push('medium-priority');
+    tags.push('trigger-premium-nurture');
+  } else {
+    tags.push('standard-priority');
+    tags.push('trigger-standard-nurture');
+  }
+
+  // Service-specific tags
+  if (submissionType === 'estate-intake') {
+    const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
+    if (estate > 5000000) tags.push('sequence-estate-tax');
+    else if (estate > 2000000) tags.push('sequence-wealth-protection');
+    else if (estate > 1000000) tags.push('sequence-asset-protection');
+    else tags.push('sequence-basic-planning');
+
+    if (formData.packagePreference?.includes('trust')) tags.push('sequence-trust-planning');
+    if (formData.ownBusiness === 'Yes') tags.push('sequence-business-succession');
+  }
+
+  if (submissionType === 'business-formation') {
+    if (formData.investmentPlan?.includes('vc')) tags.push('sequence-vc-startup');
+    if (formData.investmentPlan?.includes('angel')) tags.push('sequence-angel-funding');
+  }
+
+  if (submissionType === 'brand-protection') {
+    if (formData.protectionGoal?.includes('enforcement')) tags.push('sequence-ip-enforcement');
+    if (formData.protectionGoal?.includes('registration')) tags.push('sequence-trademark-registration');
+  }
+
+  return tags;
+}
+
+function buildSmartFields(formData, leadScore, submissionType) {
+  const calendlyLink = getCalendlyLink(submissionType, leadScore);
+  
+  const fields = {
+    FNAME: formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || '',
+    LNAME: formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || '',
+    EMAIL: formData.email,
+    PHONE: formData.phone || '',
+    BUSINESS: formData.businessName || formData.companyName || '',
+    LEAD_SCORE: leadScore.score,
+    PRIORITY: leadScore.score >= 70 ? 'High Priority' : leadScore.score >= 50 ? 'Medium Priority' : 'Standard',
+    SERVICE_TYPE: submissionType.replace('-', ' '),
+    SIGNUP_DATE: new Date().toISOString().split('T')[0],
+    LEAD_SOURCE: 'Website Intake Form',
+    CALENDLY: calendlyLink
+  };
+
+  if (submissionType === 'estate-intake') {
+    const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
+    fields.ESTATE_AMOUNT = estate > 0 ? '$' + estate.toLocaleString() : 'Not specified';
+    fields.HAS_BUSINESS = formData.ownBusiness === 'Yes' ? 'Yes' : 'No';
+    fields.HAS_KIDS = formData.hasMinorChildren === 'Yes' ? 'Yes' : 'No';
+  }
+
+  if (submissionType === 'business-formation') {
+    fields.STARTUP_TYPE = formData.investmentPlan || 'Not specified';
+    fields.BUSINESS_TYPE = formData.businessType || 'Not specified';
+  }
+
+  return fields;
+}
+
+async function addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis) {
+  if (!MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
+    console.log('Mailchimp not configured, skipping');
+    return { skipped: true };
+  }
+  
+  const tags = generateSmartTags(formData, leadScore, submissionType);
+  const mergeFields = buildSmartFields(formData, leadScore, submissionType);
+  
+  const memberData = {
+    email_address: formData.email,
+    status: 'subscribed',
+    merge_fields: mergeFields,
+    tags: tags,
+    timestamp_signup: new Date().toISOString()
+  };
+  
+  try {
+    const response = await fetch(
+      `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(memberData)
+      }
+    );
+    
+    if (response.status === 400) {
+      const crypto = await import('crypto');
+      const hashedEmail = crypto.createHash('md5').update(formData.email.toLowerCase()).digest('hex');
+      
+      const updateResponse = await fetch(
+        `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            merge_fields: mergeFields,
+            tags: tags
+          })
+        }
+      );
+      return await updateResponse.json();
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Mailchimp error:', error);
+    return { error: error.message };
+  }
+}
+
+// ==================== MICROSOFT GRAPH ====================
 async function getGraphToken() {
   if (!MS_TENANT_ID || !MS_CLIENT_ID || !MS_CLIENT_SECRET) {
     throw new Error('MS Graph credentials missing');
   }
-  
+
   const body = new URLSearchParams({
     client_id: MS_CLIENT_ID,
     client_secret: MS_CLIENT_SECRET,
@@ -244,169 +450,82 @@ async function getGraphToken() {
   return json.access_token;
 }
 
-async function sendEmail({ to, subject, html, priority = 'normal', attachments = [] }) {
-  try {
-    if (!MS_GRAPH_SENDER) throw new Error('MS_GRAPH_SENDER not configured');
-    
-    const token = await getGraphToken();
-    
-    const mail = {
-      message: {
-        subject,
-        body: { contentType: 'HTML', content: html },
-        toRecipients: to.map(address => ({ emailAddress: { address } })),
-        importance: priority === 'high' ? 'high' : 'normal',
-        attachments: attachments.slice(0, 10).map(att => ({
-          '@odata.type': '#microsoft.graph.fileAttachment',
-          name: att.filename || 'attachment',
-          contentType: att.contentType || 'application/octet-stream',
-          contentBytes: Buffer.isBuffer(att.content)
-            ? att.content.toString('base64')
-            : Buffer.from(att.content).toString('base64')
-        }))
-      },
-      saveToSentItems: true
-    };
-    
-    const response = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MS_GRAPH_SENDER)}/sendMail`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(mail)
-      }
-    );
-    
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      throw new Error(`sendMail failed ${response.status} ${errorText}`);
-    }
-  } catch (error) {
-    console.error('Email send failed:', error);
-    throw error;
-  }
-}
+async function sendEnhancedEmail({ to, subject, html, priority = 'normal', attachments = [] }) {
+  if (!MS_GRAPH_SENDER) throw new Error('MS_GRAPH_SENDER not configured');
 
-// ==================== MAILCHIMP INTEGRATION ====================
-async function addToMailchimp(formData, submissionType, leadScore) {
-  if (!MAILCHIMP_API_KEY || !MAILCHIMP_AUDIENCE_ID) {
-    console.log('Mailchimp not configured, skipping');
-    return { skipped: true };
-  }
-  
-  // Generate tags for automation
-  const tags = [
-    `intake-${submissionType}`,
-    `score-${Math.floor(leadScore.score/10)*10}`,
-    `date-${new Date().toISOString().split('T')[0]}`
-  ];
-  
-  // Automation trigger tags based on score
-  if (leadScore.isHighValue) {
-    tags.push('hot-lead-daily');
-    tags.push('priority-outreach');
-  } else if (leadScore.score >= 50) {
-    tags.push('warm-lead-3day');
-  } else if (submissionType === 'newsletter') {
-    tags.push('newsletter-welcome');
-  } else {
-    tags.push('standard-lead-weekly');
-  }
-  
-  if (leadScore.isUrgent) tags.push('urgent-followup');
-  
-  // Service-specific automations
-  const automationMap = {
-    'estate-intake': 'estate-planning-sequence',
-    'business-formation': 'business-formation-sequence',
-    'brand-protection': 'brand-protection-sequence',
-    'outside-counsel': 'outside-counsel-sequence',
-    'legal-strategy-builder': 'assessment-followup',
-    'newsletter': 'newsletter-sequence'
-  };
-  
-  if (automationMap[submissionType]) {
-    tags.push(automationMap[submissionType]);
-  }
-  
-  const memberData = {
-    email_address: formData.email,
-    status: 'subscribed',
-    merge_fields: {
-      FNAME: formData.firstName || formData.fullName?.split(' ')[0] || '',
-      LNAME: formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || '',
-      PHONE: formData.phone || '',
-      LEADSCORE: leadScore.score,
-      SERVICETYPE: submissionType.replace('-', ' ')
+  const token = await getGraphToken();
+
+  const mail = {
+    message: {
+      subject,
+      body: { contentType: 'HTML', content: html },
+      toRecipients: to.map(address => ({ emailAddress: { address } })),
+      importance: priority === 'high' ? 'high' : 'normal',
+      attachments: attachments.slice(0, 10).map(att => ({
+        '@odata.type': '#microsoft.graph.fileAttachment',
+        name: att.filename || 'attachment',
+        contentType: att.contentType || 'application/octet-stream',
+        contentBytes: Buffer.isBuffer(att.content)
+          ? att.content.toString('base64')
+          : Buffer.from(att.content).toString('base64')
+      }))
     },
-    tags: tags
+    saveToSentItems: true
   };
   
-  try {
-    const response = await fetch(
-      `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(memberData)
-      }
-    );
-    
-    if (response.status === 400) {
-      // Member exists, update tags
-      const crypto = await import('crypto');
-      const hashedEmail = crypto.createHash('md5').update(formData.email.toLowerCase()).digest('hex');
-      
-      await fetch(
-        `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            tags: tags.map(tag => ({ name: tag, status: 'active' }))
-          })
-        }
-      );
+  const response = await fetch(
+    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MS_GRAPH_SENDER)}/sendMail`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(mail)
     }
-    
-    console.log(`✅ Added to Mailchimp with tags: ${tags.join(', ')}`);
-    return { success: true };
-  } catch (error) {
-    console.error('Mailchimp error:', error);
-    return { error: error.message };
+  );
+  
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(`sendMail failed ${response.status} ${errorText}`);
   }
 }
 
-// ==================== CLIO INTEGRATION ====================
+// ==================== CLIO GROW INTEGRATION ====================
 async function createClioLead(formData, submissionType, leadScore) {
   if (!CLIO_GROW_INBOX_TOKEN) {
     console.log('Clio Grow not configured, skipping');
     return { skipped: true };
   }
   
-  const firstName = formData.firstName || formData.fullName?.split(' ')[0] || 'Unknown';
-  const lastName = formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || 'Client';
-  
-  let message = `${submissionType.replace('-', ' ').toUpperCase()} Lead (Score: ${leadScore.score}/100)\n\n`;
-  
-  if (submissionType === 'estate-intake') {
-    message += `Estate Value: ${formData.grossEstate || 'Not specified'}\n`;
-    message += `Package: ${formData.packagePreference || 'Not specified'}\n`;
-  } else if (submissionType === 'business-formation') {
-    message += `Business: ${formData.businessName || 'Not specified'}\n`;
-    message += `Package: ${formData.selectedPackage || 'Not specified'}\n`;
+  let firstName = 'Not Provided';
+  let lastName = 'Not Provided';
+
+  const nameSources = [
+    { first: formData.firstName, last: formData.lastName },
+    { full: formData.fullName },
+    { full: formData.contactName },
+    { full: formData.founderName },
+    { first: formData.email?.split('@')[0], last: 'Client' }
+  ];
+
+  for (const source of nameSources) {
+    if (source.first && source.last) {
+      firstName = source.first;
+      lastName = source.last;
+      break;
+    } else if (source.full) {
+      const parts = source.full.trim().split(' ');
+      if (parts.length > 0) {
+        firstName = parts[0];
+        lastName = parts.slice(1).join(' ') || 'Client';
+        break;
+      }
+    }
   }
-  
-  message += `\nFull Details:\n${JSON.stringify(formData, null, 2)}`;
+
+  let message = `${submissionType.replace('-', ' ').toUpperCase()} Lead (Score: ${leadScore.score}/100)\n\n`;
+  message += `Details:\n${JSON.stringify(formData, null, 2)}`;
   
   const clioPayload = {
     inbox_lead: {
@@ -442,195 +561,256 @@ async function createClioLead(formData, submissionType, leadScore) {
 }
 
 // ==================== EMAIL TEMPLATES ====================
-function generateInternalAlert(formData, leadScore, submissionType, submissionId) {
-  const isHighValue = leadScore.isHighValue;
-  const name = formData.firstName || formData.fullName || formData.contactName || 'Unknown';
-  
-  // Clear subject lines based on actual submission type
-  let subject = '';
-  if (submissionType === 'newsletter') {
-    subject = `Newsletter Signup: ${formData.email}`;
-  } else if (submissionType === 'legal-guide-download') {
-    subject = `Guide Download: ${name}`;
-  } else if (isHighValue) {
-    subject = `🔥 HIGH VALUE ${submissionType.replace('-', ' ').toUpperCase()}: ${name}`;
-  } else {
-    subject = `New ${submissionType.replace('-', ' ')}: ${name}`;
-  }
+function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId) {
+  const isHighValue = leadScore.score >= 70;
+  const calendlyLink = getCalendlyLink(submissionType, leadScore);
   
   return `
 <!DOCTYPE html>
 <html>
 <body style="font-family: Arial, sans-serif; padding: 20px;">
-  <div style="max-width: 700px; margin: 0 auto;">
-    ${isHighValue ? `
-    <div style="background: #dc2626; color: white; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-      <h2 style="margin: 0; color: white;">🔥 HIGH VALUE LEAD - Score: ${leadScore.score}/100</h2>
-    </div>
-    ` : ''}
-    
-    <h1 style="color: #ff4d00;">New ${submissionType.replace('-', ' ').toUpperCase()} Intake</h1>
-    
-    <div style="background: #f8fafc; padding: 24px; border-radius: 8px;">
-      <h3>Contact Information</h3>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> <a href="mailto:${formData.email}">${formData.email}</a></p>
-      <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
-      <p><strong>Lead Score:</strong> ${leadScore.score}/100</p>
-      ${leadScore.isUrgent ? '<p style="color: red;"><strong>⚠️ URGENT - Immediate response needed</strong></p>' : ''}
-    </div>
-    
-    <div style="background: #e0f2fe; padding: 24px; border-radius: 8px; margin: 24px 0; text-align: center;">
-      <a href="mailto:${formData.email}" style="background: #0369a1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px;">
-        📧 Email Client
-      </a>
-      <a href="${MOTION_LINK}" style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px;">
-        📅 Book Consultation
-      </a>
-    </div>
-    
-    <details>
-      <summary style="cursor: pointer;">Full Form Data</summary>
-      <pre style="background: #f8fafc; padding: 16px; border-radius: 8px;">${JSON.stringify(formData, null, 2)}</pre>
-    </details>
-    
-    <p style="font-size: 14px; color: #64748b;">
-      Submission ID: ${submissionId} | Mailchimp automation triggered
-    </p>
-  </div>
+    <div style="max-width: 700px; margin: 0 auto;">
+        ${isHighValue ? `
+        <div style="background: #dc2626; color: white; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <h2 style="margin: 0; color: white;">🔥 HIGH VALUE LEAD - Score: ${leadScore.score}/100</h2>
+        </div>
+        ` : ''}
+        
+        <h1>New ${submissionType.replace('-', ' ').toUpperCase()} Intake</h1>
+        
+        <div style="background: #f8fafc; padding: 24px; border-radius: 8px;">
+            <h3>Contact Information</h3>
+            <p><strong>Name:</strong> ${formData.firstName || formData.fullName || formData.contactName || ''}</p>
+            <p><strong>Email:</strong> <a href="mailto:${formData.email}">${formData.email}</a></p>
+            <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
+            <p><strong>Lead Score:</strong> ${leadScore.score}/100</p>
+        </div>
+        
+        ${aiAnalysis?.analysis ? `
+        <div style="background: #fffbeb; padding: 24px; border-radius: 8px; margin: 24px 0;">
+            <h3>AI Analysis</h3>
+            <p><strong>Situation:</strong> ${aiAnalysis.analysis}</p>
+            <p><strong>Recommendations:</strong> ${aiAnalysis.recommendations}</p>
+            ${aiAnalysis.riskFlags ? `<p><strong>Risk Flags:</strong> ${aiAnalysis.riskFlags}</p>` : ''}
+        </div>
+        ` : ''}
+        
+        <div style="background: #e0f2fe; padding: 24px; border-radius: 8px; margin: 24px 0; text-align: center;">
+           <a href="mailto:${formData.email}" style="background: #0369a1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px;">
+              📧 Email Client
+           </a>
+           <a href="${calendlyLink}" style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px;">
+              📅 Send Calendar Link
+           </a>
+       </div>
+       
+       <details>
+           <summary>Full Form Data</summary>
+           <pre style="background: #f8fafc; padding: 16px;">${JSON.stringify(formData, null, 2)}</pre>
+       </details>
+       
+       <p style="font-size: 14px; color: #64748b;">
+           Submission ID: ${submissionId} | Mailchimp automation triggered
+       </p>
+   </div>
 </body>
 </html>`;
 }
 
-function generateClientEmail(formData, submissionType, leadScore) {
-  const firstName = formData.firstName || formData.fullName?.split(' ')[0] || 'there';
+function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
+  let clientName = formData.firstName || formData.fullName?.split(' ')[0] || 
+                   formData.contactName?.split(' ')[0] || formData.founderName?.split(' ')[0] || 'there';
+  
+  if (!formData.email) {
+    console.error('❌ No email provided for client confirmation');
+    return null;
+  }
+  
+  const calendlyLink = getCalendlyLink(submissionType, leadScore);
+  const displayPrice = price || null;
   
   return `
 <!DOCTYPE html>
 <html>
-<body style="font-family: Arial, sans-serif; padding: 20px;">
-  <div style="max-width: 600px; margin: 0 auto;">
-    <div style="background: #ff4d00; padding: 40px 30px; text-align: center;">
-      <h1 style="color: white; margin: 0;">Thank you for choosing Jacobs Counsel</h1>
-    </div>
-    
-    <div style="padding: 40px 30px;">
-      <p style="font-size: 18px;">Hi ${firstName},</p>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+   <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+       
+       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
+           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Thank you for choosing Jacobs Counsel</h1>
+       </div>
       
-      <p>We've received your ${submissionType.replace('-', ' ')} request and will review it within 1 business day.</p>
-      
-      ${leadScore.isHighValue ? `
-      <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
-        <h3 style="color: #d32f2f;">🔥 Priority Review Status</h3>
-        <p>Based on your responses, we've marked your intake for priority review.</p>
-      </div>
-      ` : ''}
-      
-      <div style="background: #e3f2fd; padding: 32px; border-radius: 8px; margin: 32px 0; text-align: center;">
-        <p style="font-weight: 700; margin: 0 0 20px;">Ready to schedule your consultation?</p>
-        <a href="${MOTION_LINK}" style="background: #ff4d00; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block;">
-          📅 Book Your Consultation Now
-        </a>
-      </div>
-      
-      <p>Best regards,<br>
-      <strong>The Jacobs Counsel Team</strong></p>
-    </div>
-  </div>
+       <div style="padding: 40px 30px;">
+           <p style="font-size: 18px;">Hi ${clientName},</p>
+          
+           <p>We've received your ${submissionType.replace('-', ' ')} request and will review it within 1 business day.</p>
+          
+           ${leadScore.score >= 70 ? `
+           <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
+               <h3 style="color: #d32f2f;">🔥 Priority Review Status</h3>
+               <p>Based on your responses, we've marked your intake for priority review.</p>
+           </div>
+           ` : ''}
+          
+           ${displayPrice ? `
+           <div style="background: #f0fdf4; padding: 24px; border-radius: 8px; margin: 24px 0; text-align: center;">
+               <p style="font-size: 20px; font-weight: 700;">
+                   Estimated Investment: ${typeof displayPrice === 'number' ? '$' + displayPrice.toLocaleString() : displayPrice}
+               </p>
+           </div>
+           ` : ''}
+          
+           <div style="background: #e3f2fd; padding: 32px; border-radius: 8px; margin: 32px 0; text-align: center;">
+               <p style="font-weight: 700;">Ready to schedule your consultation?</p>
+               <a href="${calendlyLink}" style="background-color: #ff4d00; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                  📅 Book Your Consultation Now
+               </a>
+           </div>
+          
+           <p>Best regards,<br>
+           <strong>The Jacobs Counsel Team</strong></p>
+       </div>
+   </div>
 </body>
 </html>`;
 }
 
-// ==================== UNIFIED INTAKE PROCESSOR ====================
-async function processIntake(formData, submissionType, files = []) {
-  const submissionId = `${submissionType}-${Date.now()}`;
-  const leadScore = calculateLeadScore(formData, submissionType);
-  
-  console.log(`📥 New ${submissionType}: ${formData.email} (Score: ${leadScore.score})`);
-  
-  // Store in database (non-blocking)
-  pool.query(
-    'INSERT INTO intakes (email, type, score, data) VALUES ($1, $2, $3, $4)',
-    [formData.email, submissionType, leadScore.score, JSON.stringify(formData)]
-  ).catch(e => console.log('DB write failed (non-critical):', e.message));
-  
-  // Track in Mixpanel
-  if (mixpanel) {
-    mixpanel.track('Intake Submitted', {
-      distinct_id: formData.email,
-      service: submissionType,
-      score: leadScore.score
-    });
-  }
-  
-  // Process attachments
-  const attachments = files
-    .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
-    .slice(0, 10)
-    .map(f => ({
-      filename: f.originalname,
-      contentType: f.mimetype,
-      content: f.buffer
-    }));
-  
-  // Parallel operations
-  const operations = [];
-  
-  // Add to Mailchimp (triggers automations)
-  operations.push(
-    addToMailchimp(formData, submissionType, leadScore)
-      .catch(e => console.error('Mailchimp failed:', e.message))
-  );
-  
-  // Send to Clio
-  operations.push(
-    createClioLead(formData, submissionType, leadScore)
-      .catch(e => console.error('Clio failed:', e.message))
-  );
-  
-  // Internal notification (skip for low-value newsletters)
-  if (submissionType !== 'newsletter' || leadScore.score > 30) {
-    const alertRecipients = leadScore.isHighValue 
-      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO] 
-      : [INTAKE_NOTIFY_TO];
+// ==================== CALENDLY WEBHOOK ====================
+app.post('/webhook/calendly', async (req, res) => {
+  try {
+    // Verify webhook signature if configured - UPDATE #7
+    if (CALENDLY_WEBHOOK_SECRET) {
+      const signature = req.headers['calendly-webhook-signature'];
+      // Implement signature verification based on Calendly's docs
+      // This is a placeholder - actual implementation depends on Calendly's signature format
+    }
     
-    const internalHtml = generateInternalAlert(formData, leadScore, submissionType, submissionId);
-    const subject = submissionType === 'newsletter' 
-      ? `Newsletter Signup: ${formData.email}`
-      : `${leadScore.isHighValue ? '🔥 HIGH VALUE ' : ''}${submissionType.replace('-', ' ')}: ${formData.email}`;
+    const { event, payload } = req.body;
     
-    operations.push(
-      sendEmail({
-        to: alertRecipients,
-        subject: subject,
-        html: internalHtml,
-        priority: leadScore.isHighValue ? 'high' : 'normal',
-        attachments
-      }).catch(e => console.error('Internal email failed:', e.message))
-    );
+    if (event === 'invitee.created') {
+      const { email, name, scheduled_event } = payload;
+      
+      console.log(`📅 Meeting booked: ${email}`);
+      
+      if (mixpanel) {
+        mixpanel.track('Consultation Booked', {
+          distinct_id: email,
+          event_name: scheduled_event.name,
+          start_time: scheduled_event.start_time
+        });
+      }
+      
+      // Update Mailchimp tags
+      if (MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID) {
+        const crypto = await import('crypto');
+        const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+        
+        await fetch(
+          `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              tags: [
+                { name: 'consultation-booked', status: 'active' },
+                { name: 'stop-booking-reminders', status: 'active' }
+              ]
+            })
+          }
+        );
+      }
+      
+      // Send notification
+      await sendEnhancedEmail({
+        to: [INTAKE_NOTIFY_TO],
+        subject: `📅 Consultation Booked: ${name}`,
+        html: `
+          <h2>New Consultation Booked</h2>
+          <p><strong>Client:</strong> ${name} (${email})</p>
+          <p><strong>Event:</strong> ${scheduled_event.name}</p>
+          <p><strong>Time:</strong> ${new Date(scheduled_event.start_time).toLocaleString()}</p>
+        `
+      });
+    }
+    
+    if (event === 'invitee.canceled') {
+      const { email, name } = payload;
+      
+      console.log(`❌ Meeting canceled: ${email}`);
+      
+      if (mixpanel) {
+        mixpanel.track('Consultation Canceled', {
+          distinct_id: email
+        });
+      }
+      
+      // Restart nurture sequence
+      if (MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID) {
+        const crypto = await import('crypto');
+        const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+        
+        await fetch(
+          `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              tags: [
+                { name: 'consultation-canceled', status: 'active' },
+                { name: 'restart-nurture', status: 'active' }
+              ]
+            })
+          }
+        );
+      }
+    }
+    
+    res.json({ received: true });
+  } catch (error) {
+    console.error('Calendly webhook error:', error);
+    res.status(500).json({ error: error.message });
   }
-  
-  // Client confirmation
-  if (formData.email) {
-    operations.push(
-      sendEmail({
-        to: [formData.email],
-        subject: `Jacobs Counsel — Your ${submissionType.replace('-', ' ')} request`,
-        html: generateClientEmail(formData, submissionType, leadScore)
-      }).catch(e => console.error('Client email failed:', e.message))
-    );
-  }
-  
-  await Promise.allSettled(operations);
-  
-  return { submissionId, leadScore: leadScore.score };
+});
+
+// ==================== INTAKE PROCESSING ====================
+async function processIntakeOperations(operations) {
+  const results = await Promise.allSettled(operations);
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      console.error(`❌ Operation ${index} failed:`, result.reason);
+    }
+  });
+  return results;
 }
 
 // ==================== MAIN INTAKE ENDPOINTS ====================
 app.post('/estate-intake', upload.array('document'), async (req, res) => {
   try {
     const formData = sanitizeInput(req.body || {});
-    const result = await processIntake(formData, 'estate-intake', req.files || []);
+    const files = req.files || [];
+    const submissionId = formData.submissionId || `estate-${Date.now()}`;
+    const submissionType = 'estate-intake';
+    
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+    
+    const leadScore = calculateLeadScore(formData, submissionType);
+    console.log(`📊 Lead score: ${leadScore.score}/100`);
+    
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+    
+    const attachments = files
+      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
+      .slice(0, 10)
+      .map(f => ({
+        filename: f.originalname,
+        contentType: f.mimetype,
+        content: f.buffer
+      }));
     
     // Calculate pricing
     const marital = (formData.maritalStatus || '').toLowerCase();
@@ -640,14 +820,64 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     if (pkg.includes('trust')) price = married ? 3650 : 2900;
     else if (pkg.includes('will')) price = married ? 1900 : 1500;
     
+    if (mixpanel) {
+      mixpanel.track('Intake Submitted', {
+        distinct_id: formData.email,
+        service: submissionType,
+        score: leadScore.score,
+        value: price || 0
+      });
+    }
+    
+    const operations = [];
+    const alertRecipients = leadScore.score >= 70
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
+      : [INTAKE_NOTIFY_TO];
+    
+    operations.push(
+      sendEnhancedEmail({
+        to: alertRecipients,
+        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Estate Planning — ${formData.email} (Score: ${leadScore.score})`,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal',
+        attachments
+      }).catch(e => console.error('❌ Internal email failed:', e.message))
+    );
+    
+    operations.push(
+      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+    );
+    
+    operations.push(
+      createClioLead(formData, submissionType, leadScore)
+        .catch(e => console.error('❌ Clio Grow failed:', e.message))
+    );
+    
+    if (formData.email) {
+      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+      if (clientEmailHtml) {
+        operations.push(
+          sendEnhancedEmail({
+            to: [formData.email],
+            subject: 'Jacobs Counsel — Your Estate Planning Intake & Next Steps',
+            html: clientEmailHtml
+          }).catch(e => console.error('❌ Client email failed:', e.message))
+        );
+      }
+    }
+    
+    await processIntakeOperations(operations);
+    
     res.json({
       ok: true,
-      submissionId: result.submissionId,
-      leadScore: result.leadScore,
-      price
+      submissionId,
+      leadScore: leadScore.score,
+      price,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis
     });
   } catch (error) {
-    console.error('Estate intake error:', error);
+    console.error('💥 Estate intake error:', error);
     res.status(500).json({ ok: false, error: error.message });
   }
 });
@@ -655,23 +885,88 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
 app.post('/business-formation-intake', upload.array('documents'), async (req, res) => {
   try {
     const formData = sanitizeInput(req.body || {});
-    const result = await processIntake(formData, 'business-formation', req.files || []);
+    const files = req.files || [];
+    const submissionId = formData.submissionId || `business-${Date.now()}`;
+    const submissionType = 'business-formation';
     
-    // Calculate pricing
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+    
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+    
+    const attachments = files
+      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
+      .slice(0, 10)
+      .map(f => ({
+        filename: f.originalname,
+        contentType: f.mimetype,
+        content: f.buffer
+      }));
+    
     let price = null;
     const packageType = (formData.selectedPackage || '').toLowerCase();
     if (packageType.includes('bronze')) price = 2995;
     else if (packageType.includes('silver')) price = 4995;
     else if (packageType.includes('gold')) price = 7995;
     
+    if (mixpanel) {
+      mixpanel.track('Intake Submitted', {
+        distinct_id: formData.email,
+        service: submissionType,
+        score: leadScore.score,
+        value: price || 0
+      });
+    }
+    
+    const operations = [];
+    const alertRecipients = leadScore.score >= 70
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
+      : [INTAKE_NOTIFY_TO];
+    
+    operations.push(
+      sendEnhancedEmail({
+        to: alertRecipients,
+        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Business Formation — ${formData.founderName || formData.businessName || 'New Lead'} (Score: ${leadScore.score})`,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal',
+        attachments
+      }).catch(e => console.error('❌ Internal email failed:', e.message))
+    );
+    
+    operations.push(
+      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+    );
+    
+    operations.push(
+      createClioLead(formData, submissionType, leadScore)
+        .catch(e => console.error('❌ Clio failed:', e.message))
+    );
+    
+    if (formData.email) {
+      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+      if (clientEmailHtml) {
+        operations.push(
+          sendEnhancedEmail({
+            to: [formData.email],
+            subject: 'Jacobs Counsel — Your Business Formation Intake & Next Steps',
+            html: clientEmailHtml
+          }).catch(e => console.error('❌ Client email failed:', e.message))
+        );
+      }
+    }
+    
+    await processIntakeOperations(operations);
+    
     res.json({
       ok: true,
-      submissionId: result.submissionId,
-      leadScore: result.leadScore,
-      price
+      submissionId,
+      leadScore: leadScore.score,
+      price,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis
     });
   } catch (error) {
-    console.error('Business formation error:', error);
+    console.error('💥 Business formation error:', error);
     res.status(500).json({ ok: false, error: error.message });
   }
 });
@@ -679,15 +974,93 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
 app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, res) => {
   try {
     const formData = sanitizeInput(req.body || {});
-    const result = await processIntake(formData, 'brand-protection', req.files || []);
+    const files = req.files || [];
+    const submissionId = formData.submissionId || `brand-${Date.now()}`;
+    const submissionType = 'brand-protection';
+    
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+    
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+    
+    const attachments = files
+      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
+      .slice(0, 10)
+      .map(f => ({
+        filename: f.originalname,
+        contentType: f.mimetype,
+        content: f.buffer
+      }));
+    
+    let priceEstimate = 'Custom Quote';
+    const service = (formData.servicePreference || '').toLowerCase();
+    if (service.includes('clearance') || service.includes('1495')) {
+      priceEstimate = '$1,495';
+    } else if (service.includes('single trademark') || service.includes('2495')) {
+      priceEstimate = '$2,495';
+    } else if (service.includes('multiple') || service.includes('4995')) {
+      priceEstimate = '$4,995+';
+    } else if (service.includes('portfolio') || service.includes('7500')) {
+      priceEstimate = '$7,500+';
+    }
+    
+    if (mixpanel) {
+      mixpanel.track('Intake Submitted', {
+        distinct_id: formData.email,
+        service: submissionType,
+        score: leadScore.score
+      });
+    }
+    
+    const operations = [];
+    const alertRecipients = leadScore.score >= 70
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
+      : [INTAKE_NOTIFY_TO];
+    
+    operations.push(
+      sendEnhancedEmail({
+        to: alertRecipients,
+        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Brand Protection — ${formData.businessName || formData.fullName || 'New Lead'} (Score: ${leadScore.score})`,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal',
+        attachments
+      }).catch(e => console.error('❌ Internal email failed:', e.message))
+    );
+    
+    operations.push(
+      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+    );
+    
+    operations.push(
+      createClioLead(formData, submissionType, leadScore)
+        .catch(e => console.error('❌ Clio failed:', e.message))
+    );
+    
+    if (formData.email) {
+      const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore);
+      if (clientEmailHtml) {
+        operations.push(
+          sendEnhancedEmail({
+            to: [formData.email],
+            subject: 'Jacobs Counsel — Your Brand Protection Intake & Next Steps',
+            html: clientEmailHtml
+          }).catch(e => console.error('❌ Client email failed:', e.message))
+        );
+      }
+    }
+    
+    await processIntakeOperations(operations);
     
     res.json({
       ok: true,
-      submissionId: result.submissionId,
-      leadScore: result.leadScore
+      submissionId,
+      leadScore: leadScore.score,
+      priceEstimate,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis
     });
   } catch (error) {
-    console.error('Brand protection error:', error);
+    console.error('💥 Brand protection error:', error);
     res.status(500).json({ ok: false, error: error.message });
   }
 });
@@ -695,16 +1068,70 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
 app.post('/outside-counsel', async (req, res) => {
   try {
     const formData = sanitizeInput(req.body);
-    const result = await processIntake(formData, 'outside-counsel');
+    const submissionId = formData.submissionId || `OC-${Date.now()}`;
+    const submissionType = 'outside-counsel';
+    
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+    
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+    
+    if (mixpanel) {
+      mixpanel.track('Intake Submitted', {
+        distinct_id: formData.email,
+        service: submissionType,
+        score: leadScore.score
+      });
+    }
+    
+    const operations = [];
+    const alertRecipients = leadScore.score >= 70
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
+      : [INTAKE_NOTIFY_TO];
+    
+    operations.push(
+      sendEnhancedEmail({
+        to: alertRecipients,
+        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Outside Counsel — ${formData.companyName || 'New Lead'} (Score: ${leadScore.score})`,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal'
+      }).catch(e => console.error('❌ Internal email failed:', e.message))
+    );
+    
+    operations.push(
+      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+    );
+    
+    operations.push(
+      createClioLead(formData, submissionType, leadScore)
+        .catch(e => console.error('❌ Clio failed:', e.message))
+    );
+    
+    if (formData.email) {
+      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
+      if (clientEmailHtml) {
+        operations.push(
+          sendEnhancedEmail({
+            to: [formData.email],
+            subject: 'Jacobs Counsel — Your Outside Counsel Request & Next Steps',
+            html: clientEmailHtml
+          }).catch(e => console.error('❌ Client email failed:', e.message))
+        );
+      }
+    }
+    
+    await processIntakeOperations(operations);
     
     res.json({
       success: true,
-      submissionId: result.submissionId,
-      leadScore: result.leadScore,
+      submissionId: submissionId,
+      leadScore: leadScore.score,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis,
       message: 'Outside counsel request submitted successfully'
     });
   } catch (error) {
-    console.error('Outside counsel error:', error);
+    console.error('💥 Outside counsel error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to process outside counsel request'
@@ -712,22 +1139,77 @@ app.post('/outside-counsel', async (req, res) => {
   }
 });
 
+// Legal Strategy Builder
 app.post('/legal-strategy-builder', async (req, res) => {
   try {
     const formData = sanitizeInput(req.body);
-    const result = await processIntake(formData, 'legal-strategy-builder');
+    const submissionId = `strategy-${Date.now()}`;
+    const submissionType = 'legal-strategy-builder';
+    
+    const leadScore = calculateLeadScore(formData, submissionType);
+    
+    if (mixpanel) {
+      mixpanel.track('Assessment Completed', {
+        distinct_id: formData.email,
+        service: submissionType,
+        score: leadScore.score
+      });
+    }
+    
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+    
+    const operations = [];
+    const alertRecipients = leadScore.score >= 70
+      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
+      : [INTAKE_NOTIFY_TO];
+    
+    operations.push(
+      sendEnhancedEmail({
+        to: alertRecipients,
+        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Legal Strategy Assessment — ${formData.email} (Score: ${leadScore.score})`,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: leadScore.score >= 70 ? 'high' : 'normal'
+      }).catch(e => console.error('❌ Internal email failed:', e.message))
+    );
+    
+    operations.push(
+      addToMailchimpWithAutomation(formData, leadScore, submissionType, aiAnalysis)
+        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+    );
+    
+    operations.push(
+      createClioLead(formData, submissionType, leadScore)
+        .catch(e => console.error('❌ Clio failed:', e.message))
+    );
+    
+    if (formData.email) {
+      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
+      if (clientEmailHtml) {
+        operations.push(
+          sendEnhancedEmail({
+            to: [formData.email],
+            subject: 'Your Legal Strategy Assessment Results',
+            html: clientEmailHtml
+          }).catch(e => console.error('❌ Client email failed:', e.message))
+        );
+      }
+    }
+    
+    await processIntakeOperations(operations);
     
     res.json({
       ok: true,
-      submissionId: result.submissionId,
-      leadScore: result.leadScore
+      submissionId,
+      leadScore: leadScore.score,
+      aiAnalysisAvailable: !!aiAnalysis?.analysis
     });
   } catch (error) {
-    console.error('Strategy builder error:', error);
+    console.error('💥 Strategy builder error:', error);
     res.status(500).json({ ok: false, error: error.message });
   }
 });
 
+// Newsletter Subscriber
 app.post('/add-subscriber', async (req, res) => {
   try {
     const { email, source = 'newsletter' } = req.body;
@@ -736,7 +1218,17 @@ app.post('/add-subscriber', async (req, res) => {
       return res.status(400).json({ ok: false, error: 'Email required' });
     }
     
-    await processIntake({ email, source }, 'newsletter');
+    const leadScore = { score: 30, factors: ['Newsletter signup'] };
+    const formData = { email, source };
+    
+    await addToMailchimpWithAutomation(formData, leadScore, 'newsletter', null);
+    
+    if (mixpanel) {
+      mixpanel.track('Newsletter Signup', {
+        distinct_id: email,
+        source: source
+      });
+    }
     
     res.json({ ok: true, message: 'Subscriber added successfully' });
   } catch (error) {
@@ -745,9 +1237,10 @@ app.post('/add-subscriber', async (req, res) => {
   }
 });
 
+// Legal Guide Download
 app.post('/legal-guide', upload.none(), async (req, res) => {
   try {
-    const { email, firstName, guideUrl, guideName } = req.body;
+    const { email, firstName, guideName } = req.body;
     
     if (!email) {
       return res.status(400).json({ success: false, error: 'Email required' });
@@ -760,18 +1253,16 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
       'brand-protection': 'https://www.jacobscounsellaw.com/s/Emergency-Brand-Protection-Playbook.pdf'
     };
     
-    const finalPdfUrl = guideUrl || guideUrls[guideName] || LEGAL_GUIDE_PDF_URL;
+    const finalPdfUrl = guideUrls[guideName] || guideUrls['complete-playbook'];
+    const name = firstName || email.split('@')[0];
     
-    await processIntake({ email, firstName, guideName }, 'legal-guide-download');
-    
-    // Send guide email
-    const guideHtml = `
+    const guideEmailHtml = `
 <!DOCTYPE html>
 <html>
 <body style="font-family: Arial, sans-serif; padding: 20px;">
   <div style="max-width: 600px; margin: 0 auto;">
     <h1>Your Legal Strategy Guide</h1>
-    <p>Hi ${firstName || 'there'},</p>
+    <p>Hi ${name},</p>
     <p>Thank you for downloading our Legal Strategy Guide!</p>
     <div style="text-align: center; margin: 40px 0;">
       <a href="${finalPdfUrl}" style="background: #ff4d00; color: white; padding: 20px 40px; text-decoration: none; border-radius: 8px;">
@@ -783,11 +1274,14 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
 </body>
 </html>`;
     
-    await sendEmail({
+    await sendEnhancedEmail({
       to: [email],
       subject: `Your ${guideName || 'Legal Strategy Guide'} - Jacobs Counsel`,
-      html: guideHtml
+      html: guideEmailHtml
     });
+    
+    const leadScore = { score: 40, factors: ['Guide download'] };
+    await addToMailchimpWithAutomation({ email, firstName: name }, leadScore, 'guide-download', null);
     
     res.json({ success: true, message: 'Guide sent successfully!' });
   } catch (error) {
@@ -796,7 +1290,7 @@ app.post('/legal-guide', upload.none(), async (req, res) => {
   }
 });
 
-// ==================== ANALYTICS ====================
+// Analytics Conversion Tracking
 app.post('/api/analytics/conversion', async (req, res) => {
   try {
     const { email, fromService, toService, assessmentScore } = req.body;
@@ -819,43 +1313,7 @@ app.post('/api/analytics/conversion', async (req, res) => {
   }
 });
 
-// ==================== HEALTH & UTILITY ENDPOINTS ====================
-app.get('/health', async (req, res) => {
-  const dbConnected = await pool.query('SELECT NOW()')
-    .then(() => true)
-    .catch(() => false);
-  
-  res.json({
-    status: 'operational',
-    timestamp: new Date().toISOString(),
-    services: {
-      database: dbConnected,
-      mailchimp: !!MAILCHIMP_API_KEY,
-      clio: !!CLIO_GROW_INBOX_TOKEN,
-      email: !!MS_CLIENT_ID
-    }
-  });
-});
-
-app.get('/', (req, res) => {
-  res.json({
-    ok: true,
-    service: 'jacobs-counsel-unified-intake',
-    version: '2.0.0',
-    endpoints: [
-      '/estate-intake',
-      '/business-formation-intake',
-      '/brand-protection-intake',
-      '/outside-counsel',
-      '/legal-strategy-builder',
-      '/add-subscriber',
-      '/legal-guide',
-      '/api/analytics/conversion',
-      '/health'
-    ]
-  });
-});
-
+// Test Email Endpoint
 app.post('/test-email', async (req, res) => {
   try {
     const { to } = req.body;
@@ -864,7 +1322,7 @@ app.post('/test-email', async (req, res) => {
       return res.status(400).json({ error: 'Email address required' });
     }
     
-    await sendEmail({
+    await sendEnhancedEmail({
       to: [to],
       subject: '🧪 Test Email - Jacobs Counsel System',
       html: '<h2>Test Email</h2><p>If you see this, email is working!</p>'
@@ -877,19 +1335,58 @@ app.post('/test-email', async (req, res) => {
   }
 });
 
-// ==================== ERROR HANDLING ====================
+// Health Check
+app.get('/health', async (req, res) => {
+  res.json({
+    status: 'operational',
+    timestamp: new Date().toISOString(),
+    services: {
+      openai: OPENAI_API_KEY ? 'configured' : 'not configured',
+      mailchimp: MAILCHIMP_API_KEY ? 'configured' : 'not configured',
+      clio: CLIO_GROW_INBOX_TOKEN ? 'configured' : 'not configured',
+      email: MS_CLIENT_ID ? 'configured' : 'not configured'
+    }
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    ok: true,
+    service: 'jacobs-counsel-unified-intake',
+    version: '3.0.0-SIMPLIFIED',
+    endpoints: [
+      '/estate-intake',
+      '/business-formation-intake',
+      '/brand-protection-intake',
+      '/outside-counsel',
+      '/add-subscriber',
+      '/legal-guide',
+      '/legal-strategy-builder',
+      '/webhook/calendly',
+      '/health'
+    ]
+  });
+});
+
+// Error handling
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({
     ok: false,
-    error: 'Server error. Please try again.'
+    error: 'Server error. Please try again or contact us directly.'
   });
 });
 
-// ==================== START SERVER ====================
+// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log('📧 Mailchimp handles all follow-ups');
-  console.log('📅 Motion link for scheduling');
-  console.log('🗄️ Database optional (won\'t break if disconnected)');
+  try {
+    validateEnvironment();
+  } catch (error) {
+    console.error('❌ Startup failed:', error.message);
+    process.exit(1);
+  }
+  console.log(`🚀 Jacobs Counsel System running on port ${PORT}`);
+  console.log(`📊 Features: Lead Scoring, Mailchimp Automation, Calendly Integration, Clio Integration`);
+  console.log(`✅ Database removed - all data in Mailchimp/Clio`);
 });

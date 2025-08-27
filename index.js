@@ -649,6 +649,66 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
   const displayPrice = price || null;
   
+  // Legal Strategy Builder gets special treatment
+  if (submissionType === 'legal-strategy-builder') {
+    return `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+   <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+       
+       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
+           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Your Legal Roadmap is Ready</h1>
+       </div>
+      
+       <div style="padding: 40px 30px;">
+           <p style="font-size: 18px;">Hi ${clientName},</p>
+          
+           <p>You just completed our comprehensive legal assessment and received your Legal Foundation Score of <strong>${leadScore.score}/100</strong>. Now comes the important part.</p>
+           
+           <p><strong>Here's what happens next:</strong></p>
+           
+           <p>I'll personally review your specific answers about your business structure, IP protection, contracts, and strategic goals. Then during our consultation, I'll walk you through exactly which legal protections you need first, which can wait, and how to prioritize them based on your budget and timeline.</p>
+           
+           ${leadScore.score >= 70 ? `
+           <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
+               <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Earned</h3>
+               <p style="margin: 0;">Your assessment score qualifies you for priority scheduling. I've reserved a 15-minute consultation slot specifically for high-potential situations like yours.</p>
+           </div>
+           ` : ''}
+           
+           <p>This consultation is <strong>completely free</strong> and there's no obligation to work with us afterward. Think of it as getting a second opinion from someone who's helped hundreds of founders, creators, and business owners protect what they've built.</p>
+           
+           <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin: 24px 0;">
+               <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover in 15 Minutes:</h3>
+               <ul style="margin: 0; padding-left: 20px; color: #374151;">
+                   <li style="margin-bottom: 8px;">Your biggest legal vulnerabilities right now</li>
+                   <li style="margin-bottom: 8px;">Which protections to tackle first (and estimated costs)</li>
+                   <li style="margin-bottom: 8px;">Common mistakes people in your situation make</li>
+                   <li style="margin-bottom: 8px;">Whether we're the right fit to help you</li>
+               </ul>
+           </div>
+           
+           <div style="background: linear-gradient(135deg, #ff4d00, #ff6d20); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
+               <h3 style="color: white; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
+               <p style="color: white; margin: 0 0 24px; opacity: 0.95;">I've blocked out time specifically for assessment completers like you</p>
+               <a href="${calendlyLink}" style="background-color: #ffffff; color: #ff4d00; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 700; font-size: 18px;">
+                  Select Your Time Slot
+               </a>
+           </div>
+           
+           <p style="font-size: 16px; color: #64748b;">P.S. I know legal consultations can feel intimidating. This isn't a sales pitch - it's a genuine strategy session where I'll give you actionable advice whether you hire us or not. Many clients tell me they wish they'd done this years earlier.</p>
+           
+           <p>Best,<br>
+           <strong>Drew Jacobs</strong><br>
+           <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
+       </div>
+   </div>
+</body>
+</html>`;
+  }
+  
+  // Regular intake forms get this version
   return `
 <!DOCTYPE html>
 <html>
@@ -656,38 +716,56 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
        
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Thank you for choosing Jacobs Counsel</h1>
+           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">I'm Reviewing Your Submission Now</h1>
        </div>
       
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
           
-           <p>We've received your ${submissionType.replace('-', ' ')} request and will review it within 1 business day.</p>
+           <p>I just received your ${submissionType.replace('-', ' ')} intake and I'm personally reviewing every detail you shared.</p>
+           
+           <p>Based on what you've told me about your situation, I'll prepare specific recommendations for our consultation. This isn't a generic legal overview - I'll address your exact circumstances, concerns, and goals.</p>
           
            ${leadScore.score >= 70 ? `
            <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="color: #d32f2f;">🔥 Priority Review Status</h3>
-               <p>Based on your responses, we've marked your intake for priority review. A 15-minute priority consultation slot is available.</p>
+               <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Status</h3>
+               <p style="margin: 0;">Your submission indicates some time-sensitive elements. I've marked this for priority review and reserved a consultation slot specifically for situations like yours.</p>
            </div>
            ` : ''}
           
            ${displayPrice ? `
-           <div style="background: #f0fdf4; padding: 24px; border-radius: 8px; margin: 24px 0; text-align: center;">
-               <p style="font-size: 20px; font-weight: 700;">
-                   Estimated Investment: ${typeof displayPrice === 'number' ? '$' + displayPrice.toLocaleString() : displayPrice}
+           <div style="background: #f0fdf4; padding: 24px; border-radius: 8px; margin: 24px 0;">
+               <h3 style="margin: 0 0 12px; color: #166534;">Estimated Investment</h3>
+               <p style="margin: 0; font-size: 20px; font-weight: 600; color: #166534;">
+                   ${typeof displayPrice === 'number' ? '$' + displayPrice.toLocaleString() : displayPrice}
                </p>
+               <p style="margin: 8px 0 0; font-size: 16px; color: #16a34a;">We'll discuss payment options and timeline during our consultation</p>
            </div>
            ` : ''}
-          
-           <div style="background: #e3f2fd; padding: 32px; border-radius: 8px; margin: 32px 0; text-align: center;">
-               <p style="font-weight: 700;">Ready to schedule your consultation?</p>
-               <a href="${calendlyLink}" style="background-color: #ff4d00; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block;">
-                  📅 Book Your Consultation Now
-               </a>
+           
+           <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin: 24px 0;">
+               <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover:</h3>
+               <ul style="margin: 0; padding-left: 20px; color: #374151;">
+                   <li style="margin-bottom: 8px;">Immediate action items based on your submission</li>
+                   <li style="margin-bottom: 8px;">Potential risks I spotted in your situation</li>
+                   <li style="margin-bottom: 8px;">Timeline and next steps if we work together</li>
+                   <li style="margin-bottom: 8px;">Honest assessment of whether we're the right fit</li>
+               </ul>
            </div>
           
-           <p>Best regards,<br>
-           <strong>The Jacobs Counsel Team</strong></p>
+           <div style="background: linear-gradient(135deg, #0f172a, #ff4d00); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
+               <h3 style="color: white; margin: 0 0 16px; font-size: 24px;">Schedule Your Consultation</h3>
+               <p style="color: white; margin: 0 0 24px; opacity: 0.95;">Free 15-minute strategy session - no obligation</p>
+               <a href="${calendlyLink}" style="background-color: #ffffff; color: #0f172a; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 700; font-size: 18px;">
+                  Book Your Time Slot
+               </a>
+           </div>
+           
+           <p style="font-size: 16px; color: #64748b;">This consultation is completely free with no pressure to hire us. I'll give you actionable advice regardless of whether we work together.</p>
+          
+           <p>Best,<br>
+           <strong>Drew Jacobs</strong><br>
+           <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
        </div>
    </div>
 </body>

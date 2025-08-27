@@ -585,128 +585,174 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
   const isHighValue = leadScore.score >= 70;
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
   
+  // Extract key business context based on submission type
+  let businessContext = '';
+  let legalNeeds = '';
+  let talkingPoints = '';
+  
+  if (submissionType === 'legal-strategy-builder') {
+    const role = formData.q1 || 'unknown';
+    const stage = formData.q2 || 'unknown';
+    const structure = formData.q3 || 'unknown';
+    const ip = formData.q4 || 'unknown';
+    const risks = Array.isArray(formData.q7) ? formData.q7.join(', ') : (formData.q7 || 'none specified');
+    const goal = formData.q8 || 'unknown';
+    
+    businessContext = `${role.charAt(0).toUpperCase() + role.slice(1)} in ${stage} stage`;
+    
+    // Determine primary legal needs
+    const needsArray = [];
+    if (structure === 'none' || structure === 'unsure') needsArray.push('Entity formation');
+    if (ip === 'none' || ip === 'basic') needsArray.push('IP protection');
+    if (risks.includes('liability')) needsArray.push('Asset protection');
+    if (risks.includes('estate')) needsArray.push('Estate planning');
+    if (goal === 'fundraise') needsArray.push('Investment readiness');
+    
+    legalNeeds = needsArray.length > 0 ? needsArray.join(' + ') : 'General strategy';
+    
+    talkingPoints = `
+      <li><strong>Current Gap:</strong> ${structure === 'none' ? 'No business entity' : structure === 'unsure' ? 'Unclear entity structure' : 'Has ' + structure}</li>
+      <li><strong>IP Status:</strong> ${ip === 'none' ? 'No protection' : ip}</li>
+      <li><strong>Main Concerns:</strong> ${risks || 'Not specified'}</li>
+      <li><strong>12-Month Goal:</strong> ${goal}</li>
+      <li><strong>Assessment Score:</strong> ${leadScore.score}/100 (${leadScore.score >= 70 ? 'Strong foundation' : leadScore.score >= 50 ? 'Developing foundation' : 'Early stage'})</li>
+    `;
+  } else if (submissionType === 'estate-intake') {
+    const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
+    const pkg = formData.packagePreference || 'not specified';
+    const business = formData.ownBusiness === 'Yes';
+    
+    businessContext = `Estate: $${estate > 0 ? estate.toLocaleString() : 'not specified'}${business ? ' + Business owner' : ''}`;
+    legalNeeds = pkg.includes('trust') ? 'Trust-based planning' : pkg.includes('will') ? 'Will-based planning' : 'Planning type TBD';
+    
+    talkingPoints = `
+      <li><strong>Estate Size:</strong> $${estate > 0 ? estate.toLocaleString() : 'Not provided'}</li>
+      <li><strong>Package Interest:</strong> ${pkg}</li>
+      <li><strong>Business Owner:</strong> ${business ? 'Yes' : 'No'}</li>
+      <li><strong>Minor Children:</strong> ${formData.hasMinorChildren || 'Not specified'}</li>
+      <li><strong>Tax Concerns:</strong> ${estate > 12920000 ? 'Federal estate tax exposure' : 'Below federal threshold'}</li>
+    `;
+  } else if (submissionType === 'business-formation') {
+    const revenue = formData.projectedRevenue || 'not specified';
+    const investment = formData.investmentPlan || 'self-funded';
+    const packageType = formData.selectedPackage || 'not specified';
+    
+    businessContext = `${investment} startup, ${revenue} revenue projection`;
+    legalNeeds = investment === 'vc' ? 'VC-ready formation' : investment === 'angel' ? 'Investment-ready formation' : 'Standard formation';
+    
+    talkingPoints = `
+      <li><strong>Investment Plan:</strong> ${investment}</li>
+      <li><strong>Revenue Target:</strong> ${revenue}</li>
+      <li><strong>Package Interest:</strong> ${packageType}</li>
+      <li><strong>Business Type:</strong> ${formData.businessType || 'Not specified'}</li>
+      <li><strong>Timeline:</strong> ${formData.timeline || 'Not specified'}</li>
+    `;
+  }
+  
   return `
 <!DOCTYPE html>
 <html>
-<body style="font-family: Arial, sans-serif; padding: 20px;">
-    <div style="max-width: 700px; margin: 0 auto;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; background: #f8fafc;">
+    <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        
         ${isHighValue ? `
-        <div style="background: #dc2626; color: white; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-            <h2 style="margin: 0; color: white;">🔥 HIGH VALUE LEAD - Score: ${leadScore.score}/100</h2>
+        <div style="background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 24px; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 800;">HIGH VALUE LEAD - Score: ${leadScore.score}/100</h1>
+            <p style="margin: 8px 0 0; opacity: 0.9;">Priority consultation recommended</p>
         </div>
-        ` : ''}
+        ` : `
+        <div style="background: linear-gradient(135deg, #0f172a, #374151); color: white; padding: 24px; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 800;">New ${submissionType.replace('-', ' ').toUpperCase()} Lead</h1>
+            <p style="margin: 8px 0 0; opacity: 0.9;">Score: ${leadScore.score}/100</p>
+        </div>
+        `}
         
-        <h1>New ${submissionType.replace('-', ' ').toUpperCase()} Intake</h1>
-        
-        <div style="background: #f8fafc; padding: 24px; border-radius: 8px;">
-            <h3>Contact Information</h3>
-            <p><strong>Name:</strong> ${formData.firstName || formData.fullName || formData.contactName || ''}</p>
-            <p><strong>Email:</strong> <a href="mailto:${formData.email}">${formData.email}</a></p>
-            <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
-            <p><strong>Lead Score:</strong> ${leadScore.score}/100</p>
+        <div style="padding: 32px;">
+            
+            <!-- Quick Context -->
+            <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div>
+                        <h2 style="margin: 0 0 8px; color: #0f172a; font-size: 20px;">${formData.firstName || formData.fullName || formData.email?.split('@')[0] || 'Name not provided'}</h2>
+                        <p style="margin: 0; color: #64748b; font-size: 16px;">${businessContext}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="background: ${isHighValue ? '#dc2626' : '#059669'}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                            ${isHighValue ? 'HIGH PRIORITY' : 'STANDARD'}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <p style="margin: 0; color: #374151;"><strong>Email:</strong> <a href="mailto:${formData.email}" style="color: #2563eb;">${formData.email}</a></p>
+                        <p style="margin: 4px 0 0; color: #374151;"><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0; color: #374151;"><strong>Primary Need:</strong> ${legalNeeds}</p>
+                        <p style="margin: 4px 0 0; color: #374151;"><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consultation Prep -->
+            <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; margin-bottom: 24px;">
+                <h3 style="margin: 0 0 12px; color: #92400e; font-size: 18px;">Consultation Talking Points:</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #78350f;">
+                    ${talkingPoints}
+                </ul>
+            </div>
+
+            <!-- Immediate Actions -->
+            <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px; color: #065f46; font-size: 18px;">Next Steps:</h3>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="mailto:${formData.email}?subject=Your Legal Consultation - Next Steps&body=Hi ${formData.firstName || 'there'},%0D%0A%0D%0AI've reviewed your submission and have some specific recommendations for your situation. Are you available for a quick consultation this week?" 
+                       style="background: #2563eb; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                        Send Personal Email
+                    </a>
+                    <a href="${calendlyLink}" 
+                       style="background: #059669; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                        ${isHighValue ? 'Priority Calendar Link' : 'Standard Calendar Link'}
+                    </a>
+                </div>
+                <p style="margin: 16px 0 0; color: #065f46; font-size: 14px;">
+                    <strong>Recommended follow-up:</strong> ${isHighValue ? 'Personal email within 2 hours, then calendar link' : 'Send calendar link within 24 hours'}
+                </p>
+            </div>
+
+            <!-- Revenue Opportunity -->
+            ${submissionType === 'estate-intake' && formData.grossEstate ? `
+            <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                <h3 style="margin: 0 0 8px; color: #166534;">Revenue Potential:</h3>
+                <p style="margin: 0; color: #15803d; font-size: 16px;">
+                    Estate size suggests ${parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0') > 2000000 ? '$5K-15K+' : '$2K-5K'} engagement potential
+                </p>
+            </div>
+            ` : ''}
+
+            <!-- Lead Score Breakdown -->
+            <details style="margin-bottom: 24px;">
+                <summary style="cursor: pointer; font-weight: 600; color: #374151; padding: 8px 0;">Lead Score Breakdown (${leadScore.score}/100)</summary>
+                <div style="background: #f8fafc; padding: 16px; border-radius: 6px; margin-top: 8px;">
+                    ${leadScore.factors.map(factor => `<p style="margin: 4px 0; color: #64748b; font-size: 14px;">• ${factor}</p>`).join('')}
+                </div>
+            </details>
+
+            <!-- Full Submission Data -->
+            <details>
+                <summary style="cursor: pointer; font-weight: 600; color: #374151; padding: 8px 0;">Complete Submission Data</summary>
+                <pre style="background: #f1f5f9; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 12px; color: #374151; margin-top: 8px;">${JSON.stringify(formData, null, 2)}</pre>
+            </details>
+
         </div>
         
-        ${aiAnalysis?.analysis ? `
-        <div style="background: #fffbeb; padding: 24px; border-radius: 8px; margin: 24px 0;">
-            <h3>AI Analysis</h3>
-            <p><strong>Situation:</strong> ${aiAnalysis.analysis}</p>
-            <p><strong>Recommendations:</strong> ${aiAnalysis.recommendations}</p>
-            ${aiAnalysis.riskFlags ? `<p><strong>Risk Flags:</strong> ${aiAnalysis.riskFlags}</p>` : ''}
+        <div style="background: #f8fafc; padding: 16px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+            Submission ID: ${submissionId} | ${new Date().toLocaleString()}
         </div>
-        ` : ''}
-        
-        <div style="background: #e0f2fe; padding: 24px; border-radius: 8px; margin: 24px 0; text-align: center;">
-           <a href="mailto:${formData.email}" style="background: #0369a1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px;">
-              📧 Email Client
-           </a>
-           <a href="${calendlyLink}" style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 8px;">
-              📅 Send Calendar Link
-           </a>
-       </div>
-       
-       <details>
-           <summary>Full Form Data</summary>
-           <pre style="background: #f8fafc; padding: 16px;">${JSON.stringify(formData, null, 2)}</pre>
-       </details>
-       
-       <p style="font-size: 14px; color: #64748b;">
-           Submission ID: ${submissionId} | Calendly: ${isHighValue ? 'Priority' : 'Standard'} Booking
-       </p>
-   </div>
+    </div>
 </body>
 </html>`;
 }
-
-function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
-  let clientName = formData.firstName || formData.fullName?.split(' ')[0] || 
-                   formData.contactName?.split(' ')[0] || formData.founderName?.split(' ')[0] || 'there';
-  
-  if (!formData.email) {
-    console.error('❌ No email provided for client confirmation');
-    return null;
-  }
-  
-  const calendlyLink = getCalendlyLink(submissionType, leadScore);
-  const displayPrice = price || null;
-  
-  // Legal Strategy Builder gets special treatment
-  if (submissionType === 'legal-strategy-builder') {
-    return `
-<!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
-   <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-       
-       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Your Legal Roadmap is Ready</h1>
-       </div>
-      
-       <div style="padding: 40px 30px;">
-           <p style="font-size: 18px;">Hi ${clientName},</p>
-          
-           <p>You just completed our comprehensive legal assessment and received your Legal Foundation Score of <strong>${leadScore.score}/100</strong>. Now comes the important part.</p>
-           
-           <p><strong>Here's what happens next:</strong></p>
-           
-           <p>I'll personally review your specific answers about your business structure, IP protection, contracts, and strategic goals. Then during our consultation, I'll walk you through exactly which legal protections you need first, which can wait, and how to prioritize them based on your budget and timeline.</p>
-           
-           ${leadScore.score >= 70 ? `
-           <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Earned</h3>
-               <p style="margin: 0;">Your assessment score qualifies you for priority scheduling. I've reserved a 15-minute consultation slot specifically for high-potential situations like yours.</p>
-           </div>
-           ` : ''}
-           
-           <p>This consultation is <strong>completely free</strong> and there's no obligation to work with us afterward. Think of it as getting a second opinion from someone who's helped hundreds of founders, creators, and business owners protect what they've built.</p>
-           
-           <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover in 15 Minutes:</h3>
-               <ul style="margin: 0; padding-left: 20px; color: #374151;">
-                   <li style="margin-bottom: 8px;">Your biggest legal vulnerabilities right now</li>
-                   <li style="margin-bottom: 8px;">Which protections to tackle first (and estimated costs)</li>
-                   <li style="margin-bottom: 8px;">Common mistakes people in your situation make</li>
-                   <li style="margin-bottom: 8px;">Whether we're the right fit to help you</li>
-               </ul>
-           </div>
-           
-           <div style="background: linear-gradient(135deg, #ff4d00, #ff6d20); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
-               <h3 style="color: white; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
-               <p style="color: white; margin: 0 0 24px; opacity: 0.95;">I've blocked out time specifically for assessment completers like you</p>
-               <a href="${calendlyLink}" style="background-color: #ffffff; color: #ff4d00; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 700; font-size: 18px;">
-                  Select Your Time Slot
-               </a>
-           </div>
-           
-           <p style="font-size: 16px; color: #64748b;">P.S. I know legal consultations can feel intimidating. This isn't a sales pitch - it's a genuine strategy session where I'll give you actionable advice whether you hire us or not. Many clients tell me they wish they'd done this years earlier.</p>
-           
-           <p>Best,<br>
-           <strong>Drew Jacobs</strong><br>
-           <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
-       </div>
-   </div>
-</body>
-</html>`;
-  }
   
   // Regular intake forms get this version
   return `

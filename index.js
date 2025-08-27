@@ -1338,6 +1338,7 @@ app.get('/', (req, res) => {
       '/business-formation-intake',
       '/brand-protection-intake',
       '/outside-counsel',
+      '/legal-strategy-builder',
       '/add-subscriber',
       '/webhook/calendly',
       '/health'

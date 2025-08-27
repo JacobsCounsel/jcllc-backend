@@ -649,6 +649,101 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
     `;
   }
 
+  return `
+<!DOCTYPE html>
+<html>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; background: #f8fafc;">
+    <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        
+        ${isHighValue ? `
+        <div style="background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 24px; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 800;">HIGH VALUE LEAD - Score: ${leadScore.score}/100</h1>
+            <p style="margin: 8px 0 0; opacity: 0.9;">Priority consultation recommended</p>
+        </div>
+        ` : `
+        <div style="background: linear-gradient(135deg, #0f172a, #374151); color: white; padding: 24px; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 800;">New ${submissionType.replace('-', ' ').toUpperCase()} Lead</h1>
+            <p style="margin: 8px 0 0; opacity: 0.9;">Score: ${leadScore.score}/100</p>
+        </div>
+        `}
+        
+        <div style="padding: 32px;">
+            
+            <!-- Quick Context -->
+            <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div>
+                        <h2 style="margin: 0 0 8px; color: #0f172a; font-size: 20px;">${formData.firstName || formData.fullName || formData.email?.split('@')[0] || 'Name not provided'}</h2>
+                        <p style="margin: 0; color: #64748b; font-size: 16px;">${businessContext}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="background: ${isHighValue ? '#dc2626' : '#059669'}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                            ${isHighValue ? 'HIGH PRIORITY' : 'STANDARD'}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <p style="margin: 0; color: #374151;"><strong>Email:</strong> <a href="mailto:${formData.email}" style="color: #2563eb;">${formData.email}</a></p>
+                        <p style="margin: 4px 0 0; color: #374151;"><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0; color: #374151;"><strong>Primary Need:</strong> ${legalNeeds}</p>
+                        <p style="margin: 4px 0 0; color: #374151;"><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consultation Prep -->
+            <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; margin-bottom: 24px;">
+                <h3 style="margin: 0 0 12px; color: #92400e; font-size: 18px;">Consultation Talking Points:</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #78350f;">
+                    ${talkingPoints}
+                </ul>
+            </div>
+
+            <!-- Immediate Actions -->
+            <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px; color: #065f46; font-size: 18px;">Next Steps:</h3>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="mailto:${formData.email}?subject=Your Legal Consultation - Next Steps&body=Hi ${formData.firstName || 'there'},%0D%0A%0D%0AI've reviewed your submission and have some specific recommendations for your situation. Are you available for a quick consultation this week?" 
+                       style="background: #2563eb; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                        Send Personal Email
+                    </a>
+                    <a href="${calendlyLink}" 
+                       style="background: #059669; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                        ${isHighValue ? 'Priority Calendar Link' : 'Standard Calendar Link'}
+                    </a>
+                </div>
+                <p style="margin: 16px 0 0; color: #065f46; font-size: 14px;">
+                    <strong>Recommended follow-up:</strong> ${isHighValue ? 'Personal email within 2 hours, then calendar link' : 'Send calendar link within 24 hours'}
+                </p>
+            </div>
+
+            <!-- Lead Score Breakdown -->
+            <details style="margin-bottom: 24px;">
+                <summary style="cursor: pointer; font-weight: 600; color: #374151; padding: 8px 0;">Lead Score Breakdown (${leadScore.score}/100)</summary>
+                <div style="background: #f8fafc; padding: 16px; border-radius: 6px; margin-top: 8px;">
+                    ${leadScore.factors.map(factor => `<p style="margin: 4px 0; color: #64748b; font-size: 14px;">• ${factor}</p>`).join('')}
+                </div>
+            </details>
+
+            <!-- Full Submission Data -->
+            <details>
+                <summary style="cursor: pointer; font-weight: 600; color: #374151; padding: 8px 0;">Complete Submission Data</summary>
+                <pre style="background: #f1f5f9; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 12px; color: #374151; margin-top: 8px;">${JSON.stringify(formData, null, 2)}</pre>
+            </details>
+
+        </div>
+        
+        <div style="background: #f8fafc; padding: 16px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+            Submission ID: ${submissionId} | ${new Date().toLocaleString()}
+        </div>
+    </div>
+</body>
+</html>`;
+}
+
 <!DOCTYPE html>
 <html>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; background: #f8fafc;">

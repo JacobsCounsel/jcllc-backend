@@ -44,20 +44,19 @@ const HIGH_VALUE_NOTIFY_TO = process.env.HIGH_VALUE_NOTIFY_TO || 'drew@jacobscou
 
 // ==================== ENVIRONMENT VALIDATION ====================
 function validateEnvironment() {
-  const requiredVars = {
-    'Email Service': MS_CLIENT_ID && MS_CLIENT_SECRET && MS_TENANT_ID && MS_GRAPH_SENDER,
-    'Mailchimp': MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID,
-  };
+  const requiredEmail = MS_CLIENT_ID && MS_CLIENT_SECRET && MS_TENANT_ID && MS_GRAPH_SENDER;
+  const requiredMailchimp = MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID;
 
   console.log('🔍 Environment Check:');
-  Object.entries(requiredVars).forEach(([service, isConfigured]) => {
-    console.log(` ${service}: ${isConfigured ? '✅ Configured' : '⚠️ Not configured'}`);
-  });
+  console.log(` Email Service: ${requiredEmail ? '✅ Configured' : '⚠️ Not configured (emails disabled)'}`);
+  console.log(` Mailchimp: ${requiredMailchimp ? '✅ Configured' : '⚠️ Not configured (nurture disabled)'}`);
 
-  if (!MS_CLIENT_ID || !MS_CLIENT_SECRET || !MS_TENANT_ID || !MS_GRAPH_SENDER) {
-    throw new Error('Critical environment variables missing. Server cannot start.');
+  // Don’t throw; just operate in degraded mode.
+  if (!requiredEmail) {
+    console.warn('Email not configured. Client/internal emails will be skipped.');
   }
 }
+
 
 // ==================== EXPRESS SETUP ====================
 const app = express();
@@ -84,6 +83,33 @@ app.use('/outside-counsel', standardLimiter);
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 15 * 1024 * 1024, files: 15 }
+});
+
+// ==================== ANALYTICS ENDPOINT (used by Squarespace pages) ====================
+app.post('/api/analytics/form-event', async (req, res) => {
+  try {
+    const payload = sanitizeInput(req.body || {});
+    // Minimal validation
+    const event = (payload.event || 'form_event').slice(0, 64);
+    const formType = (payload.formType || 'unknown').slice(0, 64);
+    const data = payload.data || {};
+
+    // Send to Mixpanel if configured
+    if (mixpanel) {
+      mixpanel.track(event, {
+        distinct_id: data.email || data.userId || 'anon',
+        formType,
+        ...data
+      });
+    }
+
+    // You can also log or fan-out to Mailchimp or Clio later if helpful.
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Analytics error:', e);
+    // Don’t break the website over analytics.
+    res.json({ ok: true, note: 'analytics soft-failed' });
+  }
 });
 
 // ==================== HELPER FUNCTIONS ====================
@@ -790,13 +816,47 @@ async function processIntakeOperations(operations) {
   return results;
 }
 
+// ==================== COMPATIBILITY SHIM (front-end -> backend) ====================
+/**
+ * Your Squarespace forms send friendly names like "wealth-protection" and "business-protection".
+ * The backend lead-scoring expects canonical keys like "estate-intake" and "business-formation".
+ * This shim maps the front-end values to what your backend already understands.
+ */
+const TYPE_ALIAS = {
+  // Front-end -> Canonical
+  'wealth-protection': 'estate-intake',
+  'estate-planning': 'estate-intake',
+  'business-protection': 'business-formation',
+  'brand-protection': 'brand-protection',
+  'outside-counsel': 'outside-counsel',
+  'strategic-partnership': 'outside-counsel',
+  'newsletter': 'newsletter',
+  'legal-strategy-builder': 'legal-strategy-builder'
+};
+
+function normalizeSubmissionType(submitted, routeDefault) {
+  const s = (submitted || '').toLowerCase();
+  if (TYPE_ALIAS[s]) return TYPE_ALIAS[s];
+  if (TYPE_ALIAS[routeDefault]) return TYPE_ALIAS[routeDefault];
+  return routeDefault || 'newsletter';
+}
+
+// Normalize downstream usage everywhere so scoring, emails, Mailchimp, Calendly get the right type
+function withNormalizedType(formData, routeDefault) {
+  const norm = normalizeSubmissionType(formData.submissionType, routeDefault);
+  return { ...formData, submissionType: norm, _normalizedType: norm };
+}
+
+
 // ==================== MAIN INTAKE ENDPOINTS ====================
 app.post('/estate-intake', upload.array('document'), async (req, res) => {
   try {
-    const formData = sanitizeInput(req.body || {});
-    const files = req.files || [];
-    const submissionId = formData.submissionId || `estate-${Date.now()}`;
-    const submissionType = 'estate-intake';
+    let formData = sanitizeInput(req.body || {});
+const files = req.files || [];
+const submissionId = formData.submissionId || `estate-${Date.now()}`;
+formData = withNormalizedType(formData, 'estate-intake');
+const submissionType = formData._normalizedType;  // <- use normalized everywhere below
+
     
     console.log(`📥 New ${submissionType} submission:`, formData.email);
     
@@ -886,10 +946,12 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
 
 app.post('/business-formation-intake', upload.array('documents'), async (req, res) => {
   try {
-    const formData = sanitizeInput(req.body || {});
-    const files = req.files || [];
-    const submissionId = formData.submissionId || `business-${Date.now()}`;
-    const submissionType = 'business-formation';
+    let formData = sanitizeInput(req.body || {});
+const files = req.files || [];
+const submissionId = formData.submissionId || `business-${Date.now()}`;
+formData = withNormalizedType(formData, 'business-formation');
+const submissionType = formData._normalizedType;
+
     
     console.log(`📥 New ${submissionType} submission:`, formData.email);
     
@@ -975,10 +1037,11 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
 
 app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, res) => {
   try {
-    const formData = sanitizeInput(req.body || {});
-    const files = req.files || [];
-    const submissionId = formData.submissionId || `brand-${Date.now()}`;
-    const submissionType = 'brand-protection';
+    let formData = sanitizeInput(req.body || {});
+const files = req.files || [];
+const submissionId = formData.submissionId || `brand-${Date.now()}`;
+formData = withNormalizedType(formData, 'brand-protection');
+const submissionType = formData._normalizedType;
     
     console.log(`📥 New ${submissionType} submission:`, formData.email);
     
@@ -1069,9 +1132,10 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
 
 app.post('/outside-counsel', async (req, res) => {
   try {
-    const formData = sanitizeInput(req.body);
-    const submissionId = formData.submissionId || `OC-${Date.now()}`;
-    const submissionType = 'outside-counsel';
+    let formData = sanitizeInput(req.body);
+const submissionId = formData.submissionId || `OC-${Date.now()}`;
+formData = withNormalizedType(formData, 'outside-counsel');
+const submissionType = formData._normalizedType;
     
     console.log(`📥 New ${submissionType} submission:`, formData.email);
     

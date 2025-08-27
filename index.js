@@ -648,8 +648,7 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
       <li><strong>Timeline:</strong> ${formData.timeline || 'Not specified'}</li>
     `;
   }
-  
-  return `
+
 <!DOCTYPE html>
 <html>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; background: #f8fafc;">

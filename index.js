@@ -586,17 +586,19 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
   
   // Extract key business context based on submission type
-  let businessContext = '';
-  let legalNeeds = '';
-  let talkingPoints = '';
+let businessContext = '';
+let legalNeeds = '';
+let talkingPoints = '';
+let risks = 'Not specified';
+let risksArray = [];
   
   if (submissionType === 'legal-strategy-builder') {
     const role = formData.q1 || 'unknown';
     const stage = formData.q2 || 'unknown';
     const structure = formData.q3 || 'unknown';
     const ip = formData.q4 || 'unknown';
-    const risksArray = Array.isArray(formData.q7) ? formData.q7 : [];
-const risks = risksArray.length > 0 ? risksArray.join(', ') : 'none specified';
+    risksArray = Array.isArray(formData.q7) ? formData.q7 : [];
+    risks = risksArray.length > 0 ? risksArray.join(', ') : 'none specified';
     const goal = formData.q8 || 'unknown';
     
     businessContext = `${role.charAt(0).toUpperCase() + role.slice(1)} in ${stage} stage`;

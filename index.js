@@ -167,80 +167,36 @@ function calculateLeadScore(formData, submissionType) {
     'outside-counsel': 45,
     'legal-guide-download': 30,
     'resource-guide': 30,
-    'legal-strategy-builder': 55,
     'newsletter': 25
   };
  
-  score += baseScores[submissionType] || 30;
-  scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
- 
-  if (formData.fromAssessment === 'true' || formData.source === 'legal-strategy-builder-conversion') {
-    score += 20;
-    scoreFactors.push('Strategy Builder conversion: +20');
-    if (formData.assessmentScore) {
-      const assessmentScore = parseInt(formData.assessmentScore);
-      if (assessmentScore >= 70) {
-        score += 15;
-        scoreFactors.push('High assessment score: +15');
-      } else if (assessmentScore >= 50) {
-        score += 10;
-        scoreFactors.push('Good assessment score: +10');
-      }
+  if (submissionType === 'legal-strategy-builder') {
+    // Use frontend assessmentScore as the score for sync
+    score = parseInt(formData.assessmentScore) || 0;
+    scoreFactors.push(`Frontend Assessment Score: +${score}`);
+    if (formData.fromAssessment === 'true' || formData.source === 'legal-strategy-builder-conversion') {
+      score += 20;
+      scoreFactors.push('Strategy Builder conversion: +20');
     }
-  }
- 
-  // Estate Planning Scoring
-  if (submissionType === 'estate-intake') {
-    const grossEstate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
-    if (grossEstate > 5000000) { score += 50; scoreFactors.push('High net worth (>$5M): +50'); }
-    else if (grossEstate > 2000000) { score += 35; scoreFactors.push('Significant assets (>$2M): +35'); }
-    else if (grossEstate > 1000000) { score += 25; scoreFactors.push('Substantial assets (>$1M): +25'); }
-    if (formData.packagePreference?.toLowerCase().includes('trust')) {
-      score += 30; scoreFactors.push('Trust preference: +30');
-    }
-    if (formData.ownBusiness === 'Yes') { score += 20; scoreFactors.push('Business owner: +20'); }
-    if (formData.otherRealEstate === 'Yes') { score += 15; scoreFactors.push('Multiple properties: +15'); }
-    if (formData.planningGoal === 'complex') { score += 25; scoreFactors.push('Complex situation: +25'); }
-  }
- 
-  // Business Formation Scoring
-  if (submissionType === 'business-formation') {
-    if (formData.investmentPlan === 'vc') { score += 60; scoreFactors.push('VC-backed startup: +60'); }
-    else if (formData.investmentPlan === 'angel') { score += 40; scoreFactors.push('Angel funding: +40'); }
-    const revenue = formData.projectedRevenue || '';
-    if (revenue.includes('over25m')) { score += 50; scoreFactors.push('High revenue projection: +50'); }
-    else if (revenue.includes('5m-25m')) { score += 35; scoreFactors.push('Significant revenue: +35'); }
-    if (formData.businessGoal === 'startup') { score += 20; scoreFactors.push('High-growth startup: +20'); }
-    if (formData.selectedPackage === 'gold') { score += 25; scoreFactors.push('Premium package: +25'); }
-  }
- 
-  // Brand Protection Scoring
-  if (submissionType === 'brand-protection') {
-    if (formData.servicePreference?.includes('Portfolio') || formData.servicePreference?.includes('7500')) {
-      score += 40; scoreFactors.push('Comprehensive portfolio: +40');
-    }
-    if (formData.businessStage === 'Mature (5+ years)') { score += 20; scoreFactors.push('Established business: +20'); }
-    if (formData.protectionGoal === 'enforcement') { score += 35; scoreFactors.push('Enforcement need: +35'); }
-  }
- 
-  // Outside Counsel Scoring
-  if (submissionType === 'outside-counsel') {
-    if (formData.budget?.includes('10K+')) { score += 40; scoreFactors.push('High budget (>$10K): +40'); }
-    else if (formData.budget?.includes('5K-10K')) { score += 25; scoreFactors.push('Substantial budget: +25'); }
-    if (formData.timeline === 'Immediately') { score += 30; scoreFactors.push('Immediate need: +30'); }
+  } else {
+    score += baseScores[submissionType] || 30;
+    scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
   }
  
   // Universal scoring factors
   if (formData.urgency?.includes('Immediate') || formData.urgency?.includes('urgent')) {
-    score += 40; scoreFactors.push('Urgent timeline: +40');
+    score += 40;
+    scoreFactors.push('Urgent timeline: +40');
   }
   const email = formData.email || '';
   if (email && !email.includes('@gmail.com') && !email.includes('@yahoo.com') && !email.includes('@hotmail.com')) {
-    score += 10; scoreFactors.push('Business email: +10');
+    score += 10;
+    scoreFactors.push('Business email: +10');
   }
  
   return { score: Math.min(score, 100), factors: scoreFactors };
 }
+
 // ==================== AI ANALYSIS (Optional - can remove if not using) ====================
 async function analyzeIntakeWithAI(formData, submissionType, leadScore) {
   if (!OPENAI_API_KEY) return { analysis: null, recommendations: null, riskFlags: [] };
@@ -741,7 +697,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
          
-           <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${assessmentScore}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
+           <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${formData.assessmentScore || leadScore.score}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
           
            <p><strong>What happens next:</strong></p>
           

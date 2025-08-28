@@ -527,7 +527,7 @@ let risksArray = [];
     const structure = formData.q3 || 'unknown';
     const ip = formData.q4 || 'unknown';
     risksArray = Array.isArray(formData.q7) ? formData.q7 : [];
-    risks = risks.length > 0 ? risksArray.join(', ') : 'none specified';
+    risks = risksArray.length > 0 ? risksArray.join(', ') : 'none specified';
     const goal = formData.q8 || 'unknown';
   
     businessContext = `${role.charAt(0).toUpperCase() + role.slice(1)} in ${stage} stage`;
@@ -683,159 +683,6 @@ let risksArray = [];
 </body>
 </html>`;
 }
-function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
-  let clientName = formData.firstName || formData.fullName?.split(' ')[0] ||
-                   formData.contactName?.split(' ')[0] || formData.founderName?.split(' ')[0] || 'there';
-  if (!formData.email) {
-    console.error('❌ No email provided for client confirmation');
-    return null;
-  }
-  const calendlyLink = getCalendlyLink(submissionType, leadScore);
-  const displayPrice = price || null;
-  const assessmentScore = formData.assessmentScore || leadScore.score;
-  // Legal Strategy Builder gets special treatment
- if (submissionType === 'legal-strategy-builder') {
-  return `
-<!DOCTYPE html>
-<html>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0;">
-   <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-     
-       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #000000; font-size: 28px; margin: 0;">Your Legal Assessment Results</h1>
-       </div>
-    
-       <div style="padding: 40px 30px;">
-           <p style="font-size: 18px;">Hi ${clientName},</p>
-        
-           <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${assessmentScore}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
-         
-           <p><strong>What happens next:</strong></p>
-         
-           <p>I'll personally review your answers about your business structure, IP protection, contracts, and goals. During our consultation, I'll walk you through exactly which legal protections you need first, which can wait, and how to prioritize them within your budget.</p>
-         
-           ${assessmentScore >= 70 ? `
-           <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Status</h3>
-               <p style="margin: 0;">Your assessment score qualifies you for priority scheduling. I've reserved consultation slots specifically for high-potential situations like yours.</p>
-           </div>
-           ` : ''}
-         
-           <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover (15 Minutes):</h3>
-               <ul style="margin: 0; padding-left: 20px; color: #374151;">
-                   <li style="margin-bottom: 8px;">Your biggest legal vulnerabilities based on your assessment</li>
-                   <li style="margin-bottom: 8px;">Which protections to tackle first (with estimated costs)</li>
-                   <li style="margin-bottom: 8px;">Common mistakes for people in your situation</li>
-                   <li style="margin-bottom: 8px;">Whether we're the right fit to help you</li>
-               </ul>
-           </div>
-         
-           <div style="background: #ff4d00; padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
-               <h3 style="color: #000000; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
-               <p style="color: #000000; margin: 0 0 24px; opacity: 0.95;">Free consultation - no obligation</p>
-               <a href="${calendlyLink}"
-                  style="background-color: #ffffff !important;
-                         color: #ff4d00 !important;
-                         padding: 16px 32px;
-                         text-decoration: none;
-                         border-radius: 8px;
-                         display: inline-block;
-                         font-weight: 700;
-                         font-size: 18px;
-                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                         border: 2px solid #ff4d00;">
-                  Select Your Time Slot
-               </a>
-           </div>
-         
-           <div style="background: #fef3cd; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
-               <p style="margin: 0; font-size: 14px; color: #92400e;"><strong>Legal Notice:</strong> This consultation is for informational purposes only. No attorney-client relationship is formed until you sign an engagement letter with our firm.</p>
-           </div>
-         
-           <p style="font-size: 16px; color: #64748b;">This consultation is completely free. I'll provide actionable advice whether you hire us or not. Many clients tell me they wish they'd had this conversation years earlier.</p>
-        
-           <p>Best,<br>
-           <strong>Drew Jacobs</strong><br>
-           <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
-       </div>
-   </div>
-</body>
-</html>`;
-}
-  // Regular intake forms get this version
-  return `
-<!DOCTYPE html>
-<html>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0;">
-   <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-     
-       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #000000; font-size: 28px; margin: 0;">I'm Reviewing Your Submission Now</h1>
-       </div>
-    
-       <div style="padding: 40px 30px;">
-           <p style="font-size: 18px;">Hi ${clientName},</p>
-        
-           <p>I just received your ${submissionType.replace('-', ' ')} intake and I'm personally reviewing every detail you shared.</p>
-         
-           <p>Based on what you've told me about your situation, I'll prepare specific recommendations for our consultation. This isn't a generic legal overview - I'll address your exact circumstances, concerns, and goals.</p>
-        
-           ${leadScore.score >= 70 ? `
-           <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Status</h3>
-               <p style="margin: 0;">Your submission indicates some time-sensitive elements. I've marked this for priority review and reserved a consultation slot specifically for situations like yours.</p>
-           </div>
-           ` : ''}
-        
-           ${displayPrice ? `
-           <div style="background: #f0fdf4; padding: 24px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="margin: 0 0 12px; color: #166534;">Estimated Investment</h3>
-               <p style="margin: 0; font-size: 20px; font-weight: 600; color: #166534;">
-                   ${typeof displayPrice === 'number' ? '$' + displayPrice.toLocaleString() : displayPrice}
-               </p>
-               <p style="margin: 8px 0 0; font-size: 16px; color: #16a34a;">We'll discuss payment options and timeline during our consultation</p>
-           </div>
-           ` : ''}
-         
-           <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover:</h3>
-               <ul style="margin: 0; padding-left: 20px; color: #374151;">
-                   <li style="margin-bottom: 8px;">Immediate action items based on your submission</li>
-                   <li style="margin-bottom: 8px;">Potential risks I spotted in your situation</li>
-                   <li style="margin-bottom: 8px;">Timeline and next steps if we work together</li>
-                   <li style="margin-bottom: 8px;">Honest assessment of whether we're the right fit</li>
-               </ul>
-           </div>
-        
-           <div style="background: #ff4d00; padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
-               <h3 style="color: #000000; margin: 0 0 16px; font-size: 24px;">Schedule Your Consultation</h3>
-               <p style="color: #000000; margin: 0 0 24px; opacity: 0.95;">Free 15-minute strategy session - no obligation</p>
-               <a href="${calendlyLink}"
-                  style="background-color: #ffffff !important;
-                         color: #ff4d00 !important;
-                         padding: 16px 32px;
-                         text-decoration: none;
-                         border-radius: 8px;
-                         display: inline-block;
-                         font-weight: 700;
-                         font-size: 18px;
-                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                         border: 2px solid #ff4d00;">
-                  Select Your Time Slot
-               </a>
-           </div>
-         
-           <p style="font-size: 16px; color: #64748b;">This consultation is completely free with no pressure to hire us. I'll give you actionable advice regardless of whether we work together.</p>
-        
-           <p>Best,<br>
-           <strong>Drew Jacobs</strong><br>
-           <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
-       </div>
-   </div>
-</body>
-</html>`;
-}
 function generateNewsletterWelcomeEmail(formData) {
   const clientName = formData.firstName || formData.fullName?.split(' ')[0] || 'there';
   return `
@@ -845,19 +692,41 @@ function generateNewsletterWelcomeEmail(formData) {
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
      
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #000000; font-size: 28px; margin: 0;">Welcome to Jacobs Counsel Newsletter</h1>
+           <h1 style="color: #000000; font-size: 28px; margin: 0;">Your Legal Playbook Starts Here</h1>
        </div>
     
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
         
-           <p>Thanks for signing up. You'll receive updates on legal strategies for startups, creators, and athletes.</p>
-         
-           <p>Stay tuned for our first issue.</p>
+           <p>Welcome to Jacobs Counsel's inner circle.</p>
+
+           <p>You've just joined high-performers who view legal as offense as they grow on the way to success.</p>
+
+           <p>Here's what you get:</p>
+
+           <ul>
+             <li>Insights on protecting IP, structuring deals, and avoiding costly legal mistakes</li>
+             <li>Real case studies from the field (anonymized, always actionable)</li>
+             <li>Early access to our legal frameworks and strategies</li>
+           </ul>
+
+           <p>Your starter toolkit (download now):</p>
+
+           <ul>
+             <li><a href="https://www.jacobscounsellaw.com/entity-selection-guide">Entity Selection Guide for Startups</a> - Choose the right structure from day one</li>
+             <li><a href="https://www.jacobscounsellaw.com/creator-contract-checklist">Creator Contract Checklist</a> - Never miss critical terms again</li>
+             <li><a href="https://www.jacobscounsellaw.com/athlete-nil-framework">Athlete NIL Deal Framework</a> - Maximize value, minimize risk</li>
+           </ul>
+
+           <p>Each issue cuts through legal complexity to deliver strategies you can actually use. No fluff or legalese—just insights that protect what you're building.</p>
+
+           <p>Questions? Hit reply. I read everything.</p>
         
-           <p>Best,<br>
-           <strong>Drew Jacobs</strong><br>
-           <span style="color: #15803d;">Founder, Jacobs Counsel</span></p>
+           <p>Drew Jacobs<br>
+           Founder, Jacobs Counsel<br>
+           <a href="https://www.jacobscounsellaw.com">Website</a> | <a href="https://www.linkedin.com/company/jacobs-counsel">LinkedIn</a></p>
+
+           <p>P.S. – Forward this to one person who needs better legal assistance. They'll thank you later.</p>
        </div>
    </div>
 </body>
@@ -1492,7 +1361,7 @@ app.post('/newsletter-signup', async (req, res) => {
         operations.push(
           sendEnhancedEmail({
             to: [formData.email],
-            subject: 'Welcome to Jacobs Counsel Newsletter',
+            subject: 'Your Legal Playbook Starts Here [+ Free Resources Inside]',
             html: welcomeEmailHtml
           }).catch(e => console.error('❌ Welcome email failed:', e.message))
         );
@@ -1574,7 +1443,7 @@ app.post('/add-subscriber', async (req, res) => {
       const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
       await sendEnhancedEmail({
         to: [formData.email],
-        subject: 'Welcome to Jacobs Counsel Community',
+        subject: 'Your Legal Playbook Starts Here [+ Free Resources Inside]',
         html: welcomeEmailHtml
       });
     }

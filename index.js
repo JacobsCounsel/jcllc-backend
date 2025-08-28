@@ -831,10 +831,25 @@ app.post('/webhook/calendly', async (req, res) => {
     const { event, payload } = req.body;
   
     if (event === 'invitee.created') {
-      const invitee = payload.invitee || {};
-      const email = invitee.email;
-      const name = invitee.name;
-      const scheduled_event = payload.scheduled_event || {};
+      // Send notification with proper validation
+const clientName = invitee.name || invitee.first_name || 'Unknown Client';
+const clientEmail = invitee.email || 'No email provided';
+const eventName = scheduled_event.name || scheduled_event.event_type?.name || 'Consultation';
+const eventTime = scheduled_event.start_time 
+  ? new Date(scheduled_event.start_time).toLocaleString() 
+  : 'Time not specified';
+
+await sendEnhancedEmail({
+  to: [INTAKE_NOTIFY_TO],
+  subject: `📅 Consultation Booked: ${clientName}`,
+  html: `
+    <h2>New Consultation Booked</h2>
+    <p><strong>Client:</strong> ${clientName} (${clientEmail})</p>
+    <p><strong>Event:</strong> ${eventName}</p>
+    <p><strong>Time:</strong> ${eventTime}</p>
+    <p><strong>Raw Payload:</strong> <pre>${JSON.stringify(payload, null, 2)}</pre></p>
+  `
+}).catch(e => console.error('Failed to send booking notification:', e));
     
       console.log(`📅 Meeting booked: ${email}`);
     

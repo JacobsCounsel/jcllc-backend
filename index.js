@@ -141,7 +141,6 @@ function getCalendlyLink(submissionType, leadScore) {
   if (leadScore.score >= 70) {
     return CALENDLY_LINKS['priority'];
   }
- 
   // Map intake types to appropriate Calendly links
   const typeMap = {
     'estate-intake': 'estate-planning',
@@ -152,14 +151,12 @@ function getCalendlyLink(submissionType, leadScore) {
     'newsletter': 'general',
     'resource-guide': 'general'
   };
- 
   return CALENDLY_LINKS[typeMap[submissionType]] || CALENDLY_LINKS['general'];
 }
 // ==================== LEAD SCORING ====================
 function calculateLeadScore(formData, submissionType) {
   let score = 0;
   let scoreFactors = [];
- 
   const baseScores = {
     'estate-intake': 40,
     'business-formation': 50,
@@ -169,7 +166,6 @@ function calculateLeadScore(formData, submissionType) {
     'resource-guide': 30,
     'newsletter': 25
   };
- 
   if (submissionType === 'legal-strategy-builder') {
     score = parseInt(formData.assessmentScore) || 0;
     scoreFactors.push(`Frontend Assessment Score: +${score}`);
@@ -181,7 +177,6 @@ function calculateLeadScore(formData, submissionType) {
     score += baseScores[submissionType] || 30;
     scoreFactors.push(`Base ${submissionType}: +${baseScores[submissionType] || 30}`);
   }
- 
   // Estate Planning Scoring
   if (submissionType === 'estate-intake') {
     const grossEstate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
@@ -195,7 +190,6 @@ function calculateLeadScore(formData, submissionType) {
     if (formData.otherRealEstate === 'Yes') { score += 15; scoreFactors.push('Multiple properties: +15'); }
     if (formData.planningGoal === 'complex') { score += 25; scoreFactors.push('Complex situation: +25'); }
   }
- 
   // Business Formation Scoring
   if (submissionType === 'business-formation') {
     if (formData.investmentPlan === 'vc') { score += 60; scoreFactors.push('VC-backed startup: +60'); }
@@ -206,7 +200,6 @@ function calculateLeadScore(formData, submissionType) {
     if (formData.businessGoal === 'startup') { score += 20; scoreFactors.push('High-growth startup: +20'); }
     if (formData.selectedPackage === 'gold') { score += 25; scoreFactors.push('Premium package: +25'); }
   }
- 
   // Brand Protection Scoring
   if (submissionType === 'brand-protection') {
     if (formData.servicePreference?.includes('Portfolio') || formData.servicePreference?.includes('7500')) {
@@ -215,14 +208,12 @@ function calculateLeadScore(formData, submissionType) {
     if (formData.businessStage === 'Mature (5+ years)') { score += 20; scoreFactors.push('Established business: +20'); }
     if (formData.protectionGoal === 'enforcement') { score += 35; scoreFactors.push('Enforcement need: +35'); }
   }
- 
   // Outside Counsel Scoring
   if (submissionType === 'outside-counsel') {
     if (formData.budget?.includes('10K+')) { score += 40; scoreFactors.push('High budget (>$10K): +40'); }
     else if (formData.budget?.includes('5K-10K')) { score += 25; scoreFactors.push('Substantial budget: +25'); }
     if (formData.timeline === 'Immediately') { score += 30; scoreFactors.push('Immediate need: +30'); }
   }
- 
   // Universal scoring factors
   if (formData.urgency?.includes('Immediate') || formData.urgency?.includes('urgent')) {
     score += 40; scoreFactors.push('Urgent timeline: +40');
@@ -231,7 +222,6 @@ function calculateLeadScore(formData, submissionType) {
   if (email && !email.includes('@gmail.com') && !email.includes('@yahoo.com') && !email.includes('@hotmail.com')) {
     score += 10; scoreFactors.push('Business email: +10');
   }
- 
   return { score: Math.min(score, 100), factors: scoreFactors };
 }
 // ==================== AI ANALYSIS (Optional - can remove if not using) ====================
@@ -257,16 +247,16 @@ async function analyzeIntakeWithAI(formData, submissionType, leadScore) {
         ]
       })
     });
-   
+  
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '';
-   
+  
     const sections = {
       analysis: content.match(/ANALYSIS: (.+?)(?=RECOMMENDATIONS:|$)/s)?.[1]?.trim(),
       recommendations: content.match(/RECOMMENDATIONS: (.+?)(?=RISK_FLAGS:|$)/s)?.[1]?.trim(),
       riskFlags: content.match(/RISK_FLAGS: (.+?)$/s)?.[1]?.trim()
     };
-   
+  
     cache.set(cacheKey, sections);
     return sections;
   } catch (error) {
@@ -292,7 +282,7 @@ function generateSmartTags(formData, leadScore, submissionType) {
   }
   // Service-specific tags
   if (submissionType === 'estate-intake') {
-    const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
+    const estate = parseFloat(formData.grossEstate || '0');
     if (estate > 5000000) tags.push('sequence-estate-tax');
     else if (estate > 2000000) tags.push('sequence-wealth-protection');
     else if (estate > 1000000) tags.push('sequence-asset-protection');
@@ -320,7 +310,6 @@ function generateSmartTags(formData, leadScore, submissionType) {
 }
 function buildSmartFields(formData, leadScore, submissionType) {
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
- 
   const fields = {
     FNAME: formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || '',
     LNAME: formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || '',
@@ -351,10 +340,8 @@ async function addToMailchimpWithAutomation(formData, leadScore, submissionType)
     console.log('Mailchimp not configured, skipping');
     return { skipped: true };
   }
- 
   const tags = generateSmartTags(formData, leadScore, submissionType);
   const mergeFields = buildSmartFields(formData, leadScore, submissionType);
- 
   const memberData = {
     email_address: formData.email,
     status: 'subscribed',
@@ -362,7 +349,6 @@ async function addToMailchimpWithAutomation(formData, leadScore, submissionType)
     tags: tags,
     timestamp_signup: new Date().toISOString()
   };
- 
   try {
     const response = await fetch(
       `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members`,
@@ -375,11 +361,11 @@ async function addToMailchimpWithAutomation(formData, leadScore, submissionType)
         body: JSON.stringify(memberData)
       }
     );
-   
+  
     if (response.status === 400) {
       const crypto = await import('crypto');
       const hashedEmail = crypto.createHash('md5').update(formData.email.toLowerCase()).digest('hex');
-     
+    
       const updateResponse = await fetch(
         `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}`,
         {
@@ -396,7 +382,7 @@ async function addToMailchimpWithAutomation(formData, leadScore, submissionType)
       );
       return await updateResponse.json();
     }
-   
+  
     return await response.json();
   } catch (error) {
     console.error('Mailchimp error:', error);
@@ -414,7 +400,6 @@ async function getGraphToken() {
     scope: 'https://graph.microsoft.com/.default',
     grant_type: 'client_credentials'
   });
- 
   const response = await fetch(
     `https://login.microsoftonline.com/${MS_TENANT_ID}/oauth2/v2.0/token`,
     {
@@ -423,7 +408,6 @@ async function getGraphToken() {
       body
     }
   );
- 
   if (!response.ok) throw new Error(`Token error ${response.status}`);
   const json = await response.json();
   return json.access_token;
@@ -448,7 +432,6 @@ async function sendEnhancedEmail({ to, subject, html, priority = 'normal', attac
     },
     saveToSentItems: true
   };
- 
   const response = await fetch(
     `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MS_GRAPH_SENDER)}/sendMail`,
     {
@@ -460,7 +443,6 @@ async function sendEnhancedEmail({ to, subject, html, priority = 'normal', attac
       body: JSON.stringify(mail)
     }
   );
- 
   if (!response.ok) {
     const errorText = await response.text().catch(() => '');
     throw new Error(`sendMail failed ${response.status} ${errorText}`);
@@ -472,7 +454,6 @@ async function createClioLead(formData, submissionType, leadScore) {
     console.log('Clio Grow not configured, skipping');
     return { skipped: true };
   }
- 
   let firstName = 'Not Provided';
   let lastName = 'Not Provided';
   const nameSources = [
@@ -499,7 +480,6 @@ async function createClioLead(formData, submissionType, leadScore) {
   let message = `${submissionType.replace('-', ' ').toUpperCase()} Lead (Score: ${leadScore.score}/100)\n\n`;
   message += `Calendly Link: ${getCalendlyLink(submissionType, leadScore)}\n\n`;
   message += `Details:\n${JSON.stringify(formData, null, 2)}`;
- 
   const clioPayload = {
     inbox_lead: {
       from_first: firstName,
@@ -512,14 +492,13 @@ async function createClioLead(formData, submissionType, leadScore) {
     },
     inbox_lead_token: CLIO_GROW_INBOX_TOKEN
   };
- 
   try {
     const response = await fetch(`${CLIO_GROW_BASE}/inbox_leads`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(clioPayload)
     });
-   
+  
     if (response.ok) {
       console.log('✅ Pushed to Clio Grow');
       return await response.json();
@@ -536,35 +515,33 @@ async function createClioLead(formData, submissionType, leadScore) {
 function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId) {
   const isHighValue = leadScore.score >= 70;
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
- 
   // Extract key business context based on submission type
 let businessContext = '';
 let legalNeeds = '';
 let talkingPoints = '';
 let risks = 'Not specified';
 let risksArray = [];
- 
   if (submissionType === 'legal-strategy-builder') {
     const role = formData.q1 || 'unknown';
     const stage = formData.q2 || 'unknown';
     const structure = formData.q3 || 'unknown';
     const ip = formData.q4 || 'unknown';
     risksArray = Array.isArray(formData.q7) ? formData.q7 : [];
-    risks = risksArray.length > 0 ? risksArray.join(', ') : 'none specified';
+    risks = risks.length > 0 ? risksArray.join(', ') : 'none specified';
     const goal = formData.q8 || 'unknown';
-   
+  
     businessContext = `${role.charAt(0).toUpperCase() + role.slice(1)} in ${stage} stage`;
-   
+  
     // Determine primary legal needs
     const needsArray = [];
     if (structure === 'none' || structure === 'unsure') needsArray.push('Entity formation');
     if (ip === 'none' || ip === 'basic') needsArray.push('IP protection');
     if (risksArray.includes('liability')) needsArray.push('Asset protection');
-if (risksArray.includes('estate')) needsArray.push('Estate planning');
+    if (risksArray.includes('estate')) needsArray.push('Estate planning');
     if (goal === 'fundraise') needsArray.push('Investment readiness');
-   
+  
     legalNeeds = needsArray.length > 0 ? needsArray.join(' + ') : 'General strategy';
-   
+  
     talkingPoints = `
       <li><strong>Current Gap:</strong> ${structure === 'none' ? 'No business entity' : structure === 'unsure' ? 'Unclear entity structure' : 'Has ' + structure}</li>
       <li><strong>IP Status:</strong> ${ip === 'none' ? 'No protection' : ip}</li>
@@ -576,10 +553,10 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
     const pkg = formData.packagePreference || 'not specified';
     const business = formData.ownBusiness === 'Yes';
-   
+  
     businessContext = `Estate: $${estate > 0 ? estate.toLocaleString() : 'not specified'}${business ? ' + Business owner' : ''}`;
     legalNeeds = pkg.includes('trust') ? 'Trust-based planning' : pkg.includes('will') ? 'Will-based planning' : 'Planning type TBD';
-   
+  
     talkingPoints = `
       <li><strong>Estate Size:</strong> $${estate > 0 ? estate.toLocaleString() : 'Not provided'}</li>
       <li><strong>Package Interest:</strong> ${pkg}</li>
@@ -591,10 +568,10 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
     const revenue = formData.projectedRevenue || 'not specified';
     const investment = formData.investmentPlan || 'self-funded';
     const packageType = formData.selectedPackage || 'not specified';
-   
+  
     businessContext = `${investment} startup, ${revenue} revenue projection`;
     legalNeeds = investment === 'vc' ? 'VC-ready formation' : investment === 'angel' ? 'Investment-ready formation' : 'Standard formation';
-   
+  
     talkingPoints = `
       <li><strong>Investment Plan:</strong> ${investment}</li>
       <li><strong>Revenue Target:</strong> ${revenue}</li>
@@ -608,7 +585,7 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
 <html>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; background: #f8fafc;">
     <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
-       
+      
         ${isHighValue ? `
         <div style="background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 24px; text-align: center;">
             <h1 style="margin: 0; font-size: 24px; font-weight: 800;">HIGH VALUE LEAD - Score: ${leadScore.score}/100</h1>
@@ -620,9 +597,9 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
             <p style="margin: 8px 0 0; opacity: 0.9;">Score: ${leadScore.score}/100</p>
         </div>
         `}
-       
+      
         <div style="padding: 32px;">
-           
+          
             <!-- Quick Context -->
             <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
@@ -698,7 +675,7 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
                 <pre style="background: #f1f5f9; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 12px; color: #374151; margin-top: 8px;">${JSON.stringify(formData, null, 2)}</pre>
             </details>
         </div>
-       
+      
         <div style="background: #f8fafc; padding: 16px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
             Submission ID: ${submissionId} | ${new Date().toLocaleString()}
         </div>
@@ -709,44 +686,41 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
 function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
   let clientName = formData.firstName || formData.fullName?.split(' ')[0] ||
                    formData.contactName?.split(' ')[0] || formData.founderName?.split(' ')[0] || 'there';
- 
   if (!formData.email) {
     console.error('❌ No email provided for client confirmation');
     return null;
   }
- 
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
   const displayPrice = price || null;
   const assessmentScore = formData.assessmentScore || leadScore.score;
- 
   // Legal Strategy Builder gets special treatment
  if (submissionType === 'legal-strategy-builder') {
   return `
 <!DOCTYPE html>
 <html>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0;">
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-      
+     
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
            <h1 style="color: #000000; font-size: 28px; margin: 0;">Your Legal Assessment Results</h1>
        </div>
-     
+    
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
-         
+        
            <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${assessmentScore}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
-          
+         
            <p><strong>What happens next:</strong></p>
-          
+         
            <p>I'll personally review your answers about your business structure, IP protection, contracts, and goals. During our consultation, I'll walk you through exactly which legal protections you need first, which can wait, and how to prioritize them within your budget.</p>
-          
+         
            ${assessmentScore >= 70 ? `
            <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
                <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Status</h3>
                <p style="margin: 0;">Your assessment score qualifies you for priority scheduling. I've reserved consultation slots specifically for high-potential situations like yours.</p>
            </div>
            ` : ''}
-          
+         
            <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin: 24px 0;">
                <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover (15 Minutes):</h3>
                <ul style="margin: 0; padding-left: 20px; color: #374151;">
@@ -756,31 +730,31 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
                    <li style="margin-bottom: 8px;">Whether we're the right fit to help you</li>
                </ul>
            </div>
-          
+         
            <div style="background: #ff4d00; padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
                <h3 style="color: #000000; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
                <p style="color: #000000; margin: 0 0 24px; opacity: 0.95;">Free consultation - no obligation</p>
                <a href="${calendlyLink}"
-   style="background-color: #ffffff !important;
-          color: #ff4d00 !important;
-          padding: 16px 32px;
-          text-decoration: none;
-          border-radius: 8px;
-          display: inline-block;
-          font-weight: 700;
-          font-size: 18px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          border: 2px solid #ff4d00;">
-   Select Your Time Slot
-</a>
+                  style="background-color: #ffffff !important;
+                         color: #ff4d00 !important;
+                         padding: 16px 32px;
+                         text-decoration: none;
+                         border-radius: 8px;
+                         display: inline-block;
+                         font-weight: 700;
+                         font-size: 18px;
+                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                         border: 2px solid #ff4d00;">
+                  Select Your Time Slot
+               </a>
            </div>
-          
+         
            <div style="background: #fef3cd; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
                <p style="margin: 0; font-size: 14px; color: #92400e;"><strong>Legal Notice:</strong> This consultation is for informational purposes only. No attorney-client relationship is formed until you sign an engagement letter with our firm.</p>
            </div>
-          
-           <p style="font-size: 16px; color: #64748b;">This consultation is completely free. I'll provide actionable advice whether you hire us or not. Many clients tell me they wish they'd had this conversation years earlier.</p>
          
+           <p style="font-size: 16px; color: #64748b;">This consultation is completely free. I'll provide actionable advice whether you hire us or not. Many clients tell me they wish they'd had this conversation years earlier.</p>
+        
            <p>Best,<br>
            <strong>Drew Jacobs</strong><br>
            <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
@@ -789,32 +763,31 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
 </body>
 </html>`;
 }
- 
   // Regular intake forms get this version
   return `
 <!DOCTYPE html>
 <html>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0;">
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-      
+     
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
            <h1 style="color: #000000; font-size: 28px; margin: 0;">I'm Reviewing Your Submission Now</h1>
        </div>
-     
+    
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
-         
+        
            <p>I just received your ${submissionType.replace('-', ' ')} intake and I'm personally reviewing every detail you shared.</p>
-          
-           <p>Based on what you've told me about your situation, I'll prepare specific recommendations for our consultation. This isn't a generic legal overview - I'll address your exact circumstances, concerns, and goals.</p>
          
+           <p>Based on what you've told me about your situation, I'll prepare specific recommendations for our consultation. This isn't a generic legal overview - I'll address your exact circumstances, concerns, and goals.</p>
+        
            ${leadScore.score >= 70 ? `
            <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
                <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Status</h3>
                <p style="margin: 0;">Your submission indicates some time-sensitive elements. I've marked this for priority review and reserved a consultation slot specifically for situations like yours.</p>
            </div>
            ` : ''}
-         
+        
            ${displayPrice ? `
            <div style="background: #f0fdf4; padding: 24px; border-radius: 8px; margin: 24px 0;">
                <h3 style="margin: 0 0 12px; color: #166534;">Estimated Investment</h3>
@@ -824,7 +797,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
                <p style="margin: 8px 0 0; font-size: 16px; color: #16a34a;">We'll discuss payment options and timeline during our consultation</p>
            </div>
            ` : ''}
-          
+         
            <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin: 24px 0;">
                <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover:</h3>
                <ul style="margin: 0; padding-left: 20px; color: #374151;">
@@ -834,27 +807,27 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
                    <li style="margin-bottom: 8px;">Honest assessment of whether we're the right fit</li>
                </ul>
            </div>
-         
+        
            <div style="background: #ff4d00; padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
                <h3 style="color: #000000; margin: 0 0 16px; font-size: 24px;">Schedule Your Consultation</h3>
                <p style="color: #000000; margin: 0 0 24px; opacity: 0.95;">Free 15-minute strategy session - no obligation</p>
                <a href="${calendlyLink}"
-   style="background-color: #ffffff !important;
-          color: #ff4d00 !important;
-          padding: 16px 32px;
-          text-decoration: none;
-          border-radius: 8px;
-          display: inline-block;
-          font-weight: 700;
-          font-size: 18px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          border: 2px solid #ff4d00;">
-   Select Your Time Slot
-</a>
+                  style="background-color: #ffffff !important;
+                         color: #ff4d00 !important;
+                         padding: 16px 32px;
+                         text-decoration: none;
+                         border-radius: 8px;
+                         display: inline-block;
+                         font-weight: 700;
+                         font-size: 18px;
+                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                         border: 2px solid #ff4d00;">
+                  Select Your Time Slot
+               </a>
            </div>
-          
-           <p style="font-size: 16px; color: #64748b;">This consultation is completely free with no pressure to hire us. I'll give you actionable advice regardless of whether we work together.</p>
          
+           <p style="font-size: 16px; color: #64748b;">This consultation is completely free with no pressure to hire us. I'll give you actionable advice regardless of whether we work together.</p>
+        
            <p>Best,<br>
            <strong>Drew Jacobs</strong><br>
            <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
@@ -870,21 +843,21 @@ function generateNewsletterWelcomeEmail(formData) {
 <html>
 <body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-      
+     
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
            <h1 style="color: #000000; font-size: 28px; margin: 0;">Welcome to Jacobs Counsel Newsletter</h1>
        </div>
-     
+    
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
-         
+        
            <p>Thanks for signing up. You'll receive updates on legal strategies for startups, creators, and athletes.</p>
-          
-           <p>Stay tuned for our first issue.</p>
          
+           <p>Stay tuned for our first issue.</p>
+        
            <p>Best,<br>
            <strong>Drew Jacobs</strong><br>
-           <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
+           <span style="color: #15803d;">Founder, Jacobs Counsel</span></p>
        </div>
    </div>
 </body>
@@ -897,20 +870,20 @@ function generateResourceThankYouEmail(formData, downloadLink) {
 <html>
 <body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-      
+     
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
            <h1 style="color: #000000; font-size: 28px; margin: 0;">Thank You for Downloading</h1>
        </div>
-     
+    
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
-         
+        
            <p>Here's your instant link to the Legal Resource Guide:</p>
-          
-           <a href="${downloadLink}" style="background-color: #2563eb; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">Download Guide</a>
-          
-           <p>We'll follow up with more resources soon.</p>
          
+           <a href="${downloadLink}" style="background-color: #2563eb; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">Download Guide</a>
+         
+           <p>We'll follow up with more resources soon.</p>
+        
            <p>Best,<br>
            <strong>Drew Jacobs</strong><br>
            <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
@@ -923,17 +896,17 @@ function generateResourceThankYouEmail(formData, downloadLink) {
 app.post('/webhook/calendly', async (req, res) => {
   try {
     console.log('Calendly webhook received:', JSON.stringify(req.body));
-   
+  
     const { event, payload } = req.body;
-   
+  
     if (event === 'invitee.created') {
       const invitee = payload.invitee || {};
       const email = invitee.email;
       const name = invitee.name;
       const scheduled_event = payload.scheduled_event || {};
-     
+    
       console.log(`📅 Meeting booked: ${email}`);
-     
+    
       if (mixpanel) {
         mixpanel.track('Consultation Booked', {
           distinct_id: email,
@@ -941,13 +914,13 @@ app.post('/webhook/calendly', async (req, res) => {
           start_time: scheduled_event.start_time
         });
       }
-     
+    
       // Update Mailchimp tags to stop booking reminders
       if (MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID && email) {
         try {
           const crypto = await import('crypto');
           const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
-         
+        
           await fetch(
             `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
             {
@@ -968,7 +941,7 @@ app.post('/webhook/calendly', async (req, res) => {
           console.error('Failed to update Mailchimp tags:', e);
         }
       }
-     
+    
       // Send notification
       await sendEnhancedEmail({
         to: [INTAKE_NOTIFY_TO],
@@ -981,25 +954,25 @@ app.post('/webhook/calendly', async (req, res) => {
         `
       }).catch(e => console.error('Failed to send booking notification:', e));
     }
-   
+  
     if (event === 'invitee.canceled') {
       const invitee = payload.invitee || {};
       const email = invitee.email;
-     
+    
       console.log(`❌ Meeting canceled: ${email}`);
-     
+    
       if (mixpanel) {
         mixpanel.track('Consultation Canceled', {
           distinct_id: email
         });
       }
-     
+    
       // Restart nurture sequence
       if (MAILCHIMP_API_KEY && MAILCHIMP_AUDIENCE_ID && email) {
         try {
           const crypto = await import('crypto');
           const hashedEmail = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
-         
+        
           await fetch(
             `https://${MAILCHIMP_SERVER}.api.mailchimp.com/3.0/lists/${MAILCHIMP_AUDIENCE_ID}/members/${hashedEmail}/tags`,
             {
@@ -1022,7 +995,7 @@ app.post('/webhook/calendly', async (req, res) => {
         }
       }
     }
-   
+  
     res.json({ received: true });
   } catch (error) {
     console.error('Calendly webhook error:', error);
@@ -1076,14 +1049,14 @@ const files = req.files || [];
 const submissionId = formData.submissionId || `estate-${Date.now()}`;
 formData = withNormalizedType(formData, 'estate-intake');
 const submissionType = formData._normalizedType; // <- use normalized everywhere below
-   
+  
     console.log(`📥 New ${submissionType} submission:`, formData.email);
-   
+  
     const leadScore = calculateLeadScore(formData, submissionType);
     console.log(`📊 Lead score: ${leadScore.score}/100`);
-   
+  
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-   
+  
     const attachments = files
       .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
       .slice(0, 10)
@@ -1092,7 +1065,7 @@ const submissionType = formData._normalizedType; // <- use normalized everywhere
         contentType: f.mimetype,
         content: f.buffer
       }));
-   
+  
     // Calculate pricing
     const marital = (formData.maritalStatus || '').toLowerCase();
     const pkg = (formData.packagePreference || '').toLowerCase();
@@ -1100,7 +1073,7 @@ const submissionType = formData._normalizedType; // <- use normalized everywhere
     let price = null;
     if (pkg.includes('trust')) price = married ? 3650 : 2900;
     else if (pkg.includes('will')) price = married ? 1900 : 1500;
-   
+  
     if (mixpanel) {
       mixpanel.track('Intake Submitted', {
         distinct_id: formData.email,
@@ -1109,12 +1082,12 @@ const submissionType = formData._normalizedType; // <- use normalized everywhere
         value: price || 0
       });
     }
-   
+  
     const operations = [];
     const alertRecipients = leadScore.score >= 70
       ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
       : [INTAKE_NOTIFY_TO];
-   
+  
     operations.push(
       sendEnhancedEmail({
         to: alertRecipients,
@@ -1124,17 +1097,17 @@ const submissionType = formData._normalizedType; // <- use normalized everywhere
         attachments
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
-   
+  
     operations.push(
       addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
-   
+  
     operations.push(
       createClioLead(formData, submissionType, leadScore)
         .catch(e => console.error('❌ Clio Grow failed:', e.message))
     );
-   
+  
     if (formData.email) {
       const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
       if (clientEmailHtml) {
@@ -1147,9 +1120,9 @@ const submissionType = formData._normalizedType; // <- use normalized everywhere
         );
       }
     }
-   
+  
     await processIntakeOperations(operations);
-   
+  
     res.json({
       ok: true,
       submissionId,
@@ -1169,12 +1142,12 @@ const files = req.files || [];
 const submissionId = formData.submissionId || `business-${Date.now()}`;
 formData = withNormalizedType(formData, 'business-formation');
 const submissionType = formData._normalizedType;
-   
+  
     console.log(`📥 New ${submissionType} submission:`, formData.email);
-   
+  
     const leadScore = calculateLeadScore(formData, submissionType);
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-   
+  
     const attachments = files
       .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
       .slice(0, 10)
@@ -1183,13 +1156,13 @@ const submissionType = formData._normalizedType;
         contentType: f.mimetype,
         content: f.buffer
       }));
-   
+  
     let price = null;
     const packageType = (formData.selectedPackage || '').toLowerCase();
     if (packageType.includes('bronze')) price = 2995;
     else if (packageType.includes('silver')) price = 4995;
     else if (packageType.includes('gold')) price = 7995;
-   
+  
     if (mixpanel) {
       mixpanel.track('Intake Submitted', {
         distinct_id: formData.email,
@@ -1198,12 +1171,12 @@ const submissionType = formData._normalizedType;
         value: price || 0
       });
     }
-   
+  
     const operations = [];
     const alertRecipients = leadScore.score >= 70
       ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
       : [INTAKE_NOTIFY_TO];
-   
+  
     operations.push(
       sendEnhancedEmail({
         to: alertRecipients,
@@ -1213,17 +1186,17 @@ const submissionType = formData._normalizedType;
         attachments
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
-   
+  
     operations.push(
       addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
-   
+  
     operations.push(
       createClioLead(formData, submissionType, leadScore)
         .catch(e => console.error('❌ Clio failed:', e.message))
     );
-   
+  
     if (formData.email) {
       const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
       if (clientEmailHtml) {
@@ -1236,9 +1209,9 @@ const submissionType = formData._normalizedType;
         );
       }
     }
-   
+  
     await processIntakeOperations(operations);
-   
+  
     res.json({
       ok: true,
       submissionId,
@@ -1258,12 +1231,12 @@ const files = req.files || [];
 const submissionId = formData.submissionId || `brand-${Date.now()}`;
 formData = withNormalizedType(formData, 'brand-protection');
 const submissionType = formData._normalizedType;
-   
+  
     console.log(`📥 New ${submissionType} submission:`, formData.email);
-   
+  
     const leadScore = calculateLeadScore(formData, submissionType);
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-   
+  
     const attachments = files
       .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
       .slice(0, 10)
@@ -1272,7 +1245,7 @@ const submissionType = formData._normalizedType;
         contentType: f.mimetype,
         content: f.buffer
       }));
-   
+  
     let priceEstimate = 'Custom Quote';
     const service = (formData.servicePreference || '').toLowerCase();
     if (service.includes('clearance') || service.includes('1495')) {
@@ -1284,7 +1257,7 @@ const submissionType = formData._normalizedType;
     } else if (service.includes('portfolio') || service.includes('7500')) {
       priceEstimate = '$7,500+';
     }
-   
+  
     if (mixpanel) {
       mixpanel.track('Intake Submitted', {
         distinct_id: formData.email,
@@ -1292,12 +1265,12 @@ const submissionType = formData._normalizedType;
         score: leadScore.score
       });
     }
-   
+  
     const operations = [];
     const alertRecipients = leadScore.score >= 70
       ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
       : [INTAKE_NOTIFY_TO];
-   
+  
     operations.push(
       sendEnhancedEmail({
         to: alertRecipients,
@@ -1307,17 +1280,17 @@ const submissionType = formData._normalizedType;
         attachments
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
-   
+  
     operations.push(
       addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
-   
+  
     operations.push(
       createClioLead(formData, submissionType, leadScore)
         .catch(e => console.error('❌ Clio failed:', e.message))
     );
-   
+  
     if (formData.email) {
       const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore);
       if (clientEmailHtml) {
@@ -1330,9 +1303,9 @@ const submissionType = formData._normalizedType;
         );
       }
     }
-   
+  
     await processIntakeOperations(operations);
-   
+  
     res.json({
       ok: true,
       submissionId,
@@ -1351,12 +1324,12 @@ app.post('/outside-counsel', async (req, res) => {
 const submissionId = formData.submissionId || `OC-${Date.now()}`;
 formData = withNormalizedType(formData, 'outside-counsel');
 const submissionType = formData._normalizedType;
-   
+  
     console.log(`📥 New ${submissionType} submission:`, formData.email);
-   
+  
     const leadScore = calculateLeadScore(formData, submissionType);
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-   
+  
     if (mixpanel) {
       mixpanel.track('Intake Submitted', {
         distinct_id: formData.email,
@@ -1364,12 +1337,12 @@ const submissionType = formData._normalizedType;
         score: leadScore.score
       });
     }
-   
+  
     const operations = [];
     const alertRecipients = leadScore.score >= 70
       ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
       : [INTAKE_NOTIFY_TO];
-   
+  
     operations.push(
       sendEnhancedEmail({
         to: alertRecipients,
@@ -1378,17 +1351,17 @@ const submissionType = formData._normalizedType;
         priority: leadScore.score >= 70 ? 'high' : 'normal'
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
-   
+  
     operations.push(
       addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
-   
+  
     operations.push(
       createClioLead(formData, submissionType, leadScore)
         .catch(e => console.error('❌ Clio failed:', e.message))
     );
-   
+  
     if (formData.email) {
       const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
       if (clientEmailHtml) {
@@ -1401,15 +1374,14 @@ const submissionType = formData._normalizedType;
         );
       }
     }
-   
+  
     await processIntakeOperations(operations);
-   
+  
     res.json({
       success: true,
       submissionId: submissionId,
       leadScore: leadScore.score,
-      aiAnalysisAvailable: !!aiAnalysis?.analysis,
-      message: 'Outside counsel request submitted successfully'
+      aiAnalysisAvailable: !!aiAnalysis?.analysis
     });
   } catch (error) {
     console.error('💥 Outside counsel error:', error);
@@ -1425,13 +1397,13 @@ app.post('/legal-strategy-builder', async (req, res) => {
     const submissionId = formData.submissionId || `strategy-${Date.now()}`;
     formData = withNormalizedType(formData, 'legal-strategy-builder');
     const submissionType = formData._normalizedType;
-   
+  
     console.log(`📥 New ${submissionType} submission:`, formData.email);
-   
+  
     const leadScore = calculateLeadScore(formData, submissionType);
     const assessmentScore = parseInt(formData.assessmentScore) || leadScore.score; // Sync frontend score
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-   
+  
     if (mixpanel) {
       mixpanel.track('Legal Strategy Builder Submitted', {
         distinct_id: formData.email,
@@ -1447,12 +1419,12 @@ app.post('/legal-strategy-builder', async (req, res) => {
         q8: formData.q8
       });
     }
-   
+  
     const operations = [];
     const alertRecipients = leadScore.score >= 70
       ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
       : [INTAKE_NOTIFY_TO];
-   
+  
     operations.push(
       sendEnhancedEmail({
         to: alertRecipients,
@@ -1461,17 +1433,17 @@ app.post('/legal-strategy-builder', async (req, res) => {
         priority: leadScore.score >= 70 ? 'high' : 'normal'
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
-   
+  
     operations.push(
       addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
-   
+  
     operations.push(
       createClioLead(formData, submissionType, leadScore)
         .catch(e => console.error('❌ Clio failed:', e.message))
     );
-   
+  
     if (formData.email) {
       const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
       if (clientEmailHtml) {
@@ -1484,9 +1456,9 @@ app.post('/legal-strategy-builder', async (req, res) => {
         );
       }
     }
-   
+  
     await processIntakeOperations(operations);
-   
+  
     res.json({
       ok: true,
       submissionId,
@@ -1505,20 +1477,15 @@ app.post('/newsletter-signup', async (req, res) => {
     formData = withNormalizedType(formData, 'newsletter');
     const submissionType = formData._normalizedType;
     const submissionId = `newsletter-${Date.now()}`;
-
     console.log(`📥 New ${submissionType} submission:`, formData.email);
-
     const leadScore = calculateLeadScore(formData, submissionType);
-
     if (mixpanel) {
       mixpanel.track('Newsletter Signup', {
         distinct_id: formData.email,
         source: formData.source || 'newsletter'
       });
     }
-
     const operations = [];
-
     if (formData.email) {
       const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
       if (welcomeEmailHtml) {
@@ -1531,14 +1498,11 @@ app.post('/newsletter-signup', async (req, res) => {
         );
       }
     }
-
     operations.push(
       addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
-
     await processIntakeOperations(operations);
-
     res.json({
       ok: true,
       submissionId,
@@ -1556,20 +1520,15 @@ app.post('/resource-guide-download', async (req, res) => {
     formData = withNormalizedType(formData, 'resource-guide');
     const submissionType = formData._normalizedType;
     const submissionId = `guide-${Date.now()}`;
-
     console.log(`📥 New ${submissionType} submission:`, formData.email);
-
     const leadScore = calculateLeadScore(formData, submissionType);
-
     if (mixpanel) {
       mixpanel.track('Resource Guide Download', {
         distinct_id: formData.email,
         source: formData.source || 'resource-guide'
       });
     }
-
     const operations = [];
-
     if (formData.email) {
       const thankYouEmailHtml = generateResourceThankYouEmail(formData, RESOURCE_GUIDE_URL);
       if (thankYouEmailHtml) {
@@ -1582,14 +1541,11 @@ app.post('/resource-guide-download', async (req, res) => {
         );
       }
     }
-
     operations.push(
       addToMailchimpWithAutomation(formData, leadScore, submissionType)
         .catch(e => console.error('❌ Mailchimp failed:', e.message))
     );
-
     await processIntakeOperations(operations);
-
     res.json({
       ok: true,
       submissionId,
@@ -1605,23 +1561,33 @@ app.post('/resource-guide-download', async (req, res) => {
 app.post('/add-subscriber', async (req, res) => {
   try {
     const { email, source = 'newsletter' } = req.body;
-   
+  
     if (!email) {
       return res.status(400).json({ ok: false, error: 'Email required' });
     }
-   
+  
     const leadScore = { score: 30, factors: ['Newsletter signup'] };
     const formData = { email, source };
-   
+  
+    // Send welcome email
+    if (formData.email) {
+      const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
+      await sendEnhancedEmail({
+        to: [formData.email],
+        subject: 'Welcome to Jacobs Counsel Community',
+        html: welcomeEmailHtml
+      });
+    }
+  
     await addToMailchimpWithAutomation(formData, leadScore, 'newsletter');
-   
+  
     if (mixpanel) {
       mixpanel.track('Newsletter Signup', {
         distinct_id: email,
         source: source
       });
     }
-   
+  
     res.json({ ok: true, message: 'Subscriber added successfully' });
   } catch (error) {
     console.error('Newsletter error:', error);

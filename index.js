@@ -687,48 +687,77 @@ function generateNewsletterWelcomeEmail(formData) {
   const clientName = formData.firstName || formData.fullName?.split(' ')[0] || 'there';
   return `
 <!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
-   <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-     
-       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #000000; font-size: 28px; margin: 0;">Your Legal Playbook Starts Here</h1>
-       </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Legal Playbook Starts Here</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
     
-       <div style="padding: 40px 30px;">
-           <p style="font-size: 18px;">Hi ${clientName},</p>
+    <!-- Header -->
+    <tr>
+      <td style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
+        <h1 style="color: #ffffff; font-size: 28px; margin: 0; font-weight: 800;">Your Legal Playbook Starts Here</h1>
+      </td>
+    </tr>
+    
+    <!-- Body -->
+    <tr>
+      <td style="padding: 40px 30px; color: #333333;">
+        <p style="font-size: 18px; margin: 0 0 20px;">Hi ${clientName},</p>
         
-           <p>Welcome to Jacobs Counsel's inner circle.</p>
+        <p style="margin: 0 0 20px;">Welcome to Jacobs Counsel's inner circle.</p>
 
-           <p>You've just joined high-performers who view legal as offense as they grow on the way to success.</p>
+        <p style="margin: 0 0 20px;">You've just joined high-performers who view legal as offense as they grow on the way to success.</p>
 
-           <p>Here's what you get:</p>
+        <p style="margin: 0 0 20px; font-weight: 600;">Here's what you get:</p>
 
-           <ul>
-             <li>Insights on protecting IP, structuring deals, and avoiding costly legal mistakes</li>
-             <li>Real case studies from the field (anonymized, always actionable)</li>
-             <li>Early access to our legal frameworks and strategies</li>
-           </ul>
+        <ul style="margin: 0 0 20px; padding-left: 20px;">
+          <li style="margin-bottom: 10px;">Insights on protecting IP, structuring deals, and avoiding costly legal mistakes</li>
+          <li style="margin-bottom: 10px;">Real case studies from the field (anonymized, always actionable)</li>
+          <li style="margin-bottom: 10px;">Early access to our legal frameworks and strategies</li>
+        </ul>
 
-           <p>Your starter toolkit (download now):</p>
+        <p style="margin: 0 0 20px; font-weight: 600;">Your starter toolkit (download now):</p>
 
-           <ul>
-             <li><a href="https://www.jacobscounsellaw.com/entity-selection-guide">Entity Selection Guide for Startups</a> - Choose the right structure from day one</li>
-             <li><a href="https://www.jacobscounsellaw.com/creator-contract-checklist">Creator Contract Checklist</a> - Never miss critical terms again</li>
-             <li><a href="https://www.jacobscounsellaw.com/athlete-nil-framework">Athlete NIL Deal Framework</a> - Maximize value, minimize risk</li>
-           </ul>
+        <ul style="margin: 0 0 20px; padding-left: 20px;">
+          <li style="margin-bottom: 10px;">
+            <a href="https://www.jacobscounsellaw.com/s/The-VC-Ready-Business-Formation-Blueprint.pdf" style="color: #ff4d00; text-decoration: none; font-weight: 600;">Entity Selection Guide for Startups</a> - Choose the right structure from day one
+          </li>
+          <li style="margin-bottom: 10px;">
+            <a href="https://www.jacobscounsellaw.com/s/Protect-Your-Dreams-Maximize-Your-Impact-and-Grow-Smart.pdf" style="color: #ff4d00; text-decoration: none; font-weight: 600;">Creator Contract Checklist</a> - Never miss critical terms again
+          </li>
+          <li style="margin-bottom: 10px;">
+            <a href="https://www.jacobscounsellaw.com/s/Emergency-Brand-Protection-Playbook.pdf" style="color: #ff4d00; text-decoration: none; font-weight: 600;">Emergency Brand Protection Playbook</a> - Safeguard your brand quickly
+          </li>
+          <li style="margin-bottom: 10px;">
+            <a href="https://www.jacobscounsellaw.com/s/Estate-Planning-for-High-Achievers.pdf" style="color: #ff4d00; text-decoration: none; font-weight: 600;">Estate Planning for High Achievers</a> - Protect your legacy
+          </li>
+        </ul>
 
-           <p>Each issue cuts through legal complexity to deliver strategies you can actually use. No fluff or legalese—just insights that protect what you're building.</p>
+        <p style="margin: 0 0 20px;">Each issue cuts through legal complexity to deliver strategies you can actually use. No fluff or legalese—just insights that protect what you're building.</p>
 
-           <p>Questions? Hit reply. I read everything.</p>
+        <p style="margin: 0 0 20px;">Questions? Hit reply. I read everything.</p>
         
-           <p>Drew Jacobs<br>
-           Founder, Jacobs Counsel<br>
-           <a href="https://www.jacobscounsellaw.com">Website</a> | <a href="https://www.linkedin.com/company/jacobs-counsel">LinkedIn</a></p>
+        <p style="margin: 0 0 20px;">Drew Jacobs<br>
+        Founder, Jacobs Counsel<br>
+        <a href="https://www.jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">Website</a> | <a href="https://www.linkedin.com/company/jacobs-counsel" style="color: #ff4d00; text-decoration: none;">LinkedIn</a></p>
 
-           <p>P.S. – Forward this to one person who needs better legal assistance. They'll thank you later.</p>
-       </div>
-   </div>
+        <p style="margin: 0; font-size: 14px; color: #666666;">P.S. – Forward this to one person who needs better legal assistance. They'll thank you later.</p>
+      </td>
+    </tr>
+    
+    <!-- Footer -->
+    <tr>
+      <td style="background-color: #f8fafc; padding: 20px 30px; text-align: center; font-size: 12px; color: #9ca3af;">
+        <p style="margin: 0 0 5px;">© 2025 Jacobs Counsel LLC. All rights reserved.</p>
+        <p style="margin: 0;">This email was sent to you because you subscribed to our newsletter.</p>
+      </td>
+    </tr>
+    
+  </table>
 </body>
 </html>`;
 }
@@ -1366,6 +1395,20 @@ app.post('/newsletter-signup', async (req, res) => {
           }).catch(e => console.error('❌ Welcome email failed:', e.message))
         );
       }
+      // Send internal notification to Drew
+      operations.push(
+        sendEnhancedEmail({
+          to: [HIGH_VALUE_NOTIFY_TO],
+          subject: 'New Newsletter Subscriber',
+          html: `
+            <h2>New Newsletter Subscriber</h2>
+            <p><strong>Name:</strong> ${formData.firstName || 'Not provided'}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Source:</strong> ${formData.source || 'Website'}</p>
+            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+          `
+        }).catch(e => console.error('❌ Internal newsletter notification failed:', e.message))
+      );
     }
     operations.push(
       addToMailchimpWithAutomation(formData, leadScore, submissionType)
@@ -1429,14 +1472,14 @@ app.post('/resource-guide-download', async (req, res) => {
 // Legacy add-subscriber (redirect or deprecate if needed)
 app.post('/add-subscriber', async (req, res) => {
   try {
-    const { email, source = 'newsletter' } = req.body;
+    const { email, firstName = '', source = 'newsletter' } = req.body;
   
     if (!email) {
       return res.status(400).json({ ok: false, error: 'Email required' });
     }
   
     const leadScore = { score: 30, factors: ['Newsletter signup'] };
-    const formData = { email, source };
+    const formData = { email, firstName, source };
   
     // Send welcome email
     if (formData.email) {
@@ -1445,6 +1488,18 @@ app.post('/add-subscriber', async (req, res) => {
         to: [formData.email],
         subject: 'Your Legal Playbook Starts Here [+ Free Resources Inside]',
         html: welcomeEmailHtml
+      });
+      // Send internal notification to Drew
+      await sendEnhancedEmail({
+        to: [HIGH_VALUE_NOTIFY_TO],
+        subject: 'New Newsletter Subscriber',
+        html: `
+          <h2>New Newsletter Subscriber</h2>
+          <p><strong>Name:</strong> ${firstName || 'Not provided'}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Source:</strong> ${source}</p>
+          <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+        `
       });
     }
   

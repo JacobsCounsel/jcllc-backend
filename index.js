@@ -577,7 +577,7 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
       <li><strong>IP Status:</strong> ${ip === 'none' ? 'No protection' : ip}</li>
       <li><strong>Main Concerns:</strong> ${risks || 'Not specified'}</li>
       <li><strong>12-Month Goal:</strong> ${goal}</li>
-      <li><strong>Assessment Score:</strong> ${leadScore.score}/100 (${leadScore.score >= 70 ? 'Strong foundation' : leadScore.score >= 50 ? 'Developing foundation' : 'Early stage'})</li>
+      <li><strong>Assessment Score:</strong> ${formData.assessmentScore || leadScore.score}/100 (${(formData.assessmentScore || leadScore.score) >= 70 ? 'Strong foundation' : (formData.assessmentScore || leadScore.score) >= 50 ? 'Developing foundation' : 'Early stage'})</li>
     `;
   } else if (submissionType === 'estate-intake') {
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
@@ -724,6 +724,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
  
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
   const displayPrice = price || null;
+  const assessmentScore = formData.assessmentScore || leadScore.score;
  
   // Legal Strategy Builder gets special treatment
  if (submissionType === 'legal-strategy-builder') {
@@ -740,13 +741,13 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
          
-           <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${leadScore.score}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
+           <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${assessmentScore}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
           
            <p><strong>What happens next:</strong></p>
           
            <p>I'll personally review your answers about your business structure, IP protection, contracts, and goals. During our consultation, I'll walk you through exactly which legal protections you need first, which can wait, and how to prioritize them within your budget.</p>
           
-           ${leadScore.score >= 70 ? `
+           ${assessmentScore >= 70 ? `
            <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
                <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Status</h3>
                <p style="margin: 0;">Your assessment score qualifies you for priority scheduling. I've reserved consultation slots specifically for high-potential situations like yours.</p>
@@ -763,9 +764,9 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
                </ul>
            </div>
           
-           <div style="background: linear-gradient(135deg, #ff4d00, #ff6d20); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
-               <h3 style="color: #000000; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
-               <p style="color: #000000; margin: 0 0 24px; opacity: 0.95;">Free consultation - no obligation</p>
+           <div style="background: #ff4d00; padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
+               <h3 style="color: #ffffff; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
+               <p style="color: #ffffff; margin: 0 0 24px; opacity: 0.95;">Free consultation - no obligation</p>
                <a href="${calendlyLink}"
    style="background-color: #ffffff !important;
           color: #ff4d00 !important;
@@ -841,9 +842,9 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
                </ul>
            </div>
          
-           <div style="background: linear-gradient(135deg, #0f172a, #ff4d00); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
-               <h3 style="color: #000000; margin: 0 0 16px; font-size: 24px;">Schedule Your Consultation</h3>
-               <p style="color: #000000; margin: 0 0 24px; opacity: 0.95;">Free 15-minute strategy session - no obligation</p>
+           <div style="background: #ff4d00; padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
+               <h3 style="color: #ffffff; margin: 0 0 16px; font-size: 24px;">Schedule Your Consultation</h3>
+               <p style="color: #ffffff; margin: 0 0 24px; opacity: 0.95;">Free 15-minute strategy session - no obligation</p>
                <a href="${calendlyLink}"
    style="background-color: #ffffff !important;
           color: #ff4d00 !important;

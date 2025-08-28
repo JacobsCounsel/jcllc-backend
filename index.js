@@ -816,17 +816,18 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
                <h3 style="color: white; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
                <p style="color: white; margin: 0 0 24px; opacity: 0.95;">Free consultation - no obligation</p>
                <a href="${calendlyLink}" 
-                  style="background-color: #ffffff; 
-                         color: #ff4d00; 
-                         padding: 16px 32px; 
-                         text-decoration: none; 
-                         border-radius: 8px; 
-                         display: inline-block; 
-                         font-weight: 700; 
-                         font-size: 18px;
-                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                  Select Your Time Slot
-               </a>
+   style="background-color: #ffffff !important; 
+          color: #ff4d00 !important; 
+          padding: 16px 32px; 
+          text-decoration: none; 
+          border-radius: 8px; 
+          display: inline-block; 
+          font-weight: 700; 
+          font-size: 18px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          border: 2px solid #ff4d00;">
+   Select Your Time Slot
+</a>
            </div>
            
            <div style="background: #fef3cd; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
@@ -892,9 +893,19 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            <div style="background: linear-gradient(135deg, #0f172a, #ff4d00); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
                <h3 style="color: white; margin: 0 0 16px; font-size: 24px;">Schedule Your Consultation</h3>
                <p style="color: white; margin: 0 0 24px; opacity: 0.95;">Free 15-minute strategy session - no obligation</p>
-               <a href="${calendlyLink}" style="background-color: #ffffff; color: #0f172a; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 700; font-size: 18px;">
-                  Book Your Time Slot
-               </a>
+               <a href="${calendlyLink}" 
+   style="background-color: #ffffff !important; 
+          color: #ff4d00 !important; 
+          padding: 16px 32px; 
+          text-decoration: none; 
+          border-radius: 8px; 
+          display: inline-block; 
+          font-weight: 700; 
+          font-size: 18px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          border: 2px solid #ff4d00;">
+   Select Your Time Slot
+</a>
            </div>
            
            <p style="font-size: 16px; color: #64748b;">This consultation is completely free with no pressure to hire us. I'll give you actionable advice regardless of whether we work together.</p>

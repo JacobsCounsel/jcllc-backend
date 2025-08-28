@@ -149,7 +149,8 @@ function getCalendlyLink(submissionType, leadScore) {
     'brand-protection': 'brand-protection',
     'outside-counsel': 'outside-counsel',
     'legal-strategy-builder': 'general',
-    'newsletter': 'general'
+    'newsletter': 'general',
+    'resource-guide': 'general'
   };
  
   return CALENDLY_LINKS[typeMap[submissionType]] || CALENDLY_LINKS['general'];
@@ -165,7 +166,9 @@ function calculateLeadScore(formData, submissionType) {
     'brand-protection': 35,
     'outside-counsel': 45,
     'legal-guide-download': 30,
-    'legal-strategy-builder': 55
+    'resource-guide': 30,
+    'legal-strategy-builder': 55,
+    'newsletter': 25
   };
  
   score += baseScores[submissionType] || 30;
@@ -311,6 +314,14 @@ function generateSmartTags(formData, leadScore, submissionType) {
   if (submissionType === 'brand-protection') {
     if (formData.protectionGoal?.includes('enforcement')) tags.push('sequence-ip-enforcement');
     if (formData.protectionGoal?.includes('registration')) tags.push('sequence-trademark-registration');
+  }
+  if (submissionType === 'newsletter') {
+    tags.push('newsletter-signup');
+    tags.push('trigger-newsletter-sequence');
+  }
+  if (submissionType === 'resource-guide') {
+    tags.push('resource-guide-download');
+    tags.push('trigger-guide-sequence');
   }
   return tags;
 }
@@ -529,7 +540,7 @@ async function createClioLead(formData, submissionType, leadScore) {
   }
 }
 // ==================== EMAIL TEMPLATES ====================
-function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId, assessmentScore) {
+function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId) {
   const isHighValue = leadScore.score >= 70;
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
  
@@ -566,7 +577,7 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
       <li><strong>IP Status:</strong> ${ip === 'none' ? 'No protection' : ip}</li>
       <li><strong>Main Concerns:</strong> ${risks || 'Not specified'}</li>
       <li><strong>12-Month Goal:</strong> ${goal}</li>
-      <li><strong>Assessment Score:</strong> ${assessmentScore}/100 (${assessmentScore >= 70 ? 'Strong foundation' : assessmentScore >= 50 ? 'Developing foundation' : 'Early stage'})</li>
+      <li><strong>Assessment Score:</strong> ${leadScore.score}/100 (${leadScore.score >= 70 ? 'Strong foundation' : leadScore.score >= 50 ? 'Developing foundation' : 'Early stage'})</li>
     `;
   } else if (submissionType === 'estate-intake') {
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
@@ -702,7 +713,7 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
 </body>
 </html>`;
 }
-function generateClientConfirmationEmail(formData, price, submissionType, leadScore, assessmentScore) {
+function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
   let clientName = formData.firstName || formData.fullName?.split(' ')[0] ||
                    formData.contactName?.split(' ')[0] || formData.founderName?.split(' ')[0] || 'there';
  
@@ -723,13 +734,13 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
       
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Your Legal Assessment Results</h1>
+           <h1 style="color: #000000; font-size: 28px; margin: 0;">Your Legal Assessment Results</h1>
        </div>
      
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
          
-           <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${assessmentScore}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
+           <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${leadScore.score}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
           
            <p><strong>What happens next:</strong></p>
           
@@ -753,8 +764,8 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            </div>
           
            <div style="background: linear-gradient(135deg, #ff4d00, #ff6d20); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
-               <h3 style="color: white; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
-               <p style="color: white; margin: 0 0 24px; opacity: 0.95;">Free consultation - no obligation</p>
+               <h3 style="color: #000000; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
+               <p style="color: #000000; margin: 0 0 24px; opacity: 0.95;">Free consultation - no obligation</p>
                <a href="${calendlyLink}"
    style="background-color: #ffffff !important;
           color: #ff4d00 !important;
@@ -793,7 +804,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
       
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">I'm Reviewing Your Submission Now</h1>
+           <h1 style="color: #000000; font-size: 28px; margin: 0;">I'm Reviewing Your Submission Now</h1>
        </div>
      
        <div style="padding: 40px 30px;">
@@ -831,8 +842,8 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            </div>
          
            <div style="background: linear-gradient(135deg, #0f172a, #ff4d00); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
-               <h3 style="color: white; margin: 0 0 16px; font-size: 24px;">Schedule Your Consultation</h3>
-               <p style="color: white; margin: 0 0 24px; opacity: 0.95;">Free 15-minute strategy session - no obligation</p>
+               <h3 style="color: #000000; margin: 0 0 16px; font-size: 24px;">Schedule Your Consultation</h3>
+               <p style="color: #000000; margin: 0 0 24px; opacity: 0.95;">Free 15-minute strategy session - no obligation</p>
                <a href="${calendlyLink}"
    style="background-color: #ffffff !important;
           color: #ff4d00 !important;
@@ -849,6 +860,62 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
            </div>
           
            <p style="font-size: 16px; color: #64748b;">This consultation is completely free with no pressure to hire us. I'll give you actionable advice regardless of whether we work together.</p>
+         
+           <p>Best,<br>
+           <strong>Drew Jacobs</strong><br>
+           <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
+       </div>
+   </div>
+</body>
+</html>`;
+}
+function generateNewsletterWelcomeEmail(formData) {
+  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || 'there';
+  return `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+   <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      
+       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
+           <h1 style="color: #000000; font-size: 28px; margin: 0;">Welcome to Jacobs Counsel Newsletter</h1>
+       </div>
+     
+       <div style="padding: 40px 30px;">
+           <p style="font-size: 18px;">Hi ${clientName},</p>
+         
+           <p>Thanks for signing up. You'll receive updates on legal strategies for startups, creators, and athletes.</p>
+          
+           <p>Stay tuned for our first issue.</p>
+         
+           <p>Best,<br>
+           <strong>Drew Jacobs</strong><br>
+           <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
+       </div>
+   </div>
+</body>
+</html>`;
+}
+function generateResourceThankYouEmail(formData, downloadLink) {
+  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || 'there';
+  return `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+   <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      
+       <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
+           <h1 style="color: #000000; font-size: 28px; margin: 0;">Thank You for Downloading</h1>
+       </div>
+     
+       <div style="padding: 40px 30px;">
+           <p style="font-size: 18px;">Hi ${clientName},</p>
+         
+           <p>Here's your instant link to the Legal Resource Guide:</p>
+          
+           <a href="${downloadLink}" style="background-color: #2563eb; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">Download Guide</a>
+          
+           <p>We'll follow up with more resources soon.</p>
          
            <p>Best,<br>
            <strong>Drew Jacobs</strong><br>
@@ -993,6 +1060,7 @@ const TYPE_ALIAS = {
   'outside-counsel': 'outside-counsel',
   'strategic-partnership': 'outside-counsel',
   'newsletter': 'newsletter',
+  'resource-guide': 'resource-guide',
   'legal-strategy-builder': 'legal-strategy-builder'
 };
 function normalizeSubmissionType(submitted, routeDefault) {
@@ -1367,7 +1435,6 @@ app.post('/legal-strategy-builder', async (req, res) => {
     console.log(`📥 New ${submissionType} submission:`, formData.email);
    
     const leadScore = calculateLeadScore(formData, submissionType);
-    const assessmentScore = parseInt(formData.assessmentScore) || leadScore.score;  // Fallback to leadScore if missing
     const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
    
     if (mixpanel) {
@@ -1395,7 +1462,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
       sendEnhancedEmail({
         to: alertRecipients,
         subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Legal Strategy Builder — ${formData.email} (Score: ${leadScore.score})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId, assessmentScore),
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
         priority: leadScore.score >= 70 ? 'high' : 'normal'
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
@@ -1411,7 +1478,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
     );
    
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore, assessmentScore);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -1436,7 +1503,110 @@ app.post('/legal-strategy-builder', async (req, res) => {
     res.status(500).json({ ok: false, error: error.message });
   }
 });
-// Other endpoints (newsletter, guides, etc.)
+// Newsletter endpoint
+app.post('/newsletter-signup', async (req, res) => {
+  try {
+    let formData = sanitizeInput(req.body || {});
+    formData = withNormalizedType(formData, 'newsletter');
+    const submissionType = formData._normalizedType;
+    const submissionId = `newsletter-${Date.now()}`;
+
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+
+    if (mixpanel) {
+      mixpanel.track('Newsletter Signup', {
+        distinct_id: formData.email,
+        source: formData.source || 'newsletter'
+      });
+    }
+
+    const operations = [];
+
+    if (formData.email) {
+      const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
+      if (welcomeEmailHtml) {
+        operations.push(
+          sendEnhancedEmail({
+            to: [formData.email],
+            subject: 'Welcome to Jacobs Counsel Newsletter',
+            html: welcomeEmailHtml
+          }).catch(e => console.error('❌ Welcome email failed:', e.message))
+        );
+      }
+    }
+
+    operations.push(
+      addToMailchimpWithAutomation(formData, leadScore, submissionType)
+        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+    );
+
+    await processIntakeOperations(operations);
+
+    res.json({
+      ok: true,
+      submissionId,
+      message: 'Subscribed successfully'
+    });
+  } catch (error) {
+    console.error('💥 Newsletter error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+// Resource guide endpoint
+app.post('/resource-guide-download', async (req, res) => {
+  try {
+    let formData = sanitizeInput(req.body || {});
+    formData = withNormalizedType(formData, 'resource-guide');
+    const submissionType = formData._normalizedType;
+    const submissionId = `guide-${Date.now()}`;
+
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+
+    if (mixpanel) {
+      mixpanel.track('Resource Guide Download', {
+        distinct_id: formData.email,
+        source: formData.source || 'resource-guide'
+      });
+    }
+
+    const operations = [];
+
+    if (formData.email) {
+      const thankYouEmailHtml = generateResourceThankYouEmail(formData, RESOURCE_GUIDE_URL);
+      if (thankYouEmailHtml) {
+        operations.push(
+          sendEnhancedEmail({
+            to: [formData.email],
+            subject: 'Your Legal Resource Guide - Jacobs Counsel',
+            html: thankYouEmailHtml
+          }).catch(e => console.error('❌ Thank you email failed:', e.message))
+        );
+      }
+    }
+
+    operations.push(
+      addToMailchimpWithAutomation(formData, leadScore, submissionType)
+        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+    );
+
+    await processIntakeOperations(operations);
+
+    res.json({
+      ok: true,
+      submissionId,
+      downloadLink: RESOURCE_GUIDE_URL,
+      message: 'Guide ready for download'
+    });
+  } catch (error) {
+    console.error('💥 Resource guide error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+// Legacy add-subscriber (redirect or deprecate if needed)
 app.post('/add-subscriber', async (req, res) => {
   try {
     const { email, source = 'newsletter' } = req.body;
@@ -1489,6 +1659,8 @@ app.get('/', (req, res) => {
       '/brand-protection-intake',
       '/outside-counsel',
       '/legal-strategy-builder',
+      '/newsletter-signup',
+      '/resource-guide-download',
       '/add-subscriber',
       '/webhook/calendly',
       '/health'

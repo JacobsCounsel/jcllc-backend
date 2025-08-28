@@ -650,6 +650,21 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
     `;
   }
 
+  <!-- Detailed Quiz Responses -->
+<div style="background: #f8fafc; padding: 20px; margin-bottom: 24px; border-radius: 8px;">
+    <h3 style="margin: 0 0 16px; color: #374151; font-size: 18px;">Assessment Responses:</h3>
+    <div style="font-size: 14px; color: #374151;">
+        <p><strong>Q1 - Role:</strong> ${formData.q1 || 'Not answered'}</p>
+        <p><strong>Q2 - Stage:</strong> ${formData.q2 || 'Not answered'}</p>
+        <p><strong>Q3 - Structure:</strong> ${formData.q3 || 'Not answered'}</p>
+        <p><strong>Q4 - IP Protection:</strong> ${formData.q4 || 'Not answered'}</p>
+        <p><strong>Q5 - Contracts:</strong> ${formData.q5 || 'Not answered'}</p>
+        <p><strong>Q6 - Revenue/Assets:</strong> ${formData.q6 || 'Not answered'}</p>
+        <p><strong>Q7 - Risk Concerns:</strong> ${risks}</p>
+        <p><strong>Q8 - 12-Month Goal:</strong> ${formData.q8 || 'Not answered'}</p>
+    </div>
+</div>
+
   return `
 <!DOCTYPE html>
 <html>
@@ -758,55 +773,66 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
   const displayPrice = price || null;
   
   // Legal Strategy Builder gets special treatment
-  if (submissionType === 'legal-strategy-builder') {
-    return `
+ if (submissionType === 'legal-strategy-builder') {
+  return `
 <!DOCTYPE html>
 <html>
 <body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
        
        <div style="background-color: #ff4d00; padding: 40px 30px; text-align: center;">
-           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Your Legal Roadmap is Ready</h1>
+           <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Your Legal Assessment Results</h1>
        </div>
       
        <div style="padding: 40px 30px;">
            <p style="font-size: 18px;">Hi ${clientName},</p>
           
-           <p>You just completed our comprehensive legal assessment and received your Legal Foundation Score of <strong>${leadScore.score}/100</strong>. Now comes the important part.</p>
+           <p>You've completed our legal assessment and received your Legal Foundation Score of <strong>${leadScore.score}/100</strong>. Based on your responses, I've identified specific areas where you can strengthen your legal position.</p>
            
-           <p><strong>Here's what happens next:</strong></p>
+           <p><strong>What happens next:</strong></p>
            
-           <p>I'll personally review your specific answers about your business structure, IP protection, contracts, and strategic goals. Then during our consultation, I'll walk you through exactly which legal protections you need first, which can wait, and how to prioritize them based on your budget and timeline.</p>
+           <p>I'll personally review your answers about your business structure, IP protection, contracts, and goals. During our consultation, I'll walk you through exactly which legal protections you need first, which can wait, and how to prioritize them within your budget.</p>
            
            ${leadScore.score >= 70 ? `
            <div style="background: #fff5f5; border: 2px solid #ff4d00; padding: 20px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Earned</h3>
-               <p style="margin: 0;">Your assessment score qualifies you for priority scheduling. I've reserved a 15-minute consultation slot specifically for high-potential situations like yours.</p>
+               <h3 style="color: #d32f2f; margin: 0 0 12px;">Priority Review Status</h3>
+               <p style="margin: 0;">Your assessment score qualifies you for priority scheduling. I've reserved consultation slots specifically for high-potential situations like yours.</p>
            </div>
            ` : ''}
            
-           <p>This consultation is <strong>completely free</strong> and there's no obligation to work with us afterward. Think of it as getting a second opinion from someone who's helped hundreds of founders, creators, and business owners protect what they've built.</p>
-           
            <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin: 24px 0;">
-               <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover in 15 Minutes:</h3>
+               <h3 style="margin: 0 0 16px; color: #374151;">What We'll Cover (15 Minutes):</h3>
                <ul style="margin: 0; padding-left: 20px; color: #374151;">
-                   <li style="margin-bottom: 8px;">Your biggest legal vulnerabilities right now</li>
-                   <li style="margin-bottom: 8px;">Which protections to tackle first (and estimated costs)</li>
-                   <li style="margin-bottom: 8px;">Common mistakes people in your situation make</li>
+                   <li style="margin-bottom: 8px;">Your biggest legal vulnerabilities based on your assessment</li>
+                   <li style="margin-bottom: 8px;">Which protections to tackle first (with estimated costs)</li>
+                   <li style="margin-bottom: 8px;">Common mistakes for people in your situation</li>
                    <li style="margin-bottom: 8px;">Whether we're the right fit to help you</li>
                </ul>
            </div>
            
            <div style="background: linear-gradient(135deg, #ff4d00, #ff6d20); padding: 32px; border-radius: 12px; margin: 32px 0; text-align: center;">
                <h3 style="color: white; margin: 0 0 16px; font-size: 24px;">Book Your Strategy Session</h3>
-               <p style="color: white; margin: 0 0 24px; opacity: 0.95;">I've blocked out time specifically for assessment completers like you</p>
-               <a href="${calendlyLink}" style="background-color: #ffffff; color: #ff4d00; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 700; font-size: 18px;">
+               <p style="color: white; margin: 0 0 24px; opacity: 0.95;">Free consultation - no obligation</p>
+               <a href="${calendlyLink}" 
+                  style="background-color: #ffffff; 
+                         color: #ff4d00; 
+                         padding: 16px 32px; 
+                         text-decoration: none; 
+                         border-radius: 8px; 
+                         display: inline-block; 
+                         font-weight: 700; 
+                         font-size: 18px;
+                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                   Select Your Time Slot
                </a>
            </div>
            
-           <p style="font-size: 16px; color: #64748b;">P.S. I know legal consultations can feel intimidating. This isn't a sales pitch - it's a genuine strategy session where I'll give you actionable advice whether you hire us or not. Many clients tell me they wish they'd done this years earlier.</p>
+           <div style="background: #fef3cd; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
+               <p style="margin: 0; font-size: 14px; color: #92400e;"><strong>Legal Notice:</strong> This consultation is for informational purposes only. No attorney-client relationship is formed until you sign an engagement letter with our firm.</p>
+           </div>
            
+           <p style="font-size: 16px; color: #64748b;">This consultation is completely free. I'll provide actionable advice whether you hire us or not. Many clients tell me they wish they'd had this conversation years earlier.</p>
+          
            <p>Best,<br>
            <strong>Drew Jacobs</strong><br>
            <span style="color: #64748b;">Founder, Jacobs Counsel</span></p>
@@ -814,7 +840,7 @@ function generateClientConfirmationEmail(formData, price, submissionType, leadSc
    </div>
 </body>
 </html>`;
-  }
+}
   
   // Regular intake forms get this version
   return `

@@ -595,7 +595,8 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
     const stage = formData.q2 || 'unknown';
     const structure = formData.q3 || 'unknown';
     const ip = formData.q4 || 'unknown';
-    const risks = Array.isArray(formData.q7) ? formData.q7.join(', ') : (formData.q7 || 'none specified');
+    const risksArray = Array.isArray(formData.q7) ? formData.q7 : [];
+const risks = risksArray.length > 0 ? risksArray.join(', ') : 'none specified';
     const goal = formData.q8 || 'unknown';
     
     businessContext = `${role.charAt(0).toUpperCase() + role.slice(1)} in ${stage} stage`;
@@ -604,8 +605,8 @@ function generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, 
     const needsArray = [];
     if (structure === 'none' || structure === 'unsure') needsArray.push('Entity formation');
     if (ip === 'none' || ip === 'basic') needsArray.push('IP protection');
-    if (risks.includes('liability')) needsArray.push('Asset protection');
-    if (risks.includes('estate')) needsArray.push('Estate planning');
+    if (risksArray.includes('liability')) needsArray.push('Asset protection');
+if (risksArray.includes('estate')) needsArray.push('Estate planning');
     if (goal === 'fundraise') needsArray.push('Investment readiness');
     
     legalNeeds = needsArray.length > 0 ? needsArray.join(' + ') : 'General strategy';

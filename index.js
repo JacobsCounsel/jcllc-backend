@@ -650,21 +650,6 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
     `;
   }
 
-  <!-- Detailed Quiz Responses -->
-<div style="background: #f8fafc; padding: 20px; margin-bottom: 24px; border-radius: 8px;">
-    <h3 style="margin: 0 0 16px; color: #374151; font-size: 18px;">Assessment Responses:</h3>
-    <div style="font-size: 14px; color: #374151;">
-        <p><strong>Q1 - Role:</strong> ${formData.q1 || 'Not answered'}</p>
-        <p><strong>Q2 - Stage:</strong> ${formData.q2 || 'Not answered'}</p>
-        <p><strong>Q3 - Structure:</strong> ${formData.q3 || 'Not answered'}</p>
-        <p><strong>Q4 - IP Protection:</strong> ${formData.q4 || 'Not answered'}</p>
-        <p><strong>Q5 - Contracts:</strong> ${formData.q5 || 'Not answered'}</p>
-        <p><strong>Q6 - Revenue/Assets:</strong> ${formData.q6 || 'Not answered'}</p>
-        <p><strong>Q7 - Risk Concerns:</strong> ${risks}</p>
-        <p><strong>Q8 - 12-Month Goal:</strong> ${formData.q8 || 'Not answered'}</p>
-    </div>
-</div>
-
   return `
 <!DOCTYPE html>
 <html>
@@ -717,6 +702,21 @@ if (risksArray.includes('estate')) needsArray.push('Estate planning');
                     ${talkingPoints}
                 </ul>
             </div>
+
+             <!-- Detailed Quiz Responses -->
+<div style="background: #f8fafc; padding: 20px; margin-bottom: 24px; border-radius: 8px;">
+    <h3 style="margin: 0 0 16px; color: #374151; font-size: 18px;">Assessment Responses:</h3>
+    <div style="font-size: 14px; color: #374151;">
+        <p><strong>Q1 - Role:</strong> ${formData.q1 || 'Not answered'}</p>
+        <p><strong>Q2 - Stage:</strong> ${formData.q2 || 'Not answered'}</p>
+        <p><strong>Q3 - Structure:</strong> ${formData.q3 || 'Not answered'}</p>
+        <p><strong>Q4 - IP Protection:</strong> ${formData.q4 || 'Not answered'}</p>
+        <p><strong>Q5 - Contracts:</strong> ${formData.q5 || 'Not answered'}</p>
+        <p><strong>Q6 - Revenue/Assets:</strong> ${formData.q6 || 'Not answered'}</p>
+        <p><strong>Q7 - Risk Concerns:</strong> ${risks}</p>
+        <p><strong>Q8 - 12-Month Goal:</strong> ${formData.q8 || 'Not answered'}</p>
+    </div>
+</div>
 
             <!-- Immediate Actions -->
             <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin-bottom: 24px;">

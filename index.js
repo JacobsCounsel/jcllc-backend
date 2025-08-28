@@ -310,6 +310,7 @@ function generateSmartTags(formData, leadScore, submissionType) {
 }
 function buildSmartFields(formData, leadScore, submissionType) {
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
+  
   const fields = {
     FNAME: formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || '',
     LNAME: formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || '',
@@ -318,21 +319,53 @@ function buildSmartFields(formData, leadScore, submissionType) {
     BUSINESS: formData.businessName || formData.companyName || '',
     LEAD_SCORE: leadScore.score,
     PRIORITY: leadScore.score >= 70 ? 'High Priority' : leadScore.score >= 50 ? 'Medium Priority' : 'Standard',
-    SERVICE_TYPE: submissionType.replace('-', ' '),
-    SIGNUP_DATE: new Date().toISOString().split('T')[0],
-    LEAD_SOURCE: 'Website Intake Form',
-    CALENDLY: calendlyLink
+    SERVICE: submissionType.replace('-', ' '),
+    SIGNUP: new Date().toISOString().split('T')[0],
+    SOURCE: 'Website Intake Form',
+    CALENDLY: calendlyLink,
+    URGENCY: formData.urgency || '',
+    TIMELINE: formData.timeline || '',
+    BUDGET: formData.budget || ''
   };
+
+  // Estate planning fields
   if (submissionType === 'estate-intake') {
     const estate = parseFloat(formData.grossEstate?.replace(/[,$]/g, '') || '0');
-    fields.ESTATE_AMOUNT = estate > 0 ? '$' + estate.toLocaleString() : 'Not specified';
-    fields.HAS_BUSINESS = formData.ownBusiness === 'Yes' ? 'Yes' : 'No';
-    fields.HAS_KIDS = formData.hasMinorChildren === 'Yes' ? 'Yes' : 'No';
+    fields.ESTATE = estate > 0 ? '$' + estate.toLocaleString() : 'Not specified';
+    fields.HASBIZ = formData.ownBusiness === 'Yes' ? 'Yes' : 'No';
+    fields.HAS_KIDS = formData.hasMinorChildren || 'Not specified';
+    fields.MARITAL = formData.maritalStatus || '';
+    fields.REALESTATE = formData.otherRealEstate || '';
+    fields.GOAL = formData.planningGoal || '';
   }
+
+  // Business formation fields
   if (submissionType === 'business-formation') {
-    fields.STARTUP_TYPE = formData.investmentPlan || 'Not specified';
-    fields.BUSINESS_TYPE = formData.businessType || 'Not specified';
+    fields.STARTUP = formData.investmentPlan || 'Not specified';
+    fields.BIZTYPE = formData.businessType || 'Not specified';
+    fields.REVENUE = formData.projectedRevenue || '';
+    fields.BIZ_GOAL = formData.businessGoal || '';
   }
+
+  // Brand protection fields
+  if (submissionType === 'brand-protection') {
+    fields.BIZ_STAGE = formData.businessStage || '';
+    fields.PROTECT = formData.protectionGoal || '';
+  }
+
+  // Legal strategy builder fields
+  if (submissionType === 'legal-strategy-builder') {
+    fields.ROLE = formData.q1 || '';
+    fields.STAGE = formData.q2 || '';
+    fields.STRUCTURE = formData.q3 || '';
+    fields.IP_STATUS = formData.q4 || '';
+    fields.CONTRACTS = formData.q5 || '';
+    fields.ASSETS = formData.q6 || '';
+    fields.RISKS = Array.isArray(formData.q7) ? formData.q7.join(', ') : (formData.q7 || '');
+    fields.GOAL_12M = formData.q8 || '';
+    fields.SCORE = formData.assessmentScore || leadScore.score;
+  }
+
   return fields;
 }
 async function addToMailchimpWithAutomation(formData, leadScore, submissionType) {

@@ -665,8 +665,26 @@ export async function createClioLead(formData, submissionType, leadScore) {
 
 // ==================== EMAIL TEMPLATES (Exact copies of your existing templates) ====================
 
-// Import getCalendlyLink from the new module
-import { getCalendlyLink } from '../services/leadScoring.js';
+// Get appropriate Calendly link based on type and score (copied to avoid circular imports)
+function getCalendlyLink(submissionType, leadScore) {
+  // High value leads get priority booking
+  if (leadScore.score >= 70) {
+    return config.calendlyLinks['priority'];
+  }
+  
+  // Map intake types to appropriate Calendly links
+  const typeMap = {
+    'estate-intake': 'estate-planning',
+    'business-formation': 'business-formation', 
+    'brand-protection': 'brand-protection',
+    'outside-counsel': 'outside-counsel',
+    'legal-strategy-builder': 'general',
+    'newsletter': 'general',
+    'resource-guide': 'general'
+  };
+  
+  return config.calendlyLinks[typeMap[submissionType]] || config.calendlyLinks['general'];
+}
 
 export function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
   const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';

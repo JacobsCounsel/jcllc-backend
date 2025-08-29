@@ -230,7 +230,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore, getCalendlyLink);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -335,7 +335,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore, getCalendlyLink);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -442,7 +442,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore, getCalendlyLink);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -534,7 +534,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore, getCalendlyLink);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -690,7 +690,7 @@ app.post('/outside-counsel', async (req, res) => {
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore, getCalendlyLink);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({

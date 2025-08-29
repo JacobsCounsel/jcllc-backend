@@ -666,11 +666,11 @@ export async function createClioLead(formData, submissionType, leadScore) {
 // ==================== EMAIL TEMPLATES (Exact copies of your existing templates) ====================
 
 // Import getCalendlyLink from the new module
-// getCalendlyLink imported in main file to avoid circular imports
+import { getCalendlyLink } from '../services/leadScoring.js';
 
-export function generateClientConfirmationEmail(formData, price, submissionType, leadScore, getCalendlyLinkFn) {
+export function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
   const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';
-  const calendlyLink = getCalendlyLinkFn(submissionType, leadScore);
+  const calendlyLink = getCalendlyLink(submissionType, leadScore);
   const personalizedResources = getPersonalizedResources(formData, submissionType, leadScore);
   
   // Service-specific content

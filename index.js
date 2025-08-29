@@ -224,6 +224,77 @@ function calculateLeadScore(formData, submissionType) {
   }
   return { score: Math.min(score, 100), factors: scoreFactors };
 }
+
+// ==================== EMAIL GENERATION ====================
+function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
+  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';
+  const calendlyLink = CALENDLY_LINKS[submissionType] || CALENDLY_LINKS.general;
+  
+  let serviceTitle = 'Consultation Request Received';
+  let serviceMessage = 'Thank you for your interest in our legal services. We\'ve received your request and will be in touch soon.';
+  let nextSteps = 'We will review your request and contact you within 24 hours to discuss next steps.';
+  
+  // Customize based on service type
+  switch (submissionType) {
+    case 'estate-intake':
+      serviceTitle = 'Estate Planning Consultation Request';
+      serviceMessage = 'Thank you for your interest in estate planning services. Your submission has been received and we will be in touch soon.';
+      break;
+    case 'business-formation':
+      serviceTitle = 'Business Formation Consultation';
+      serviceMessage = 'Thank you for your business formation inquiry. We will review your needs and contact you shortly.';
+      break;
+    case 'brand-protection':
+      serviceTitle = 'Brand Protection Consultation';
+      serviceMessage = 'Thank you for your brand protection inquiry. We will assess your needs and be in touch soon.';
+      break;
+    case 'outside-counsel':
+      serviceTitle = 'Outside Counsel Inquiry';
+      serviceMessage = 'Thank you for your outside counsel inquiry. We will review your requirements and contact you shortly.';
+      break;
+  }
+  
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${serviceTitle} - Jacobs Counsel</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #374151;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-top: 20px; margin-bottom: 20px;">
+    
+    <div style="background: linear-gradient(135deg, #1f2937, #374151); padding: 40px 30px; text-align: center;">
+      <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0; line-height: 1.3;">${serviceTitle}</h1>
+      <p style="color: #e5e7eb; margin: 8px 0 0; font-size: 16px;">Confirmation & Next Steps</p>
+    </div>
+    
+    <div style="padding: 40px 30px;">
+      <p style="font-size: 18px; margin: 0 0 20px; font-weight: 600;">Hello ${clientName},</p>
+      
+      <p style="font-size: 16px; line-height: 1.6; margin: 0 0 24px; color: #4b5563;">${serviceMessage}</p>
+      
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${calendlyLink}" 
+           style="display: inline-block; background-color: #ff4d00; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+          Schedule Your Consultation
+        </a>
+        <p style="color: #6b7280; font-size: 14px; margin: 12px 0 0;">We typically respond within 24 hours.</p>
+      </div>
+      
+      <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <p style="font-size: 14px; color: #6b7280; margin: 0;">
+          Best regards,<br>
+          <strong>Drew Jacobs</strong><br>
+          Jacobs Counsel LLC
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
 // ==================== AI ANALYSIS (Optional - can remove if not using) ====================
 async function analyzeIntakeWithAI(formData, submissionType, leadScore) {
   if (!OPENAI_API_KEY) return { analysis: null, recommendations: null, riskFlags: [] };

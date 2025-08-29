@@ -42,6 +42,75 @@ import {
 import { getCalendlyLink } from './src/services/leadScoring.js';
 import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
 
+// Fallback email generation function in case import fails
+function generateClientConfirmationEmailFallback(formData, price, submissionType, leadScore) {
+  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';
+  const calendlyLink = config.calendlyLinks[submissionType] || config.calendlyLinks.general;
+  
+  let serviceTitle = 'Consultation Request Received';
+  let serviceMessage = 'Thank you for your interest in our legal services. We\'ve received your request and will be in touch soon.';
+  
+  switch (submissionType) {
+    case 'estate-intake':
+      serviceTitle = 'Estate Planning Consultation Request';
+      serviceMessage = 'Thank you for your interest in estate planning services. Your submission has been received and we will be in touch soon.';
+      break;
+    case 'business-formation-intake':
+      serviceTitle = 'Business Formation Consultation';
+      serviceMessage = 'Thank you for your business formation inquiry. We will review your needs and contact you shortly.';
+      break;
+    case 'brand-protection-intake':
+      serviceTitle = 'Brand Protection Consultation';
+      serviceMessage = 'Thank you for your brand protection inquiry. We will assess your needs and be in touch soon.';
+      break;
+    case 'outside-counsel':
+      serviceTitle = 'Outside Counsel Inquiry';
+      serviceMessage = 'Thank you for your outside counsel inquiry. We will review your requirements and contact you shortly.';
+      break;
+  }
+  
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${serviceTitle} - Jacobs Counsel</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #374151;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-top: 20px; margin-bottom: 20px;">
+    <div style="background: linear-gradient(135deg, #1f2937, #374151); padding: 40px 30px; text-align: center;">
+      <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0; line-height: 1.3;">${serviceTitle}</h1>
+      <p style="color: #e5e7eb; margin: 8px 0 0; font-size: 16px;">Confirmation & Next Steps</p>
+    </div>
+    <div style="padding: 40px 30px;">
+      <p style="font-size: 18px; margin: 0 0 20px; font-weight: 600;">Hello ${clientName},</p>
+      <p style="font-size: 16px; line-height: 1.6; margin: 0 0 24px; color: #4b5563;">${serviceMessage}</p>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${calendlyLink}" 
+           style="display: inline-block; background-color: #ff4d00; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+          Schedule Your Consultation
+        </a>
+        <p style="color: #6b7280; font-size: 14px; margin: 12px 0 0;">We typically respond within 24 hours.</p>
+      </div>
+      <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <p style="font-size: 14px; color: #6b7280; margin: 0;">
+          Best regards,<br>
+          <strong>Drew Jacobs</strong><br>
+          Jacobs Counsel LLC
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+// Kit automation helper - DISABLED FOR NOW
+async function addToKitIfConfigured(formData, leadScore, submissionType, leadId = null) {
+  console.log('Kit integration disabled');
+  return { success: true, disabled: true };
+}
+
 // Initialize services (same as before)
 const mixpanel = config.mixpanel.token ? Mixpanel.init(config.mixpanel.token) : null;
 const cache = new NodeCache({ stdTTL: 600 });
@@ -113,6 +182,18 @@ async function processIntakeWithDatabase(formData, submissionType, leadScore, su
     } catch (followUpError) {
       log.error('Failed to schedule follow-ups', { 
         error: followUpError.message, 
+        leadId, 
+        email: formData.email 
+      });
+    }
+    
+    // Add to Kit automation system for advanced email sequences
+    try {
+      await addToKitIfConfigured(formData, leadScore, submissionType, leadId);
+      log.info('Kit automation triggered', { leadId, email: formData.email });
+    } catch (kitError) {
+      log.error('Kit automation failed', { 
+        error: kitError.message, 
         leadId, 
         email: formData.email 
       });
@@ -230,7 +311,13 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+      let clientEmailHtml;
+      try {
+        clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+      } catch (error) {
+        console.warn('Using fallback email function:', error.message);
+        clientEmailHtml = generateClientConfirmationEmailFallback(formData, price, submissionType, leadScore);
+      }
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -335,7 +422,13 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+      let clientEmailHtml;
+      try {
+        clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+      } catch (error) {
+        console.warn('Using fallback email function:', error.message);
+        clientEmailHtml = generateClientConfirmationEmailFallback(formData, price, submissionType, leadScore);
+      }
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -1163,6 +1256,89 @@ app.post('/webhook/calendly', async (req, res) => {
   }
 });
 
+// Kit Automation Builder Endpoint
+app.post('/admin/build-kit-automations', async (req, res) => {
+  try {
+    const { buildKitAutomations, testKitConnection } = await import('./src/services/kitAutomationBuilder.js');
+    
+    console.log('🚀 Building Kit automation architecture...');
+    
+    // Test connection first
+    const testResult = await testKitConnection();
+    if (!testResult.success) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Kit connection failed',
+        details: testResult.error
+      });
+    }
+    
+    // Build automation architecture
+    const results = await buildKitAutomations();
+    
+    res.json({
+      ok: true,
+      message: 'Kit automation architecture built successfully',
+      results: {
+        sequences: results.sequences.length,
+        tags: results.tags.length,
+        automations: results.automations.length,
+        errors: results.errors
+      }
+    });
+    
+  } catch (error) {
+    console.error('Kit build error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to build Kit automation architecture',
+      details: error.message
+    });
+  }
+});
+
+// Mailchimp Journey Builder Endpoint
+app.post('/admin/build-mailchimp-journeys', async (req, res) => {
+  try {
+    const { buildCompleteJourneyArchitecture, testJourneySetup } = await import('./src/services/mailchimpJourneyBuilder.js');
+    
+    console.log('🚀 Building Mailchimp journey architecture...');
+    
+    // Test connection first
+    const testResult = await testJourneySetup();
+    if (!testResult.success) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Mailchimp connection failed',
+        details: testResult.error
+      });
+    }
+    
+    // Build architecture
+    const results = await buildCompleteJourneyArchitecture();
+    
+    res.json({
+      ok: true,
+      message: 'Mailchimp journey architecture built successfully',
+      results: {
+        journeys: results.journeys.length,
+        segments: results.segments.length,
+        tags: results.tags.length,
+        mergeFields: results.mergeFields.length,
+        errors: results.errors
+      }
+    });
+    
+  } catch (error) {
+    console.error('Mailchimp build error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to build Mailchimp architecture',
+      details: error.message
+    });
+  }
+});
+
 // Health Check (enhanced with database status)
 app.get('/health', async (req, res) => {
   const envStatus = validateEnvironment();
@@ -1205,7 +1381,9 @@ app.get('/', (req, res) => {
       '/health',
       '/api/analytics/dashboard',
       '/api/analytics/lead-intelligence',
-      '/api/analytics/followup-recommendations'
+      '/api/analytics/followup-recommendations',
+      '/admin/build-mailchimp-journeys',
+      '/admin/build-kit-automations'
     ],
     features: ['Lead Scoring', 'Mailchimp', 'Calendly', 'Clio', 'Email Notifications', 'Analytics Dashboard'] // Added analytics
   });

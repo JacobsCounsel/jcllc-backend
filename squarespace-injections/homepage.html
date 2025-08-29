@@ -1,0 +1,1002 @@
+<!-- JACOBS COUNSEL — Strategic Legal Counsel -->
+<style>
+ :root {
+   --jc-orange: #ff4d00;
+   --jc-ink: #0f172a;
+   --bg: #ffffff;
+   --ink: #0f172a;
+   --ink2: #64748b;
+   --line: #e2e8f0;
+   --ok: #059669;
+   --card: #ffffff;
+   --muted: #f8fafc;
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+ }
+
+ * {
+   box-sizing: border-box;
+ }
+
+ .jc-home {
+   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+   max-width: 1200px;
+   margin: 0 auto;
+   color: var(--ink);
+   font-size: 19px;
+   line-height: 1.5;
+   overflow-x: hidden;
+ }
+
+ .jc-bar { height: 6px; background: var(--jc-orange); }
+
+ /* Hero Section */
+ .hero-section {
+   padding: 45px 20px 30px;
+   text-align: center;
+ }
+
+ .hero-badge {
+   display: inline-block;
+   background: linear-gradient(135deg, var(--jc-orange), #e63900);
+   color: white;
+   padding: 8px 20px;
+   border-radius: 25px;
+   font-size: 0.875rem;
+   font-weight: 700;
+   letter-spacing: 0.5px;
+   text-transform: uppercase;
+   margin: 0 0 16px;
+   box-shadow: var(--shadow-lg);
+ }
+
+ .hero-headline {
+   font-size: clamp(2.5rem, 6vw, 3.75rem);
+   font-weight: 800;
+   line-height: 1.05;
+   margin: 0 0 16px;
+   color: var(--jc-ink);
+   letter-spacing: -0.02em;
+   max-width: 900px;
+   margin-left: auto;
+   margin-right: auto;
+ }
+
+ .hero-subhead {
+   font-size: 1.875rem;
+   color: var(--jc-orange);
+   margin: 0 0 16px;
+   max-width: 700px;
+   margin-left: auto;
+   margin-right: auto;
+   font-weight: 700;
+   letter-spacing: -0.01em;
+ }
+
+ .hero-desc {
+   font-size: 1.375rem;
+   color: var(--ink2);
+   margin: 0 0 28px;
+   max-width: 800px;
+   margin-left: auto;
+   margin-right: auto;
+   line-height: 1.5;
+ }
+
+ .hero-cta {
+   margin: 28px 0 24px;
+   display: flex;
+   justify-content: center;
+   gap: 16px;
+   flex-wrap: wrap;
+   padding: 0 10px;
+ }
+
+ .btn {
+   padding: 16px 32px;
+   border-radius: 12px;
+   font-weight: 700;
+   text-decoration: none;
+   transition: all 0.3s;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 1.25rem;
+   cursor: pointer;
+   border: none;
+   white-space: nowrap;
+ }
+
+ .btn-primary {
+   background: var(--jc-orange);
+   color: white;
+   box-shadow: var(--shadow-lg);
+ }
+
+ .btn-primary:hover {
+   transform: translateY(-3px);
+   box-shadow: var(--shadow-xl);
+   text-decoration: none;
+   color: white;
+ }
+
+ .btn-secondary {
+   background: white;
+   color: var(--jc-ink);
+   border: 2px solid var(--line);
+ }
+
+ .btn-secondary:hover {
+   border-color: var(--jc-orange);
+   transform: translateY(-2px);
+   text-decoration: none;
+   color: var(--jc-ink);
+ }
+
+ .cta-button-wrapper {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 3px;
+ }
+
+ .cta-subtext {
+   font-size: 0.9375rem;
+   color: var(--ink2);
+   font-weight: 500;
+ }
+
+ /* Trust Indicators */
+ .trust-bar {
+   display: flex;
+   justify-content: center;
+   gap: 24px;
+   flex-wrap: wrap;
+   padding: 20px;
+   background: var(--muted);
+   border-radius: 14px;
+   margin: 24px 20px;
+ }
+
+ .trust-item {
+   font-size: 1.0625rem;
+   color: var(--ink);
+   font-weight: 600;
+   text-align: center;
+ }
+
+ /* Philosophy Section */
+ .philosophy-section {
+   padding: 50px 20px;
+   background: linear-gradient(135deg, var(--muted), #ffffff);
+ }
+
+ .philosophy-title {
+   font-size: 2.75rem;
+   font-weight: 700;
+   text-align: center;
+   margin: 0 0 32px;
+   color: var(--jc-ink);
+ }
+
+ .philosophy-grid {
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   gap: 24px;
+   max-width: 1100px;
+   margin: 0 auto;
+ }
+
+ .philosophy-card {
+   background: var(--card);
+   border-radius: 16px;
+   padding: 24px 20px;
+   box-shadow: var(--shadow-lg);
+   border: 2px solid var(--line);
+   transition: all 0.3s;
+   text-align: center;
+ }
+
+ .philosophy-card:hover {
+   transform: translateY(-4px);
+   border-color: var(--jc-orange);
+ }
+
+ .philosophy-icon {
+   font-size: 2.75rem;
+   margin: 0 0 14px;
+ }
+
+ .philosophy-point {
+   font-size: 1.375rem;
+   font-weight: 700;
+   color: var(--jc-ink);
+   margin: 0 0 8px;
+ }
+
+ .philosophy-desc {
+   font-size: 1.0625rem;
+   color: var(--ink2);
+   line-height: 1.45;
+ }
+
+ /* How This Works Section */
+ .how-it-works {
+   padding: 50px 20px;
+ }
+
+ .how-title {
+   font-size: 2.75rem;
+   font-weight: 700;
+   text-align: center;
+   margin: 0 0 16px;
+   color: var(--jc-ink);
+ }
+
+ .how-subtitle {
+   font-size: 1.375rem;
+   color: var(--ink2);
+   text-align: center;
+   max-width: 800px;
+   margin: 0 auto 32px;
+   line-height: 1.5;
+ }
+
+ .journey-steps {
+   display: grid;
+   grid-template-columns: repeat(4, 1fr);
+   gap: 20px;
+   max-width: 1100px;
+   margin: 0 auto 32px;
+ }
+
+ .journey-step {
+   text-align: center;
+   position: relative;
+ }
+
+ .step-number {
+   width: 52px;
+   height: 52px;
+   margin: 0 auto 14px;
+   background: var(--jc-orange);
+   color: white;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 1.5rem;
+   font-weight: 700;
+   box-shadow: var(--shadow-lg);
+ }
+
+ .step-title {
+   font-size: 1.375rem;
+   font-weight: 700;
+   color: var(--jc-ink);
+   margin: 0 0 8px;
+ }
+
+ .step-desc {
+   font-size: 1.0625rem;
+   color: var(--ink2);
+   line-height: 1.4;
+   padding: 0 6px;
+ }
+
+ .journey-highlight {
+   background: var(--card);
+   border-radius: 16px;
+   padding: 28px;
+   text-align: center;
+   box-shadow: var(--shadow-lg);
+   border: 2px solid var(--jc-orange);
+ }
+
+ .journey-highlight h3 {
+   font-size: 1.625rem;
+   font-weight: 700;
+   color: var(--jc-ink);
+   margin: 0 0 12px;
+ }
+
+ .journey-highlight p {
+   font-size: 1.25rem;
+   color: var(--ink2);
+   margin: 0 0 20px;
+   line-height: 1.5;
+ }
+
+ /* Services Section */
+ .services-section {
+   padding: 50px 20px;
+   background: var(--muted);
+ }
+
+ .services-title {
+   font-size: 2.75rem;
+   font-weight: 700;
+   text-align: center;
+   margin: 0 0 14px;
+   color: var(--jc-ink);
+ }
+
+ .services-subtitle {
+   font-size: 1.375rem;
+   color: var(--ink2);
+   text-align: center;
+   max-width: 750px;
+   margin: 0 auto 32px;
+   line-height: 1.5;
+ }
+
+ .services-grid {
+   display: grid;
+   grid-template-columns: repeat(4, 1fr);
+   gap: 20px;
+   max-width: 1200px;
+   margin: 0 auto;
+ }
+
+ .service-card {
+   background: var(--card);
+   border-radius: 18px;
+   padding: 28px 20px;
+   box-shadow: var(--shadow-lg);
+   text-align: center;
+   transition: all 0.4s;
+   border: 3px solid transparent;
+   cursor: pointer;
+   display: flex;
+   flex-direction: column;
+ }
+
+ .service-card:hover {
+   transform: translateY(-6px);
+   box-shadow: var(--shadow-xl);
+   border-color: var(--jc-orange);
+ }
+
+ .service-icon {
+   width: 68px;
+   height: 68px;
+   margin: 0 auto 16px;
+   background: var(--jc-orange);
+   border-radius: 14px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 34px;
+   color: white;
+ }
+
+ .service-title {
+   font-size: 1.625rem;
+   font-weight: 700;
+   margin: 0 0 10px;
+   color: var(--jc-ink);
+   line-height: 1.15;
+ }
+
+ .service-desc {
+   font-size: 1.0625rem;
+   color: var(--ink2);
+   margin: 0 0 20px;
+   line-height: 1.4;
+   flex-grow: 1;
+ }
+
+ .service-card .btn {
+   padding: 12px 20px;
+   font-size: 1.0625rem;
+   margin: 0;
+   width: 100%;
+ }
+
+ /* Edge Section */
+ .edge-section {
+   padding: 50px 20px;
+   background: var(--jc-ink);
+   color: white;
+   text-align: center;
+ }
+
+ .edge-title {
+   font-size: 3rem;
+   font-weight: 800;
+   margin: 0 0 16px;
+   color: white;
+   line-height: 1.1;
+ }
+
+ .edge-subtitle {
+   font-size: 1.5rem;
+   margin: 0 0 32px;
+   color: rgba(255, 255, 255, 0.9);
+   max-width: 800px;
+   margin-left: auto;
+   margin-right: auto;
+   line-height: 1.5;
+ }
+
+ .edge-grid {
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   gap: 28px;
+   max-width: 1000px;
+   margin: 0 auto;
+ }
+
+ .edge-card {
+   background: rgba(255, 255, 255, 0.1);
+   border-radius: 16px;
+   padding: 24px 20px;
+   backdrop-filter: blur(10px);
+   border: 1px solid rgba(255, 255, 255, 0.2);
+   transition: all 0.3s;
+ }
+
+ .edge-card:hover {
+   transform: translateY(-4px);
+   background: rgba(255, 255, 255, 0.15);
+ }
+
+ .edge-icon {
+   font-size: 2.75rem;
+   margin: 0 0 16px;
+ }
+
+ .edge-point {
+   font-size: 1.5rem;
+   font-weight: 700;
+   margin: 0 0 10px;
+   color: var(--jc-orange);
+ }
+
+ .edge-desc {
+   font-size: 1.0625rem;
+   color: rgba(255, 255, 255, 0.9);
+   line-height: 1.5;
+ }
+
+ /* Final CTA */
+ .final-cta {
+   padding: 60px 20px;
+   text-align: center;
+   background: linear-gradient(135deg, var(--jc-orange), #e63900);
+   color: white;
+ }
+
+ .final-cta h2 {
+   font-size: 2.75rem;
+   font-weight: 700;
+   margin: 0 0 16px;
+   color: white;
+ }
+
+ .final-cta p {
+   font-size: 1.375rem;
+   margin: 0 0 28px;
+   max-width: 650px;
+   margin-left: auto;
+   margin-right: auto;
+   color: rgba(255, 255, 255, 0.95);
+   line-height: 1.5;
+ }
+
+ .final-cta-buttons {
+   display: flex;
+   justify-content: center;
+   gap: 16px;
+   flex-wrap: wrap;
+   padding: 0 10px;
+ }
+
+ .btn-white {
+   background: white;
+   color: var(--jc-ink);
+   font-weight: 700;
+   font-size: 1.25rem;
+   padding: 16px 32px;
+   border-radius: 12px;
+   text-decoration: none;
+   transition: all 0.3s;
+   display: inline-block;
+   white-space: nowrap;
+ }
+
+ .btn-white:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+   text-decoration: none;
+   color: var(--jc-ink);
+ }
+
+ .final-cta-info {
+   margin-top: 24px;
+   padding: 18px;
+   background: rgba(255,255,255,0.1);
+   border-radius: 12px;
+ }
+
+ .final-cta-info p {
+   font-size: 1.0625rem;
+   color: rgba(255, 255, 255, 0.95);
+   margin: 0;
+   line-height: 1.5;
+ }
+
+ /* Responsive adjustments for tablets */
+ @media (max-width: 1100px) {
+   .services-grid { 
+     grid-template-columns: repeat(2, 1fr); 
+     gap: 24px;
+   }
+   .journey-steps { 
+     grid-template-columns: repeat(2, 1fr); 
+     gap: 24px;
+   }
+ }
+
+ /* Mobile responsive */
+ @media (max-width: 768px) {
+   .jc-home { font-size: 17px; }
+   
+   .hero-section {
+     padding: 35px 15px 25px;
+   }
+   
+   .hero-headline { 
+     font-size: 2.25rem;
+     line-height: 1.15;
+   }
+   
+   .hero-subhead { 
+     font-size: 1.375rem;
+     line-height: 1.25;
+   }
+   
+   .hero-desc { 
+     font-size: 1.125rem;
+     padding: 0 10px;
+   }
+   
+   .hero-cta {
+     flex-direction: column;
+     align-items: center;
+     padding: 0;
+   }
+   
+   .btn {
+     width: 100%;
+     max-width: 320px;
+     padding: 14px 24px;
+     font-size: 1.125rem;
+   }
+   
+   .trust-bar {
+     gap: 14px;
+     padding: 18px 14px;
+     margin: 20px 10px;
+   }
+   
+   .trust-item {
+     font-size: 0.9375rem;
+     flex: 0 0 calc(50% - 7px);
+   }
+   
+   .philosophy-section {
+     padding: 35px 15px;
+   }
+   
+   .philosophy-title { 
+     font-size: 2rem;
+     margin-bottom: 24px;
+   }
+   
+   .philosophy-grid { 
+     grid-template-columns: 1fr;
+     gap: 18px;
+   }
+   
+   .philosophy-card {
+     padding: 20px 18px;
+   }
+   
+   .philosophy-point {
+     font-size: 1.25rem;
+   }
+   
+   .philosophy-desc {
+     font-size: 1rem;
+   }
+   
+   .how-it-works {
+     padding: 35px 15px;
+   }
+   
+   .how-title { 
+     font-size: 2rem;
+   }
+   
+   .how-subtitle {
+     font-size: 1.125rem;
+     padding: 0 10px;
+   }
+   
+   .journey-steps { 
+     grid-template-columns: 1fr;
+     gap: 24px;
+   }
+   
+   .step-title {
+     font-size: 1.25rem;
+   }
+   
+   .step-desc {
+     font-size: 1rem;
+     padding: 0 5px;
+   }
+   
+   .journey-highlight {
+     padding: 22px 18px;
+   }
+   
+   .journey-highlight h3 {
+     font-size: 1.375rem;
+   }
+   
+   .journey-highlight p {
+     font-size: 1.0625rem;
+   }
+   
+   .journey-highlight .btn {
+     font-size: 1.0625rem;
+     padding: 12px 20px;
+   }
+   
+   .services-section {
+     padding: 35px 15px;
+   }
+   
+   .services-title { 
+     font-size: 2rem;
+   }
+   
+   .services-subtitle {
+     font-size: 1.125rem;
+     padding: 0 10px;
+   }
+   
+   .services-grid { 
+     grid-template-columns: 1fr;
+     gap: 20px;
+   }
+   
+   .service-card {
+     padding: 24px 18px;
+   }
+   
+   .service-title { 
+     font-size: 1.375rem;
+   }
+   
+   .service-desc {
+     font-size: 1rem;
+   }
+   
+   .service-card .btn {
+     font-size: 1rem;
+     padding: 11px 18px;
+   }
+   
+   .edge-section {
+     padding: 35px 15px;
+   }
+   
+   .edge-title { 
+     font-size: 2rem;
+     line-height: 1.2;
+   }
+   
+   .edge-subtitle {
+     font-size: 1.25rem;
+     padding: 0 10px;
+   }
+   
+   .edge-grid { 
+     grid-template-columns: 1fr;
+     gap: 20px;
+   }
+   
+   .edge-card {
+     padding: 20px 18px;
+   }
+   
+   .edge-point {
+     font-size: 1.25rem;
+   }
+   
+   .edge-desc {
+     font-size: 1rem;
+   }
+   
+   .final-cta {
+     padding: 45px 15px;
+   }
+   
+   .final-cta h2 { 
+     font-size: 2rem;
+     line-height: 1.2;
+   }
+   
+   .final-cta p {
+     font-size: 1.125rem;
+     padding: 0 10px;
+   }
+   
+   .final-cta-buttons {
+     flex-direction: column;
+     align-items: center;
+     padding: 0;
+   }
+   
+   .btn-white {
+     width: 100%;
+     max-width: 320px;
+     font-size: 1.125rem;
+     padding: 14px 24px;
+   }
+   
+   .final-cta-info {
+     margin: 20px 10px 0;
+     padding: 14px;
+   }
+   
+   .final-cta-info p {
+     font-size: 0.9375rem;
+   }
+ }
+
+ /* Extra small devices */
+ @media (max-width: 375px) {
+   .hero-headline {
+     font-size: 2rem;
+   }
+   
+   .hero-subhead {
+     font-size: 1.25rem;
+   }
+   
+   .btn {
+     font-size: 1.0625rem;
+     padding: 12px 20px;
+   }
+   
+   .philosophy-title,
+   .how-title,
+   .services-title,
+   .edge-title,
+   .final-cta h2 {
+     font-size: 1.75rem;
+   }
+ }
+</style>
+
+<div class="jc-home">
+ <div class="jc-bar"></div>
+ 
+ <!-- Hero Section -->
+ <div class="hero-section">
+   <div class="hero-badge">Strategic Legal Counsel</div>
+   <h1 class="hero-headline">Strategic Legal Counsel to Unlock Your Edge</h1>
+   <p class="hero-subhead">Your legal counsel should be a strategic teammate to aid your growth - not someone you call only when problems arise.</p>
+   
+   <div class="hero-cta">
+     <div class="cta-button-wrapper">
+       <a href="https://www.jacobscounsellaw.com/legal-strategy-builder" class="btn btn-primary">
+         Get Your Legal Roadmap
+       </a>
+       <span class="cta-subtext">2-minute assessment</span>
+     </div>
+     <div class="cta-button-wrapper">
+       <a href="https://calendly.com/jacobscounsel/general-consultation" class="btn btn-secondary">
+         Book Consultation
+       </a>
+       <span class="cta-subtext">&nbsp;</span>
+     </div>
+   </div>
+   
+   <div class="trust-bar">
+     <div class="trust-item">✓ Flat-Fee Pricing Whenever Possible</div>
+     <div class="trust-item">✓ Quick Response</div>
+     <div class="trust-item">✓ Transparent Billing</div>
+     <div class="trust-item">✓ Prevention-First</div>
+   </div>
+ </div>
+
+ <!-- Services Section -->
+ <div class="services-section">
+   <h2 class="services-title">Four Core Services</h2>
+   
+   <div class="services-grid">
+     <div class="service-card" onclick="window.location.href='https://www.jacobscounsellaw.com/business-protection'">
+       <div class="service-icon">🏢</div>
+       <h3 class="service-title">Business Protection</h3>
+       <p class="service-desc">Entity formation, ongoing compliance, contracts, risk management, and dispute prevention/resolution.</p>
+       <a href="https://www.jacobscounsellaw.com/business-protection" class="btn btn-primary">Start Here →</a>
+     </div>
+     
+     <div class="service-card" onclick="window.location.href='https://www.jacobscounsellaw.com/brand-protection'">
+       <div class="service-icon">™️</div>
+       <h3 class="service-title">Brand Protection</h3>
+       <p class="service-desc">Trademark registration before competitors or copycats claim your brand.</p>
+       <a href="https://www.jacobscounsellaw.com/brand-protection" class="btn btn-primary">Start Here →</a>
+     </div>
+     
+     <div class="service-card" onclick="window.location.href='https://www.jacobscounsellaw.com/wealth-protection'">
+       <div class="service-icon">🛡️</div>
+       <h3 class="service-title">Wealth Protection</h3>
+       <p class="service-desc">Estate planning and trusts that protect your wealth and family from taxes and probate.</p>
+       <a href="https://www.jacobscounsellaw.com/wealth-protection" class="btn btn-primary">Start Here →</a>
+     </div>
+     
+     <div class="service-card" onclick="window.location.href='https://www.jacobscounsellaw.com/outside-counsel'">
+       <div class="service-icon">⚖️</div>
+       <h3 class="service-title">Outside Counsel</h3>
+       <p class="service-desc">Your lawyer on-demand for contracts, negotiations, and strategic decisions.</p>
+       <a href="https://www.jacobscounsellaw.com/outside-counsel" class="btn btn-primary">Start Here →</a>
+     </div>
+   </div>
+ </div>
+
+ <!-- How This Works Section -->
+ <div class="how-it-works">
+   <h2 class="how-title">Our Process to Provide Legal Clarity</h2>
+   <p class="how-subtitle">Most businesses have 3-5 critical legal gaps they don't know about. Our process finds them, prices them transparently, and fixes them fast.</p>
+   
+   <div class="journey-steps">
+     <div class="journey-step">
+       <div class="step-number">1</div>
+       <h3 class="step-title">Quick Assessment</h3>
+       <p class="step-desc">2-minute evaluation reveals your legal vulnerabilities and opportunities.</p>
+     </div>
+     
+     <div class="journey-step">
+       <div class="step-number">2</div>
+       <h3 class="step-title">Transparent Quote</h3>
+       <p class="step-desc">We attempt to price most services with flat fees. We don't like hourly billing, nor do we like surprises.</p>
+     </div>
+     
+     <div class="journey-step">
+       <div class="step-number">3</div>
+       <h3 class="step-title">Fast Execution</h3>
+       <p class="step-desc">Complete legal packages delivered in days, not weeks.</p>
+     </div>
+     
+     <div class="journey-step">
+       <div class="step-number">4</div>
+       <h3 class="step-title">Ongoing Support</h3>
+       <p class="step-desc">Questions answered, deals reviewed, strategy refined as you grow.</p>
+     </div>
+   </div>
+   
+   <div class="journey-highlight">
+     <h3>See Exactly What You Need (And What It Costs)</h3>
+     <p>Our Legal Strategy Builder analyzes your situation and shows you which protections matter most—with transparent pricing for each.</p>
+     <a href="https://www.jacobscounsellaw.com/legal-strategy-builder" class="btn btn-primary">
+       Build Your Strategy
+     </a>
+   </div>
+ </div>
+
+ <!-- Final CTA -->
+ <div class="final-cta">
+   <h2>Stop Putting Off Legal Protection</h2>
+   <p>Every day without proper legal structure is a day you're exposed. Let's fix your vulnerabilities before they become expensive problems.</p>
+   
+   <div class="final-cta-buttons">
+     <a href="https://www.jacobscounsellaw.com/legal-strategy-builder" class="btn-white">
+       Get Your Legal Roadmap
+     </a>
+     <a href="https://calendly.com/jacobscounsel/general-consultation" class="btn-white">
+       Schedule Consultation
+     </a>
+   </div>
+ </div>
+</div>
+
+<script>
+// Backend integration with your streamlined system
+const BACKEND_URL = 'https://estate-intake-system.onrender.com';
+
+// Track page views
+document.addEventListener('DOMContentLoaded', function() {
+ // Store session data for intake forms
+ sessionStorage.setItem('landingPage', 'homepage');
+ sessionStorage.setItem('timestamp', new Date().toISOString());
+ 
+ // Track homepage view
+ trackEvent('homepage_view', {
+   referrer: document.referrer,
+   timestamp: new Date().toISOString()
+ });
+});
+
+// Track service card interactions
+document.querySelectorAll('.service-card').forEach(card => {
+ card.addEventListener('click', function(e) {
+   const serviceTitle = this.querySelector('.service-title').textContent;
+   
+   // Store service interest for intake forms
+   sessionStorage.setItem('interestedService', serviceTitle);
+   
+   trackEvent('service_clicked', {
+     service: serviceTitle,
+     timestamp: new Date().toISOString()
+   });
+ });
+});
+
+// Track strategy builder clicks
+document.querySelectorAll('a[href*="legal-strategy-builder"]').forEach(link => {
+ link.addEventListener('click', function() {
+   const location = this.closest('div').className || 'unknown';
+   
+   trackEvent('strategy_builder_clicked', {
+     location: location,
+     timestamp: new Date().toISOString()
+   });
+ });
+});
+
+// Track consultation bookings  
+document.querySelectorAll('a[href*="calendly.com"]').forEach(link => {
+ link.addEventListener('click', function() {
+   const location = this.closest('div').className || 'unknown';
+   
+   trackEvent('consultation_clicked', {
+     location: location,
+     timestamp: new Date().toISOString()
+   });
+ });
+});
+
+// Analytics tracking function
+function trackEvent(eventName, data) {
+ // Send to your backend for lead scoring
+ fetch(`${BACKEND_URL}/add-subscriber`, {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({
+     event: eventName,
+     source: 'homepage',
+     ...data
+   })
+ }).catch(err => console.log('Analytics error:', err));
+ 
+ // Google Analytics if available
+ if (typeof gtag !== 'undefined') {
+   gtag('event', eventName, data);
+ }
+}
+
+// Newsletter signup (if you add an email capture)
+function captureEmail(email) {
+ fetch(`${BACKEND_URL}/add-subscriber`, {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({
+     email: email,
+     source: 'homepage-capture'
+   })
+ })
+ .then(res => res.json())
+ .then(data => {
+   if (data.ok) {
+     alert('Thanks! Check your email for next steps.');
+   }
+ })
+ .catch(err => console.error('Subscription error:', err));
+}
+</script>

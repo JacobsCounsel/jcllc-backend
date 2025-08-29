@@ -1,0 +1,487 @@
+<!-- Jacobs Counsel Footer - Professional Footer with Newsletter Integration -->
+<style>
+/* Footer Styles */
+.jc-footer {
+   background: #000000;
+   color: #ffffff;
+   padding: 50px 20px 25px;
+   margin-top: 60px;
+   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.jc-footer-container {
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+/* Newsletter Section */
+.jc-newsletter {
+   background: #ffffff;
+   border: 2px solid #ff4d00;
+   border-radius: 16px;
+   padding: 32px;
+   margin-bottom: 40px;
+   text-align: center;
+}
+
+.jc-newsletter h3 {
+   color: #0a0e27;
+   font-size: 32px;
+   margin: 0 0 8px;
+   font-weight: 700;
+   letter-spacing: -0.01em;
+}
+
+.jc-newsletter p {
+   color: #64748b;
+   margin: 0 0 20px;
+   font-size: 18px;
+}
+
+.jc-newsletter-form {
+   display: flex;
+   gap: 10px;
+   max-width: 520px;
+   margin: 0 auto;
+}
+
+.jc-newsletter input {
+   flex: 1;
+   padding: 14px 18px;
+   border: 2px solid #e5e7eb;
+   border-radius: 8px;
+   background: #ffffff;
+   color: #000000;
+   font-size: 17px;
+   transition: border-color 0.3s;
+}
+
+.jc-newsletter input:focus {
+   outline: none;
+   border-color: #ff4d00;
+}
+
+.jc-newsletter input::placeholder {
+   color: #94a3b8;
+}
+
+.jc-newsletter button {
+   padding: 14px 28px;
+   background: #ff4d00;
+   color: white;
+   border: none;
+   border-radius: 8px;
+   font-weight: 700;
+   cursor: pointer;
+   transition: all 0.3s;
+   font-size: 17px;
+   white-space: nowrap;
+}
+
+.jc-newsletter button:hover {
+   background: #e63900;
+   transform: translateY(-2px);
+   box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);
+}
+
+/* Success message styling */
+.jc-newsletter-success {
+   background: #f0fdf4;
+   border: 2px solid #bbf7d0;
+   border-radius: 12px;
+   padding: 24px;
+   margin-top: 20px;
+   display: none;
+}
+
+.jc-newsletter-success h4 {
+   color: #166534;
+   margin: 0 0 10px;
+   font-size: 20px;
+}
+
+.jc-newsletter-success p {
+   color: #15803d;
+   margin: 0 0 15px;
+   font-size: 16px;
+}
+
+/* Main Footer Content */
+.jc-footer-main {
+   display: grid;
+   grid-template-columns: 2fr 1fr 1fr 1fr;
+   gap: 36px;
+   margin-bottom: 32px;
+}
+
+/* Brand Column */
+.jc-footer-brand h4 {
+   color: #ff4d00;
+   font-size: 22px;
+   margin: 0 0 12px;
+   font-weight: 700;
+   letter-spacing: 0.3px;
+}
+
+.jc-footer-brand p {
+   color: #e5e7eb;
+   line-height: 1.5;
+   margin: 0 0 18px;
+   font-size: 16px;
+}
+
+.jc-disclaimer {
+   background: rgba(255, 255, 255, 0.05);
+   padding: 14px;
+   border-radius: 8px;
+   border-left: 3px solid #ff4d00;
+   margin-top: 18px;
+}
+
+.jc-disclaimer p {
+   color: #9ca3af;
+   font-size: 13px;
+   line-height: 1.5;
+   margin: 0;
+}
+
+/* Footer Links */
+.jc-footer-column h5 {
+   color: #ffffff;
+   font-size: 17px;
+   margin: 0 0 16px;
+   font-weight: 700;
+   letter-spacing: 0.3px;
+}
+
+.jc-footer-links {
+   list-style: none;
+   padding: 0;
+   margin: 0;
+}
+
+.jc-footer-links li {
+   margin-bottom: 10px;
+}
+
+.jc-footer-links a {
+   color: #e5e7eb;
+   text-decoration: none;
+   font-size: 15px;
+   transition: all 0.3s;
+   display: inline-block;
+}
+
+.jc-footer-links a:hover {
+   color: #ff4d00;
+   transform: translateX(4px);
+}
+
+/* Submenu styling */
+.jc-footer-links li.submenu {
+   margin-left: 15px;
+   position: relative;
+}
+
+.jc-footer-links li.submenu:before {
+   content: '•';
+   position: absolute;
+   left: -12px;
+   color: #ff4d00;
+}
+
+/* Contact Info */
+.jc-contact-info {
+   margin-top: 18px;
+}
+
+.jc-contact-info a {
+   color: #e5e7eb;
+   text-decoration: none;
+   display: block;
+   margin-bottom: 8px;
+   font-size: 15px;
+   transition: color 0.3s;
+}
+
+.jc-contact-info a:hover {
+   color: #ff4d00;
+}
+
+/* Office Location Bar */
+.jc-office-bar {
+   display: flex;
+   justify-content: space-between;
+   padding: 18px 0;
+   border-top: 1px solid rgba(255, 255, 255, 0.1);
+   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+   margin-bottom: 24px;
+   flex-wrap: wrap;
+   gap: 18px;
+}
+
+.jc-office-item {
+   flex: 1;
+   min-width: 200px;
+}
+
+/* Footer Bottom */
+.jc-footer-bottom {
+   border-top: 1px solid rgba(255, 255, 255, 0.1);
+   padding-top: 24px;
+   text-align: center;
+}
+
+.jc-footer-bottom p {
+   color: #9ca3af;
+   font-size: 14px;
+   margin: 0 0 8px;
+   line-height: 1.5;
+}
+
+.jc-footer-bottom a {
+   color: #e5e7eb;
+   text-decoration: none;
+   transition: color 0.3s;
+}
+
+.jc-footer-bottom a:hover {
+   color: #ff4d00;
+   text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+   .jc-footer-main {
+       grid-template-columns: 1fr;
+       gap: 28px;
+   }
+   
+   .jc-newsletter-form {
+       flex-direction: column;
+   }
+   
+   .jc-newsletter button {
+       width: 100%;
+   }
+   
+   .jc-footer {
+       padding: 35px 15px 20px;
+   }
+   
+   .jc-newsletter {
+       padding: 26px 20px;
+   }
+   
+   .jc-newsletter h3 {
+       font-size: 28px;
+   }
+   
+   .jc-newsletter p {
+       font-size: 16px;
+   }
+   
+   .jc-office-bar {
+       flex-direction: column;
+   }
+}
+</style>
+
+<footer class="jc-footer">
+   <div class="jc-footer-container">
+       <!-- Newsletter Signup -->
+       <div class="jc-newsletter">
+           <h3>Join the Jacobs Counsel Community</h3>
+           <p>Weekly legal insights + exclusive resources for our community</p>
+           <form class="jc-newsletter-form" onsubmit="subscribeNewsletter(event)">
+               <input type="email" placeholder="Enter your email" required id="newsletter-email">
+               <button type="submit">Join Community</button>
+           </form>
+           
+           <!-- Success Message -->
+           <div class="jc-newsletter-success" id="newsletter-success"></div>
+       </div>
+
+       <!-- Main Footer Content -->
+       <div class="jc-footer-main">
+           <!-- Brand Column -->
+           <div class="jc-footer-brand">
+               <h4>JACOBS COUNSEL LLC</h4>
+               <p>Strategic Legal Counsel to Unlock Your Edge</p>
+               
+               <div class="jc-disclaimer">
+                   <p><strong>Disclaimer:</strong> This newsletter is for general informational purposes only and does not constitute legal advice or create an attorney-client relationship.</p>
+               </div>
+           </div>
+
+           <!-- Company Column -->
+           <div class="jc-footer-column">
+               <h5>Company</h5>
+               <ul class="jc-footer-links">
+                   <li><a href="https://www.jacobscounsellaw.com/">Home</a></li>
+                   <li><a href="https://www.jacobscounsellaw.com/story">Our Story</a></li>
+                   <li><a href="https://www.jacobscounsellaw.com/our-team">Our Team</a></li>
+                   <li><a href="https://www.jacobscounsellaw.com/case-studies">Case Studies</a></li>
+                   <li><a href="https://www.jacobscounsellaw.com/contact-jacobs-counsel">Contact</a></li>
+               </ul>
+           </div>
+
+           <!-- Services Column -->
+           <div class="jc-footer-column">
+               <h5>Services</h5>
+               <ul class="jc-footer-links">
+                   <li><a href="https://www.jacobscounsellaw.com/services-overview-1">Services Overview</a></li>
+                   <li class="submenu"><a href="https://www.jacobscounsellaw.com/legal-strategy-builder">Legal Strategy Builder</a></li>
+                   <li class="submenu"><a href="https://www.jacobscounsellaw.com/business-protection">Business Protection</a></li>
+                   <li class="submenu"><a href="https://www.jacobscounsellaw.com/brand-protection">Brand Protection</a></li>
+                   <li class="submenu"><a href="https://www.jacobscounsellaw.com/wealth-protection">Wealth Protection</a></li>
+                   <li class="submenu"><a href="https://www.jacobscounsellaw.com/outside-counsel">Outside Counsel</a></li>
+               </ul>
+           </div>
+
+           <!-- Resources & Contact Column -->
+           <div class="jc-footer-column">
+               <h5>Resources</h5>
+               <ul class="jc-footer-links">
+                   <li><a href="https://www.jacobscounsellaw.com/resources">Resources Hub</a></li>
+                   <li><a href="https://www.jacobscounsellaw.com/blog">Blog</a></li>
+                   <li><a href="https://www.jacobscounsellaw.com/faq">FAQ</a></li>
+                   <li><a href="https://calendly.com/jacobscounsel/general-consultation" target="_blank">Book Consultation</a></li>
+               </ul>
+               
+               <h5 style="margin-top: 26px;">Contact</h5>
+               <div class="jc-contact-info">
+                   <a href="mailto:admin@jacobscounsellaw.com">admin@jacobscounsellaw.com</a>
+                   <a href="tel:6463437227">646-343-7227</a>
+               </div>
+           </div>
+       </div>
+
+       <!-- Office Locations Bar -->
+       <div class="jc-office-bar">
+           <div class="jc-office-item">
+               <strong style="color: #ff4d00; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">NY Office</strong>
+               <address style="color: #e5e7eb; font-style: normal; font-size: 14px; margin-top: 5px;">
+                   157 Columbus Avenue, Floor 4, New York, NY 10023
+               </address>
+           </div>
+           <div class="jc-office-item">
+               <strong style="color: #ff4d00; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">NJ Office</strong>
+               <address style="color: #e5e7eb; font-style: normal; font-size: 14px; margin-top: 5px;">
+                   221 River Street, Floor 9, Hoboken, NJ 07030
+               </address>
+           </div>
+           <div class="jc-office-item">
+               <strong style="color: #ff4d00; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">OH Office</strong>
+               <address style="color: #e5e7eb; font-style: normal; font-size: 14px; margin-top: 5px;">
+                   127 Willow Street, Floor 2, Cincinnati, OH 45215
+               </address>
+           </div>
+       </div>
+
+       <!-- Footer Bottom -->
+       <div class="jc-footer-bottom">
+           <p>© Copyright 2025 Jacobs Counsel LLC. All Rights Reserved.</p>
+           <p>Note: Any information found on this website is solely for informational purposes and is not intended to constitute legal advice.</p>
+           <p>It is our intent to make this website accessible to all visitors by following WCAG 2.1 Level AA guidelines. We appreciate your patience as this website is updated and revised. If you have any comments on web accessibility issues relating to this website, please <a href="mailto:admin@jacobscounsellaw.com">contact us</a>.</p>
+       </div>
+   </div>
+</footer>
+
+<script>
+async function subscribeNewsletter(event) {
+   event.preventDefault();
+   const email = document.getElementById('newsletter-email').value;
+   const emailInput = document.getElementById('newsletter-email');
+   const button = event.target.querySelector('button');
+   const originalText = button.textContent;
+   
+   try {
+       button.textContent = 'Joining...';
+       button.disabled = true;
+       
+       const response = await fetch('https://estate-intake-system.onrender.com/add-subscriber', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ 
+               email: email,
+               source: 'footer-newsletter-community'
+           })
+       });
+       
+       const data = await response.json();
+       
+       if (data.ok) {
+           showNewsletterSuccess(email);
+           emailInput.value = '';
+       } else {
+           throw new Error(data.error || 'Subscription failed');
+       }
+   } catch (error) {
+       console.error('Newsletter subscription error:', error);
+       emailInput.style.borderColor = '#ef4444';
+       button.textContent = 'Try Again';
+       setTimeout(() => {
+           button.textContent = originalText;
+           emailInput.style.borderColor = '#e5e7eb';
+       }, 3000);
+   } finally {
+       button.disabled = false;
+   }
+}
+
+function showNewsletterSuccess(email) {
+   const successDiv = document.getElementById('newsletter-success');
+   const formDiv = document.querySelector('.jc-newsletter-form');
+   const newsletterTitle = document.querySelector('.jc-newsletter h3');
+   const newsletterDesc = document.querySelector('.jc-newsletter p');
+   
+   // Hide form and original text
+   formDiv.style.display = 'none';
+   newsletterTitle.style.display = 'none';
+   newsletterDesc.style.display = 'none';
+   
+   // Show success message
+   successDiv.innerHTML = `
+       <h4 style="color: #059669; font-size: 26px; margin: 0 0 12px;">Welcome to the Community!</h4>
+       <p style="color: #15803d; margin: 0 0 20px; font-size: 17px;">
+           Check <strong>${email}</strong> for your welcome email with exclusive resources.
+       </p>
+       
+       <div style="background: white; border: 2px solid #bbf7d0; padding: 20px; border-radius: 12px; margin: 20px 0;">
+           <p style="color: #14532d; font-weight: 600; margin: 0 0 15px; font-size: 17px;">
+               Level up your legal protection:
+           </p>
+           <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+               <a href="https://www.jacobscounsellaw.com/legal-strategy-builder" 
+                  style="background: linear-gradient(135deg, #059669, #047857); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: all 0.3s; font-size: 16px;">
+                   Get Your Free Legal Assessment
+               </a>
+               <a href="https://calendly.com/jacobscounsel/general-consultation" 
+                  style="background: linear-gradient(135deg, #0369a1, #0284c7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: all 0.3s; font-size: 16px;">
+                   Book Free Consultation
+               </a>
+           </div>
+       </div>
+       
+       <p style="margin-top: 20px; font-size: 15px; color: #64748b;">
+           You'll receive your first insider tips within 24 hours
+       </p>
+   `;
+   
+   successDiv.style.display = 'block';
+   
+   // Store newsletter signup
+   localStorage.setItem('newsletterSignup', 'true');
+   localStorage.setItem('newsletterSignupDate', new Date().toISOString());
+   
+   // Reset after 15 seconds
+   setTimeout(() => {
+       formDiv.style.display = 'flex';
+       newsletterTitle.style.display = 'block';
+       newsletterDesc.style.display = 'block';
+       successDiv.style.display = 'none';
+       document.getElementById('newsletter-email').value = '';
+   }, 15000);
+}
+</script>

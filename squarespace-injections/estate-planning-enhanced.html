@@ -1,0 +1,1017 @@
+<!-- JACOBS COUNSEL — AI-Enhanced Estate Planning Intake -->
+<style>
+:root {
+  --jc-orange: #ff4d00;
+  --jc-ink: #0f172a;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --luxury-gold: #d4af37;
+  --wealth-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --glow: 0 0 20px rgba(255, 77, 0, 0.3);
+  --wealth-glow: 0 0 30px rgba(212, 175, 55, 0.4);
+}
+
+.jc-estate-intake {
+  min-height: 100vh;
+  background: var(--wealth-gradient);
+  padding: 40px 20px;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.jc-estate-intake::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="wealth-grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(212,175,55,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23wealth-grid)"/></svg>');
+  pointer-events: none;
+}
+
+/* Premium Header */
+.estate-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.wealth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 10px 24px;
+  border-radius: 50px;
+  color: var(--luxury-gold);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: var(--wealth-glow);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estate-title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  color: white;
+  margin: 0 0 16px;
+  line-height: 1.1;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.estate-subtitle {
+  font-size: 1.4rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* AI-Powered Wealth Calculator */
+.wealth-calculator {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 40px;
+  margin: 0 auto 40px;
+  max-width: 900px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.calculator-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.calculator-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--jc-ink);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ai-indicator {
+  background: linear-gradient(135deg, var(--jc-orange), #e63900);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+.calculator-subtitle {
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Smart Input Grid */
+.wealth-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-label {
+  display: block;
+  font-weight: 600;
+  color: var(--jc-ink);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.smart-input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: white;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.smart-input:focus {
+  border-color: var(--jc-orange);
+  box-shadow: var(--glow);
+  outline: none;
+}
+
+.smart-input.has-value {
+  border-color: var(--success);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.smart-input.currency {
+  padding-left: 40px;
+}
+
+/* Real-time Insights Panel */
+.wealth-insights {
+  background: linear-gradient(135deg, #f8fafc, #ffffff);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 30px 0;
+  border-left: 4px solid var(--luxury-gold);
+  position: relative;
+  transform: scale(0.98);
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.wealth-insights.active {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.insights-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.insights-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--jc-ink);
+}
+
+.estate-value-display {
+  background: linear-gradient(135deg, var(--luxury-gold), #b8860b);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: var(--wealth-glow);
+}
+
+.estate-value-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.estate-value-amount {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.tax-implications {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tax-item {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.tax-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.tax-amount {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--jc-ink);
+}
+
+.tax-amount.danger {
+  color: var(--danger);
+}
+
+.tax-amount.warning {
+  color: var(--warning);
+}
+
+.tax-amount.success {
+  color: var(--success);
+}
+
+/* Smart Recommendations */
+.smart-recommendations {
+  background: linear-gradient(135deg, var(--jc-ink), #1e293b);
+  color: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+}
+
+.rec-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rec-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.recommendations-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.recommendation-item {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.recommendation-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.rec-priority {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.priority-critical {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.priority-high {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+.priority-medium {
+  background: rgba(16, 185, 129, 0.2);
+  color: #86efac;
+}
+
+.rec-item-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.rec-item-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.rec-savings {
+  font-size: 0.9rem;
+  color: var(--luxury-gold);
+  font-weight: 600;
+}
+
+/* Premium Form Section */
+.estate-form {
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  margin: 40px auto 0;
+  max-width: 800px;
+  box-shadow: var(--card-shadow);
+  position: relative;
+  z-index: 1;
+}
+
+.form-section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--jc-ink);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--jc-orange);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: var(--jc-orange);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  outline: none;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.textarea-input {
+  min-height: 120px;
+  resize: vertical;
+  grid-column: 1 / -1;
+}
+
+/* Submit Button */
+.submit-section {
+  text-align: center;
+  padding-top: 30px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, var(--jc-orange), #e63900);
+  color: white;
+  padding: 18px 48px;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--glow);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.4s ease;
+}
+
+.submit-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(255, 77, 0, 0.4);
+}
+
+.submit-button:hover::before {
+  left: 100%;
+}
+
+.submit-disclaimer {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .jc-estate-intake {
+    padding: 20px 15px;
+  }
+  
+  .wealth-calculator,
+  .estate-form {
+    padding: 25px 20px;
+    border-radius: 16px;
+  }
+  
+  .estate-title {
+    font-size: 2.5rem;
+  }
+  
+  .wealth-inputs {
+    grid-template-columns: 1fr;
+  }
+  
+  .tax-implications {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .estate-value-amount {
+    font-size: 2rem;
+  }
+}
+</style>
+
+<div class="jc-estate-intake" id="estateIntake">
+  <!-- Premium Header -->
+  <div class="estate-header">
+    <div class="wealth-badge">
+      <span>🏛️</span>
+      <span>Premium Estate Planning</span>
+    </div>
+    <h1 class="estate-title">Wealth Protection Assessment</h1>
+    <p class="estate-subtitle">Without proper planning, 40% of your wealth could vanish to taxes and probate. AI-powered analysis reveals exactly what's at risk and how to protect it</p>
+  </div>
+
+  <!-- AI-Powered Wealth Calculator -->
+  <div class="wealth-calculator">
+    <div class="calculator-header">
+      <h2 class="calculator-title">
+        <span>Smart Estate Calculator</span>
+        <span class="ai-indicator">AI-Powered</span>
+      </h2>
+      <p class="calculator-subtitle">Enter your assets below for instant tax analysis and wealth preservation strategies</p>
+    </div>
+
+    <div class="wealth-inputs">
+      <div class="input-group">
+        <label class="input-label" for="primaryHome">Primary Residence Value</label>
+        <div class="currency-symbol">$</div>
+        <input type="text" id="primaryHome" class="smart-input currency" placeholder="750,000" oninput="formatCurrency(this); calculateEstate();">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="otherRealEstate">Other Real Estate</label>
+        <div class="currency-symbol">$</div>
+        <input type="text" id="otherRealEstate" class="smart-input currency" placeholder="250,000" oninput="formatCurrency(this); calculateEstate();">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="investments">Investment Accounts</label>
+        <div class="currency-symbol">$</div>
+        <input type="text" id="investments" class="smart-input currency" placeholder="500,000" oninput="formatCurrency(this); calculateEstate();">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="retirement">Retirement Accounts</label>
+        <div class="currency-symbol">$</div>
+        <input type="text" id="retirement" class="smart-input currency" placeholder="300,000" oninput="formatCurrency(this); calculateEstate();">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="businessValue">Business Ownership</label>
+        <div class="currency-symbol">$</div>
+        <input type="text" id="businessValue" class="smart-input currency" placeholder="1,000,000" oninput="formatCurrency(this); calculateEstate();">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="otherAssets">Other Assets</label>
+        <div class="currency-symbol">$</div>
+        <input type="text" id="otherAssets" class="smart-input currency" placeholder="150,000" oninput="formatCurrency(this); calculateEstate();">
+      </div>
+    </div>
+
+    <!-- Real-time Insights -->
+    <div class="wealth-insights" id="wealthInsights">
+      <div class="insights-header">
+        <span>🧠</span>
+        <h3 class="insights-title">AI Estate Analysis</h3>
+      </div>
+
+      <div class="estate-value-display">
+        <div class="estate-value-label">Total Estate Value</div>
+        <div class="estate-value-amount" id="totalEstateValue">$0</div>
+      </div>
+
+      <div class="tax-implications">
+        <div class="tax-item">
+          <div class="tax-label">Federal Estate Tax</div>
+          <div class="tax-amount" id="federalTax">$0</div>
+        </div>
+        <div class="tax-item">
+          <div class="tax-label">State Estate Tax</div>
+          <div class="tax-amount" id="stateTax">$0</div>
+        </div>
+        <div class="tax-item">
+          <div class="tax-label">Probate Costs</div>
+          <div class="tax-amount warning" id="probateCosts">$0</div>
+        </div>
+        <div class="tax-item">
+          <div class="tax-label">Net to Heirs</div>
+          <div class="tax-amount success" id="netToHeirs">$0</div>
+        </div>
+      </div>
+
+      <!-- Smart Recommendations -->
+      <div class="smart-recommendations" id="recommendations">
+        <div class="rec-header">
+          <span>💡</span>
+          <h4 class="rec-title">AI-Generated Recommendations</h4>
+        </div>
+        <div class="recommendations-grid" id="recommendationsList">
+          <!-- Recommendations will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Form -->
+  <div class="estate-form">
+    <form id="estateIntakeForm" onsubmit="submitEstateIntake(event)">
+      <!-- Personal Information -->
+      <div class="form-section">
+        <h3 class="section-title">Personal Information</h3>
+        <div class="form-grid">
+          <input type="text" name="firstName" class="form-input" placeholder="First Name" required>
+          <input type="text" name="lastName" class="form-input" placeholder="Last Name" required>
+          <input type="email" name="email" class="form-input" placeholder="Email Address" required>
+          <input type="tel" name="phone" class="form-input" placeholder="Phone Number" required>
+          <input type="text" name="city" class="form-input" placeholder="City">
+          <select name="state" class="form-input form-select" required>
+            <option value="">Select State</option>
+            <option value="NY">New York</option>
+            <option value="NJ">New Jersey</option>
+            <option value="OH">Ohio</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Family Information -->
+      <div class="form-section">
+        <h3 class="section-title">Family Structure</h3>
+        <div class="form-grid">
+          <select name="maritalStatus" class="form-input form-select" required>
+            <option value="">Marital Status</option>
+            <option value="single">Single</option>
+            <option value="married">Married</option>
+            <option value="divorced">Divorced</option>
+            <option value="widowed">Widowed</option>
+          </select>
+          <select name="children" class="form-input form-select" required>
+            <option value="">Number of Children</option>
+            <option value="0">No Children</option>
+            <option value="1">1 Child</option>
+            <option value="2">2 Children</option>
+            <option value="3">3 Children</option>
+            <option value="4+">4+ Children</option>
+          </select>
+          <select name="specialNeeds" class="form-input form-select">
+            <option value="">Special Needs Considerations</option>
+            <option value="none">None</option>
+            <option value="minor_children">Minor Children</option>
+            <option value="special_needs_child">Special Needs Child</option>
+            <option value="elderly_parents">Elderly Parents</option>
+            <option value="multiple">Multiple Considerations</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Current Estate Planning -->
+      <div class="form-section">
+        <h3 class="section-title">Current Planning</h3>
+        <div class="form-grid">
+          <select name="currentWill" class="form-input form-select" required>
+            <option value="">Do you have a current will?</option>
+            <option value="none">No Will</option>
+            <option value="basic">Basic Will</option>
+            <option value="comprehensive">Comprehensive Will</option>
+            <option value="outdated">Outdated Will (5+ years)</option>
+          </select>
+          <select name="trustStructure" class="form-input form-select">
+            <option value="">Current Trust Structure</option>
+            <option value="none">No Trusts</option>
+            <option value="revocable">Revocable Living Trust</option>
+            <option value="irrevocable">Irrevocable Trusts</option>
+            <option value="multiple">Multiple Trust Types</option>
+          </select>
+          <select name="powerOfAttorney" class="form-input form-select">
+            <option value="">Power of Attorney Documents</option>
+            <option value="none">None</option>
+            <option value="financial">Financial POA Only</option>
+            <option value="healthcare">Healthcare Directive Only</option>
+            <option value="comprehensive">Comprehensive POA Package</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Planning Goals -->
+      <div class="form-section">
+        <h3 class="section-title">Planning Priorities</h3>
+        <div class="form-grid">
+          <select name="primaryGoal" class="form-input form-select" required>
+            <option value="">Primary Estate Planning Goal</option>
+            <option value="tax_minimization">Minimize Estate Taxes</option>
+            <option value="asset_protection">Protect Assets from Creditors</option>
+            <option value="family_harmony">Prevent Family Conflicts</option>
+            <option value="business_succession">Business Succession Planning</option>
+            <option value="charitable_giving">Charitable Giving Strategy</option>
+            <option value="privacy">Maintain Privacy</option>
+          </select>
+          <select name="urgency" class="form-input form-select" required>
+            <option value="">Timeline for Planning</option>
+            <option value="immediate">Immediate (This Month)</option>
+            <option value="soon">Within 3 Months</option>
+            <option value="this_year">Within This Year</option>
+            <option value="planning_ahead">Planning Ahead (1+ Years)</option>
+          </select>
+          <textarea name="additionalInfo" class="form-input textarea-input" placeholder="Additional information about your estate planning goals, concerns, or special circumstances..."></textarea>
+        </div>
+      </div>
+
+      <!-- Hidden fields for backend integration -->
+      <input type="hidden" name="submissionType" value="estate-intake">
+      <input type="hidden" name="source" value="estate-planning-enhanced">
+      <input type="hidden" name="grossEstate" id="grossEstateHidden">
+      <input type="hidden" name="calculatedTaxExposure" id="taxExposureHidden">
+      <input type="hidden" name="assessmentScore" id="assessmentScoreHidden">
+
+      <div class="submit-section">
+        <button type="submit" class="submit-button">
+Get My Custom Wealth Protection Strategy
+        </button>
+        <p class="submit-disclaimer">
+  Your information is completely secure and confidential. We'll provide you with a comprehensive wealth analysis and actionable protection strategies (with flat-fee options where applicable). This consultation request does not create an attorney-client relationship.
+        </p>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Smart Estate Planning Calculator
+class WealthProtectionCalculator {
+  constructor() {
+    this.estateValue = 0;
+    this.federalExemption = 12920000; // 2023 federal exemption
+    this.federalTaxRate = 0.40;
+    this.stateTaxThreshold = 1000000; // Varies by state, using NY as example
+    this.stateTaxRate = 0.16;
+    this.probateRate = 0.04; // Typical probate costs 2-4%
+    
+    this.recommendations = [];
+    this.assessmentScore = 0;
+  }
+  
+  calculateEstate() {
+    // Get all input values
+    const primaryHome = this.parseValue('primaryHome');
+    const otherRealEstate = this.parseValue('otherRealEstate');
+    const investments = this.parseValue('investments');
+    const retirement = this.parseValue('retirement');
+    const businessValue = this.parseValue('businessValue');
+    const otherAssets = this.parseValue('otherAssets');
+    
+    this.estateValue = primaryHome + otherRealEstate + investments + retirement + businessValue + otherAssets;
+    
+    if (this.estateValue > 0) {
+      this.updateDisplay();
+      this.generateRecommendations();
+      this.showInsights();
+    }
+  }
+  
+  parseValue(inputId) {
+    const input = document.getElementById(inputId);
+    const value = input.value.replace(/[$,]/g, '');
+    const numValue = parseFloat(value) || 0;
+    
+    // Add visual feedback
+    if (numValue > 0) {
+      input.classList.add('has-value');
+    } else {
+      input.classList.remove('has-value');
+    }
+    
+    return numValue;
+  }
+  
+  updateDisplay() {
+    // Calculate taxes and costs
+    const federalTax = Math.max(0, (this.estateValue - this.federalExemption) * this.federalTaxRate);
+    const stateTax = Math.max(0, (this.estateValue - this.stateTaxThreshold) * this.stateTaxRate);
+    const probateCosts = this.estateValue * this.probateRate;
+    const totalTaxes = federalTax + stateTax + probateCosts;
+    const netToHeirs = this.estateValue - totalTaxes;
+    
+    // Update display
+    document.getElementById('totalEstateValue').textContent = this.formatCurrency(this.estateValue);
+    document.getElementById('federalTax').textContent = this.formatCurrency(federalTax);
+    document.getElementById('stateTax').textContent = this.formatCurrency(stateTax);
+    document.getElementById('probateCosts').textContent = this.formatCurrency(probateCosts);
+    document.getElementById('netToHeirs').textContent = this.formatCurrency(netToHeirs);
+    
+    // Color code based on impact
+    this.colorCodeTaxItem('federalTax', federalTax);
+    this.colorCodeTaxItem('stateTax', stateTax);
+    this.colorCodeTaxItem('probateCosts', probateCosts);
+    
+    // Update hidden fields for backend
+    document.getElementById('grossEstateHidden').value = this.estateValue;
+    document.getElementById('taxExposureHidden').value = totalTaxes;
+    
+    // Calculate assessment score based on estate value and planning gaps
+    this.calculateAssessmentScore();
+  }
+  
+  colorCodeTaxItem(elementId, amount) {
+    const element = document.getElementById(elementId);
+    element.classList.remove('success', 'warning', 'danger');
+    
+    if (amount === 0) {
+      element.classList.add('success');
+    } else if (amount < 100000) {
+      element.classList.add('warning');
+    } else {
+      element.classList.add('danger');
+    }
+  }
+  
+  calculateAssessmentScore() {
+    let score = 0;
+    
+    // Base score from estate value
+    if (this.estateValue > 10000000) score += 25;
+    else if (this.estateValue > 5000000) score += 20;
+    else if (this.estateValue > 2000000) score += 15;
+    else if (this.estateValue > 1000000) score += 10;
+    else score += 5;
+    
+    // Additional scoring logic will be added based on form responses
+    this.assessmentScore = Math.min(score + 40, 100); // Add base planning score
+    document.getElementById('assessmentScoreHidden').value = this.assessmentScore;
+  }
+  
+  generateRecommendations() {
+    this.recommendations = [];
+    
+    // Federal estate tax recommendations
+    const federalTax = Math.max(0, (this.estateValue - this.federalExemption) * this.federalTaxRate);
+    if (federalTax > 0) {
+      this.recommendations.push({
+        priority: 'critical',
+        title: 'Immediate Federal Tax Planning Required',
+        description: `Your estate faces ${this.formatCurrency(federalTax)} in federal estate taxes. Advanced trust strategies can reduce or eliminate this burden.`,
+        savings: `Potential savings: ${this.formatCurrency(federalTax * 0.8)}`
+      });
+    }
+    
+    // State estate tax recommendations
+    const stateTax = Math.max(0, (this.estateValue - this.stateTaxThreshold) * this.stateTaxRate);
+    if (stateTax > 0) {
+      this.recommendations.push({
+        priority: 'high',
+        title: 'State Estate Tax Optimization',
+        description: `State estate taxes of ${this.formatCurrency(stateTax)} can be reduced through strategic planning and domicile optimization.`,
+        savings: `Potential savings: ${this.formatCurrency(stateTax * 0.6)}`
+      });
+    }
+    
+    // Probate recommendations
+    if (this.estateValue > 100000) {
+      const probateCosts = this.estateValue * this.probateRate;
+      this.recommendations.push({
+        priority: this.estateValue > 2000000 ? 'high' : 'medium',
+        title: 'Probate Avoidance Strategy',
+        description: `Revocable living trust can eliminate ${this.formatCurrency(probateCosts)} in probate costs and maintain privacy.`,
+        savings: `Guaranteed savings: ${this.formatCurrency(probateCosts)}`
+      });
+    }
+    
+    // Business succession planning
+    const businessValue = this.parseValue('businessValue');
+    if (businessValue > 500000) {
+      this.recommendations.push({
+        priority: 'high',
+        title: 'Business Succession Planning',
+        description: 'Business assets require specialized valuation discounts and succession strategies to minimize tax impact.',
+        savings: `Potential savings: ${this.formatCurrency(businessValue * 0.3)}`
+      });
+    }
+    
+    // Charitable giving opportunities
+    if (this.estateValue > 5000000) {
+      this.recommendations.push({
+        priority: 'medium',
+        title: 'Charitable Giving Strategy',
+        description: 'Charitable remainder trusts and donor advised funds can provide tax benefits while supporting causes you care about.',
+        savings: 'Significant tax advantages + philanthropic impact'
+      });
+    }
+    
+    // Asset protection for high net worth
+    if (this.estateValue > 2000000) {
+      this.recommendations.push({
+        priority: 'medium',
+        title: 'Asset Protection Planning',
+        description: 'Domestic asset protection trusts can shield wealth from future creditors and lawsuits.',
+        savings: 'Invaluable liability protection'
+      });
+    }
+    
+    this.renderRecommendations();
+  }
+  
+  renderRecommendations() {
+    const container = document.getElementById('recommendationsList');
+    
+    if (this.recommendations.length === 0) {
+      container.innerHTML = `
+        <div class="recommendation-item">
+          <div class="rec-priority priority-medium">Good Foundation</div>
+          <div class="rec-item-title">Basic Estate Planning Package</div>
+          <div class="rec-item-desc">Your estate size suggests basic will-based planning with some trust considerations.</div>
+          <div class="rec-savings">Estimated cost: $2,500 - $5,000</div>
+        </div>
+      `;
+      return;
+    }
+    
+    const html = this.recommendations.map(rec => `
+      <div class="recommendation-item">
+        <div class="rec-priority priority-${rec.priority}">${rec.priority.toUpperCase()}</div>
+        <div class="rec-item-title">${rec.title}</div>
+        <div class="rec-item-desc">${rec.description}</div>
+        <div class="rec-savings">${rec.savings}</div>
+      </div>
+    `).join('');
+    
+    container.innerHTML = html;
+  }
+  
+  showInsights() {
+    const insights = document.getElementById('wealthInsights');
+    insights.classList.add('active');
+  }
+  
+  formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  }
+}
+
+// Initialize calculator
+const calculator = new WealthProtectionCalculator();
+
+// Currency formatting for inputs
+function formatCurrency(input) {
+  let value = input.value.replace(/[^\d]/g, '');
+  if (value) {
+    value = parseInt(value).toLocaleString();
+    input.value = value;
+  }
+}
+
+// Form submission with backend integration
+async function submitEstateIntake(event) {
+  event.preventDefault();
+  
+  const form = document.getElementById('estateIntakeForm');
+  const formData = new FormData(form);
+  
+  // Convert to object for JSON submission
+  const data = {};
+  for (let [key, value] of formData.entries()) {
+    data[key] = value;
+  }
+  
+  // Add calculated values
+  data.grossEstate = calculator.estateValue;
+  data.calculatedTaxExposure = document.getElementById('taxExposureHidden').value;
+  data.assessmentScore = calculator.assessmentScore;
+  data.timestamp = new Date().toISOString();
+  
+  // Submit to your backend
+  try {
+    const button = document.querySelector('.submit-button');
+    const originalText = button.textContent;
+    button.textContent = 'Processing...';
+    button.disabled = true;
+    
+    const response = await fetch('https://estate-intake-system.onrender.com/add-subscriber', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok) {
+      // Success - redirect or show success message
+      window.location.href = 'https://www.jacobscounsellaw.com/thank-you?type=estate-planning';
+    } else {
+      throw new Error(result.error || 'Submission failed');
+    }
+  } catch (error) {
+    console.error('Estate intake submission error:', error);
+    alert('There was an error submitting your information. Please try again or call us directly.');
+    
+    const button = document.querySelector('.submit-button');
+    button.textContent = 'Get My Personalized Estate Plan';
+    button.disabled = false;
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Pre-populate with sample values for demo (remove in production)
+  // calculateEstate();
+});
+</script>

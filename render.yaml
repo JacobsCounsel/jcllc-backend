@@ -5,6 +5,6 @@ services:
     env: node
     plan: free
     buildCommand: npm install
-    startCommand: node index.js
+    startCommand: node index-improved.js
     branch: main
     autoDeploy: true

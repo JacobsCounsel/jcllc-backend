@@ -893,247 +893,114 @@ export function generateInternalAlert(formData, leadScore, submissionType, aiAna
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
   
   // Extract client info
-  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'Unknown';
-  const clientLastName = formData.lastName || formData.fullName?.split(' ').slice(1).join(' ') || '';
+  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || formData.email?.split('@')[0] || 'Unknown';
   const businessName = formData.businessName || formData.companyName || '';
   
-  // Service-specific analysis and next steps
-  let serviceAnalysis = '';
-  let actionItems = [];
-  let urgencyLevel = 'Standard';
+  // Determine urgency and priority
+  let urgencyLevel = 'STANDARD';
+  let priority = '⚪';
   
+  if (leadScore.score >= 80) {
+    urgencyLevel = 'HIGH PRIORITY';
+    priority = '🔥';
+  } else if (leadScore.score >= 60) {
+    urgencyLevel = 'WARM LEAD';
+    priority = '🟡';
+  }
+  
+  // Get quick action summary
+  let quickAction = 'Send calendar link';
+  let keyInfo = '';
+  
+  // Get service-specific quick info
   switch (submissionType) {
     case 'estate-intake':
       const estateValue = formData.grossEstate ? parseFloat(formData.grossEstate.replace(/[,$]/g, '')) : 0;
-      if (estateValue > 10000000) urgencyLevel = 'Ultra High - Call within 1 hour';
-      else if (estateValue > 5000000) urgencyLevel = 'High - Call within 4 hours';
-      else if (estateValue > 2000000) urgencyLevel = 'Medium - Call within 24 hours';
-      
-      serviceAnalysis = `Estate Value: ${estateValue > 0 ? '$' + estateValue.toLocaleString() : 'Not specified'}
-      Package Interest: ${formData.packagePreference || 'Not specified'}
-      Business Owner: ${formData.ownBusiness || 'Not specified'}
-      Marital Status: ${formData.maritalStatus || 'Not specified'}
-      Has Minor Children: ${formData.hasMinorChildren || 'Not specified'}`;
-      
-      actionItems = [
-        'Review estate size and complexity',
-        'Prepare estate tax analysis if applicable',
-        'Draft consultation agenda focusing on trust vs will options',
-        'Send calendar link with estate planning time slots',
-        estateValue > 5000000 ? '🚨 High net worth - prepare advanced strategies' : 'Standard estate planning consultation'
-      ];
+      if (estateValue > 5000000) {
+        urgencyLevel = 'HIGH PRIORITY';
+        priority = '🔥';
+        quickAction = 'Call within 4 hours';
+      }
+      keyInfo = estateValue > 0 ? `$${estateValue.toLocaleString()} estate` : 'Estate planning';
       break;
       
     case 'business-formation':
-      if (formData.investmentPlan === 'vc') urgencyLevel = 'Ultra High - VC timeline critical';
-      else if (formData.investmentPlan === 'angel') urgencyLevel = 'High - Investor ready';
-      
-      serviceAnalysis = `Business: ${businessName || 'Not specified'}
-      Funding Plan: ${formData.investmentPlan || 'Not specified'}
-      Business Type: ${formData.businessType || 'Not specified'}
-      Revenue Projection: ${formData.projectedRevenue || 'Not specified'}
-      Package: ${formData.selectedPackage || 'Not specified'}`;
-      
-      actionItems = [
-        'Analyze funding timeline and investor requirements',
-        'Prepare entity structure recommendations',
-        'Review cap table and equity plans if VC/Angel',
-        'Draft incorporation timeline and checklist',
-        formData.investmentPlan === 'vc' ? '🚨 VC-backed - prepare Series A documentation' : 'Standard business formation'
-      ];
-      break;
-      
-    case 'brand-protection':
-      if (formData.businessStage === 'Mature (5+ years)') urgencyLevel = 'High - Established brand at risk';
-      
-      serviceAnalysis = `Business: ${businessName || 'Not specified'}
-      Business Stage: ${formData.businessStage || 'Not specified'}
-      Service Interest: ${formData.servicePreference || 'Not specified'}
-      Protection Goal: ${formData.protectionGoal || 'Not specified'}
-      Current IP: ${formData.currentIP || 'Not specified'}`;
-      
-      actionItems = [
-        'Conduct preliminary trademark search',
-        'Assess brand portfolio and gaps',
-        'Prepare clearance and filing strategy',
-        'Review existing IP assets',
-        formData.protectionGoal?.includes('enforcement') ? '🚨 Enforcement needed - urgent consultation' : 'Standard brand protection'
-      ];
-      break;
-      
-    case 'outside-counsel':
-      if (formData.urgency?.includes('Immediate')) urgencyLevel = 'Critical - Call immediately';
-      
-      serviceAnalysis = `Company: ${businessName || 'Not specified'}
-      Budget Range: ${formData.budget || 'Not specified'}
-      Timeline: ${formData.timeline || 'Not specified'}
-      Legal Needs: ${formData.legalNeeds || 'Not specified'}
-      Current Counsel: ${formData.currentCounsel || 'Not specified'}`;
-      
-      actionItems = [
-        'Assess current legal gaps and risks',
-        'Prepare retainer and engagement proposals',
-        'Review budget and service level requirements',
-        'Draft ongoing counsel structure',
-        formData.budget?.includes('10K+') ? '💰 High-budget client - comprehensive services' : 'Standard outside counsel'
-      ];
+      if (formData.investmentPlan === 'vc') {
+        urgencyLevel = 'URGENT';
+        priority = '🚨';
+        quickAction = 'Call immediately - VC timeline';
+      }
+      keyInfo = formData.investmentPlan || 'Business formation';
       break;
       
     case 'legal-strategy-builder':
       const assessmentScore = parseInt(formData.assessmentScore) || leadScore.score;
-      if (assessmentScore >= 80) urgencyLevel = 'High - Strong candidate for comprehensive services';
+      if (formData.q3 === 'none') quickAction = 'Needs entity formation ASAP';
+      if (formData.q4 === 'none' && formData.q1 === 'creator') quickAction = 'Brand protection critical';
       
-      serviceAnalysis = `Assessment Score: ${assessmentScore}/100
-      Role: ${formData.q1 || 'Not specified'}
-      Business Stage: ${formData.q2 || 'Not specified'}
-      Entity Structure: ${formData.q3 || 'Not specified'}
-      IP Status: ${formData.q4 || 'Not specified'}
-      Contract Status: ${formData.q5 || 'Not specified'}
-      12-Month Goal: ${formData.q8 || 'Not specified'}`;
+      // Build key gaps
+      const gaps = [];
+      if (formData.q3 === 'none') gaps.push('No entity');
+      if (formData.q4 === 'none') gaps.push('No IP protection');
+      if (formData.q5 === 'handshake') gaps.push('No contracts');
       
-      actionItems = [
-        'Review assessment responses for priority areas',
-        'Prepare customized legal roadmap',
-        'Identify immediate risk areas from assessment',
-        'Draft consultation agenda with prioritized initiatives',
-        assessmentScore >= 80 ? '🎯 High-scorer - ready for comprehensive engagement' : 'Standard strategy consultation'
-      ];
+      keyInfo = gaps.length > 0 ? `Critical gaps: ${gaps.join(', ')}` : `${formData.q1 || 'Business owner'} seeking ${formData.q8 || 'protection'}`;
+      break;
+      
+    case 'brand-protection':
+      keyInfo = formData.protectionGoal || 'Brand protection';
+      break;
+      
+    case 'outside-counsel':
+      if (formData.urgency?.includes('Immediate')) {
+        urgencyLevel = 'URGENT';
+        priority = '🚨';
+        quickAction = 'Call immediately';
+      }
+      keyInfo = formData.legalNeeds || 'Outside counsel';
       break;
       
     default:
-      serviceAnalysis = `General inquiry for ${submissionType.replace('-', ' ')}`;
-      actionItems = ['Review submission details', 'Prepare appropriate consultation', 'Send calendar link'];
+      keyInfo = submissionType.replace('-', ' ');
   }
   
   return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${isHighValue ? '🔥 HIGH VALUE' : '📝'} New Lead - ${clientName} (${leadScore.score}/100)</title>
-</head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #374151;">
-  <div style="max-width: 700px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-top: 20px; margin-bottom: 20px;">
-    
-    <!-- Header -->
-    <div style="background: ${isHighValue ? 'linear-gradient(135deg, #dc2626, #ef4444)' : 'linear-gradient(135deg, #1f2937, #374151)'}; padding: 30px; text-align: center;">
-      ${isHighValue ? '<div style="font-size: 24px; margin-bottom: 10px;">🔥</div>' : ''}
-      <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0; line-height: 1.3;">
-        ${isHighValue ? 'HIGH VALUE LEAD' : 'New Lead Alert'}
-      </h1>
-      <p style="color: #e5e7eb; margin: 8px 0 4px; font-size: 18px;">${submissionType.replace('-', ' ').toUpperCase()}</p>
-      <p style="color: ${isHighValue ? '#fecaca' : '#e5e7eb'}; margin: 0; font-size: 16px; font-weight: 600;">Score: ${leadScore.score}/100</p>
-    </div>
-    
-    <!-- Client Info -->
-    <div style="background-color: ${isHighValue ? '#fef2f2' : '#f8fafc'}; padding: 25px; border-bottom: 1px solid #e5e7eb;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
-        <div>
-          <h2 style="color: #1f2937; margin: 0 0 12px; font-size: 22px;">
-            ${clientName} ${clientLastName}
-            ${businessName ? `<span style="color: #6b7280; font-size: 16px; font-weight: normal;">(${businessName})</span>` : ''}
-          </h2>
-          <p style="color: #4b5563; margin: 4px 0; font-size: 16px;">
-            📧 <a href="mailto:${formData.email}" style="color: #ff4d00; text-decoration: none;">${formData.email}</a>
-          </p>
-          ${formData.phone ? `<p style="color: #4b5563; margin: 4px 0; font-size: 16px;">
-            📞 <a href="tel:${formData.phone}" style="color: #ff4d00; text-decoration: none;">${formData.phone}</a>
-          </p>` : ''}
-        </div>
-        <div style="text-align: right; margin-top: 12px;">
-          <div style="background-color: ${isHighValue ? '#dc2626' : '#6b7280'}; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; display: inline-block;">
-            ${urgencyLevel}
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Service Analysis -->
-    <div style="padding: 25px;">
-      <h3 style="color: #1f2937; margin: 0 0 16px; font-size: 18px; font-weight: 600;">📊 Service Analysis</h3>
-      <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; border-left: 4px solid ${isHighValue ? '#dc2626' : '#6b7280'};">
-        <pre style="font-family: Monaco, 'Courier New', monospace; font-size: 14px; color: #4b5563; margin: 0; white-space: pre-wrap; line-height: 1.5;">${serviceAnalysis}</pre>
-      </div>
-    </div>
-    
-    <!-- Action Items -->
-    <div style="padding: 0 25px 25px;">
-      <h3 style="color: #1f2937; margin: 0 0 16px; font-size: 18px; font-weight: 600;">✅ Action Items</h3>
-      <ul style="color: #4b5563; line-height: 1.6; margin: 0; padding-left: 20px;">
-        ${actionItems.map(item => `<li style="margin: 8px 0;">${item}</li>`).join('')}
-      </ul>
-    </div>
-    
-    <!-- AI Analysis (if available) -->
-    ${aiAnalysis?.analysis ? `
-    <div style="padding: 0 25px 25px;">
-      <h3 style="color: #1f2937; margin: 0 0 16px; font-size: 18px; font-weight: 600;">🤖 AI Analysis</h3>
-      <div style="background-color: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 20px;">
-        <p style="color: #0369a1; margin: 0; font-size: 14px; line-height: 1.5;">${aiAnalysis.analysis}</p>
-        ${aiAnalysis.recommendations ? `<p style="color: #0369a1; margin: 12px 0 0; font-weight: 600;">Recommendations: ${aiAnalysis.recommendations}</p>` : ''}
-      </div>
-    </div>
-    ` : ''}
-    
-    <!-- Score Breakdown -->
-    <div style="padding: 0 25px 25px;">
-      <h3 style="color: #1f2937; margin: 0 0 16px; font-size: 18px; font-weight: 600;">🎯 Lead Score Breakdown</h3>
-      <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px;">
-        <div style="margin-bottom: 12px;">
-          <div style="background-color: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden;">
-            <div style="background-color: ${leadScore.score >= 70 ? '#dc2626' : leadScore.score >= 50 ? '#f59e0b' : '#6b7280'}; height: 100%; width: ${leadScore.score}%; transition: width 0.3s;"></div>
-          </div>
-          <p style="color: #4b5563; font-size: 14px; margin: 8px 0 0;">Score: ${leadScore.score}/100 (${leadScore.priority})</p>
-        </div>
-        <details style="color: #6b7280; font-size: 14px;">
-          <summary style="cursor: pointer; font-weight: 600; margin-bottom: 8px;">Score Factors</summary>
-          <ul style="margin: 8px 0 0; padding-left: 20px;">
-            ${leadScore.factors ? leadScore.factors.map(factor => `<li style="margin: 4px 0;">${factor}</li>`).join('') : '<li>Standard scoring applied</li>'}
-          </ul>
-        </details>
-      </div>
-    </div>
-    
-    <!-- Quick Actions -->
-    <div style="background-color: #f8fafc; padding: 25px; border-top: 1px solid #e5e7eb;">
-      <h3 style="color: #1f2937; margin: 0 0 16px; font-size: 18px; font-weight: 600;">🚀 Quick Actions</h3>
-      <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-        <a href="mailto:${formData.email}?subject=Re: Your ${submissionType.replace('-', ' ')} inquiry&body=Hi ${clientName},%0D%0A%0D%0AThank you for your inquiry regarding ${submissionType.replace('-', ' ')}. I'd like to schedule a brief call to discuss your needs.%0D%0A%0D%0ABest regards,%0D%0ADrew Jacobs" 
-           style="display: inline-block; background-color: #ff4d00; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
-          📧 Email Client
-        </a>
-        <a href="${calendlyLink}" target="_blank"
-           style="display: inline-block; background-color: #059669; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
-          📅 Send Calendar Link
-        </a>
-        ${formData.phone ? `
-        <a href="tel:${formData.phone}" 
-           style="display: inline-block; background-color: #7c3aed; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
-          📞 Call Now
-        </a>` : ''}
-      </div>
-    </div>
-    
-    <!-- Raw Data (Collapsible) -->
-    <div style="padding: 25px; border-top: 1px solid #e5e7eb;">
-      <details style="color: #6b7280;">
-        <summary style="cursor: pointer; font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #1f2937;">📋 Raw Form Data</summary>
-        <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb; overflow-x: auto;">
-          <pre style="font-family: Monaco, 'Courier New', monospace; font-size: 12px; color: #4b5563; margin: 0; white-space: pre-wrap; line-height: 1.4;">${JSON.stringify(formData, null, 2)}</pre>
-        </div>
-      </details>
-    </div>
-    
-    <!-- Footer -->
-    <div style="background-color: #1f2937; padding: 20px; text-align: center;">
-      <p style="color: #e5e7eb; font-size: 12px; margin: 0;">
-        Submission ID: ${submissionId} | Generated at ${new Date().toLocaleString()}<br>
-        <a href="https://jacobscounsellaw.com" style="color: #ff4d00; text-decoration: none;">Jacobs Counsel Backend</a>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 20px; background: #ffffff; color: #1f2937;">
+
+<!-- Header -->
+<div style="background: #ff4d00; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+  <h1 style="color: white; font-size: 20px; margin: 0;">${priority} ${urgencyLevel}: ${clientName}</h1>
+  <p style="color: white; margin: 8px 0 0; font-size: 16px;">${keyInfo} • Score: ${leadScore.score}/100</p>
+</div>
+
+<!-- Contact & Action -->
+<div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+    <div>
+      <h2 style="margin: 0 0 8px; font-size: 18px;">${clientName}${businessName ? ` (${businessName})` : ''}</h2>
+      <p style="margin: 0; font-size: 14px; color: #6b7280;">
+        📧 <a href="mailto:${formData.email}" style="color: #ff4d00; text-decoration: none;">${formData.email}</a>
+        ${formData.phone ? ` • 📞 <a href="tel:${formData.phone}" style="color: #ff4d00; text-decoration: none;">${formData.phone}</a>` : ''}
       </p>
     </div>
+    <div style="margin-top: 12px;">
+      <a href="mailto:${formData.email}?subject=Your Legal Strategy Assessment&body=Hi ${clientName},%0D%0A%0D%0AThanks for completing the assessment. I'd like to schedule a brief call to discuss your legal priorities.%0D%0A%0D%0A${calendlyLink}%0D%0A%0D%0ABest,%0D%0ADrew" 
+         style="background: #ff4d00; color: white; padding: 10px 16px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
+        Send Email
+      </a>
+    </div>
   </div>
+</div>
+
+<!-- Next Action -->
+<div style="background: #fef3f2; border: 2px solid #fecaca; padding: 15px; border-radius: 6px;">
+  <strong style="color: #dc2626;">Next Action:</strong> ${quickAction}
+</div>
+
 </body>
-</html>`;
+</html>;
 }
 
 export function generateNewsletterWelcomeEmail(formData) {

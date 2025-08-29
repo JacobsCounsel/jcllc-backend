@@ -1,1405 +1,1343 @@
-<!-- JACOBS COUNSEL — AI-Enhanced Legal Strategy Builder -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Legal Strategy Builder | Find Your Legal Priorities | Jacobs Counsel</title>
 <style>
-:root {
-  --jc-orange: #ff4d00;
-  --jc-ink: #0f172a;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --glow: 0 0 20px rgba(255, 77, 0, 0.3);
-}
+  :root {
+    --jc-orange: #ff4d00;
+    --jc-ink: #0f172a;
+    --bg: #ffffff;
+    --ink: #0f172a;
+    --ink2: #64748b;
+    --line: #e2e8f0;
+    --ok: #059669;
+    --err: #dc2626;
+    --warn: #d97706;
+    --card: #ffffff;
+    --muted: #f8fafc;
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 20px;
+  }
+  .strategy-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--bg);
+  }
+  .jc-bar {
+    height: 5px;
+    background: linear-gradient(90deg, var(--jc-orange), var(--jc-ink));
+  }
+  /* Hero Section */
+  .strategy-hero {
+    background: linear-gradient(135deg, var(--muted) 0%, var(--bg) 100%);
+    padding: 48px 20px 32px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--jc-orange);
+    color: white;
+    padding: 5px 16px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .hero-headline {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 16px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .hero-subhead {
+    font-size: 28px;
+    color: var(--jc-orange);
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+  .hero-desc {
+    font-size: 20px;
+    color: var(--ink2);
+    max-width: 700px;
+    margin: 0 auto 24px;
+    line-height: 1.5;
+  }
+  /* What Box */
+  .what-box {
+    background: linear-gradient(135deg, rgba(255,77,0,0.04), rgba(255,77,0,0.01));
+    border: 2px solid var(--jc-orange);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 0 20px 25px;
+    position: relative;
+  }
+  .what-box h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: var(--ink);
+    text-align: center;
+  }
+  .what-list {
+    display: grid;
+    gap: 10px;
+  }
+  .what-item {
+    display: flex;
+    align-items: start;
+    gap: 10px;
+  }
+  .what-icon {
+    color: var(--ok);
+    font-size: 22px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .what-text {
+    flex: 1;
+    font-size: 18px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  /* Value Props */
+  .intro-section {
+    padding: 32px 20px;
+    background: var(--card);
+    margin: 20px auto;
+    max-width: 1000px;
+  }
+  .intro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 0 0 24px;
+  }
+  .intro-card {
+    text-align: center;
+    padding: 24px;
+    background: var(--muted);
+    border-radius: 12px;
+  }
+  .intro-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .intro-card h4 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+  .intro-card p {
+    color: var(--ink2);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  /* Assessment Container */
+  .assessment-container {
+    padding: 0 20px 32px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  /* Progress Section */
+  .progress-section {
+    background: var(--muted);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: var(--shadow-md);
+  }
+  .step-counter {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--jc-orange);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .progress-bar-container {
+    width: 100%;
+    height: 10px;
+    background: var(--line);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 0 0 10px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--jc-orange), #ff6d20);
+    transition: width 0.3s ease;
+    border-radius: 5px;
+  }
+  .progress-label {
+    font-size: 16px;
+    color: var(--ink2);
+    font-weight: 500;
+  }
+  /* Question Section */
+  .question-section {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+  .question-section.transitioning {
+    opacity: 0.7;
+  }
+  .question-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px 24px;
+    margin: 20px 0;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--line);
+  }
+  .question-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .question-badge {
+    display: inline-block;
+    background: var(--jc-orange);
+    color: white;
+    padding: 6px 18px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+  }
+  .question-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .question-subtitle {
+    font-size: 19px;
+    color: var(--ink2);
+    line-height: 1.5;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  /* Options Grid */
+  .options-grid {
+    display: grid;
+    gap: 14px;
+  }
+  .option-card {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: var(--muted);
+    border: 3px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-items: flex-start;
+  }
+  .option-card:hover {
+    background: var(--card);
+    border-color: var(--jc-orange);
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+  }
+  .option-card.selected {
+    background: linear-gradient(135deg, rgba(255, 77, 0, 0.08), rgba(255, 77, 0, 0.03));
+    border-color: var(--jc-orange);
+    box-shadow: var(--shadow-md);
+  }
+  .option-selector {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--line);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .option-selector.checkbox {
+    border-radius: 4px;
+  }
+  .option-card:hover .option-selector {
+    border-color: var(--jc-orange);
+  }
+  .option-card.selected .option-selector {
+    background: var(--jc-orange);
+    border-color: var(--jc-orange);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .option-card.selected .option-selector::after {
+    content: '✓';
+  }
+  .option-content {
+    flex: 1;
+  }
+  .option-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .option-description {
+    color: var(--ink2);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  /* Navigation */
+  .nav-section {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+  .btn {
+    padding: 16px 32px;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: all .3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    gap: 6px;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--jc-orange);
+    color: white;
+    box-shadow: var(--shadow-lg);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+  }
+  .btn-secondary {
+    background: var(--muted);
+    color: var(--ink);
+    border: 2px solid var(--line);
+  }
+  .btn-secondary:hover {
+    background: var(--line);
+    border-color: var(--ink2);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  .btn-large {
+    padding: 20px 40px;
+    font-size: 21px;
+  }
+  /* Email Gate */
+  .email-gate {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px 24px;
+    margin: 20px auto;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    border: 3px solid var(--jc-orange);
+    max-width: 600px;
+  }
+  .email-gate h3 {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+  }
+  .email-gate p {
+    font-size: 19px;
+    color: var(--ink2);
+    margin: 0 0 20px;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .email-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 16px 20px;
+    border: 3px solid var(--line);
+    border-radius: 8px;
+    font-size: 19px;
+    margin: 0 0 20px;
+    font-family: inherit;
+    transition: all 0.3s;
+  }
+  .email-input:focus {
+    outline: none;
+    border-color: var(--jc-orange);
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  }
+  /* Results Section */
+  .results-container {
+    background: var(--muted);
+    border-radius: 20px;
+    padding: 32px 24px;
+    margin: 20px 0;
+  }
+  .results-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .results-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--jc-orange);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 36px;
+    color: white;
+    box-shadow: var(--shadow-xl);
+  }
+  .results-title {
+    font-size: 36px;
+    font-weight: 800;
+    margin: 0 0 12px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .results-subtitle {
+    font-size: 19px;
+    color: var(--ink2);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+  /* Score Display */
+  .score-card {
+    background: var(--bg);
+    border-radius: 16px;
+    padding: 32px;
+    margin: 24px 0;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--line);
+  }
+  .score-value {
+    font-size: 72px;
+    font-weight: 800;
+    color: var(--jc-orange);
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink2);
+    margin-bottom: 12px;
+  }
+  .score-description {
+    color: var(--ink);
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  /* Recommendations */
+  .recommendations-grid {
+    display: grid;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .recommendation-card {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 5px solid;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s;
+  }
+  .recommendation-card:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .recommendation-card.priority-high { border-left-color: var(--err); }
+  .recommendation-card.priority-medium { border-left-color: var(--warn); }
+  .recommendation-card.priority-low { border-left-color: var(--ok); }
+  .recommendation-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .recommendation-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .recommendation-card.priority-high .recommendation-icon {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--err);
+  }
+  .recommendation-card.priority-medium .recommendation-icon {
+    background: rgba(217, 119, 6, 0.1);
+    color: var(--warn);
+  }
+  .recommendation-card.priority-low .recommendation-icon {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--ok);
+  }
+  .recommendation-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .recommendation-description {
+    color: var(--ink2);
+    line-height: 1.5;
+    font-size: 17px;
+  }
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, var(--jc-ink), var(--jc-orange));
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    margin: 28px 0;
+    color: white;
+  }
+  .cta-section h3 {
+    color: white;
+    margin: 0 0 12px;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .cta-section p {
+    margin: 0 0 24px;
+    font-size: 20px;
+    opacity: 0.95;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-cta-primary,
+  .btn-cta-secondary {
+    padding: 16px 32px;
+    border-radius: 10px;
+    font-size: 19px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    border: none;
+  }
+  .btn-cta-primary {
+    background: white;
+    color: var(--jc-ink);
+    box-shadow: var(--shadow-xl);
+  }
+  .btn-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  .btn-cta-secondary {
+    background: transparent;
+    color: white;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+  }
+  .btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+  }
 
-.jc-strategy-builder {
-  min-height: 100vh;
-  background: var(--bg-gradient);
-  padding: 40px 20px;
-  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-  position: relative;
-  overflow: hidden;
-}
-
-.jc-strategy-builder::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-  pointer-events: none;
-}
-
-/* AI-Native Header */
-.strategy-header {
-  text-align: center;
-  margin-bottom: 40px;
-  position: relative;
-  z-index: 1;
-}
-
-.ai-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  padding: 8px 20px;
-  border-radius: 50px;
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-  margin-bottom: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 0, 0.4); }
-  50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 77, 0, 0); }
-}
-
-.strategy-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 800;
-  color: white;
-  margin: 0 0 16px;
-  line-height: 1.1;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.strategy-subtitle {
-  font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-/* Smart Progress System */
-.smart-progress-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 30px;
-  margin: 0 auto 40px;
-  max-width: 800px;
-  box-shadow: var(--card-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-  z-index: 1;
-}
-
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.progress-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--jc-ink);
-}
-
-.smart-score {
-  background: linear-gradient(135deg, var(--jc-orange), #e63900);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  box-shadow: var(--glow);
-  animation: scoreUpdate 0.5s ease-out;
-}
-
-@keyframes scoreUpdate {
-  0% { transform: scale(0.8); opacity: 0.5; }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.progress-bar-container {
-  background: #e2e8f0;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 15px;
-  position: relative;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--jc-orange), #10b981);
-  border-radius: 4px;
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
-
-.progress-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 20px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6));
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-20px); }
-  100% { transform: translateX(20px); }
-}
-
-.progress-insights {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  font-size: 0.85rem;
-  color: var(--jc-ink);
-}
-
-.insight-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  background: rgba(16, 185, 129, 0.1);
-  border-radius: 15px;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-/* Dynamic Question Card */
-.question-card {
-  background: white;
-  border-radius: 24px;
-  padding: 40px;
-  margin: 0 auto;
-  max-width: 800px;
-  box-shadow: var(--card-shadow);
-  position: relative;
-  z-index: 1;
-  transform: translateY(20px);
-  opacity: 0;
-  animation: slideIn 0.6s ease-out forwards;
-}
-
-@keyframes slideIn {
-  to {
-    transform: translateY(0);
+  /* AI Enhancement: Subtle real-time score indicator */
+  .live-score-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--card);
+    border: 2px solid var(--jc-orange);
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--jc-orange);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+  }
+  .live-score-indicator.visible {
     opacity: 1;
   }
-}
 
-.question-number {
-  color: var(--jc-orange);
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+  @media(max-width: 768px) {
+    body { font-size: 16px; }
+    .hero-headline { font-size: 2rem; }
+    .hero-subhead { font-size: 20px; }
+    .hero-desc { font-size: 16px; }
+   
+    .question-title { font-size: 24px; }
+    .question-subtitle { font-size: 16px; }
+    .option-title { font-size: 18px; }
+    .option-description { font-size: 15px; }
+   
+    .nav-section { flex-direction: column; gap: 10px; }
+    .btn { width: 100%; padding: 14px 24px; font-size: 16px; }
+   
+    .results-title { font-size: 28px; }
+    .score-value { font-size: 48px; }
+    .score-description { font-size: 17px; }
+   
+    .recommendation-title { font-size: 18px; }
+    .recommendation-description { font-size: 15px; }
+   
+    .cta-section h3 { font-size: 24px; }
+    .cta-section p { font-size: 16px; }
+    .cta-buttons { flex-direction: column; }
 
-.question-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--jc-ink);
-  margin-bottom: 12px;
-  line-height: 1.3;
-}
-
-.question-subtitle {
-  font-size: 1rem;
-  color: #64748b;
-  margin-bottom: 30px;
-  line-height: 1.5;
-}
-
-/* Smart Answer Options */
-.answer-options {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 30px;
-}
-
-.answer-option {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 20px 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.answer-option::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 77, 0, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.answer-option:hover {
-  border-color: var(--jc-orange);
-  background: rgba(255, 77, 0, 0.05);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 77, 0, 0.15);
-}
-
-.answer-option:hover::before {
-  left: 100%;
-}
-
-.answer-option.selected {
-  border-color: var(--jc-orange);
-  background: rgba(255, 77, 0, 0.1);
-  box-shadow: var(--glow);
-}
-
-.answer-option.selected::after {
-  content: '✓';
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  width: 24px;
-  height: 24px;
-  background: var(--jc-orange);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-
-.option-title {
-  font-weight: 600;
-  color: var(--jc-ink);
-  margin-bottom: 6px;
-  font-size: 1.1rem;
-}
-
-.option-description {
-  color: #64748b;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.option-impact {
-  margin-top: 8px;
-  font-size: 0.8rem;
-  padding: 4px 12px;
-  border-radius: 12px;
-  display: inline-block;
-  font-weight: 500;
-}
-
-.impact-high {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.impact-medium {
-  background: rgba(245, 158, 11, 0.1);
-  color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-.impact-low {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-/* AI Recommendations Panel */
-.ai-recommendations {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 16px;
-  padding: 20px;
-  margin: 20px 0;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  transform: scale(0.95);
-  opacity: 0;
-  transition: all 0.4s ease;
-}
-
-.ai-recommendations.show {
-  transform: scale(1);
-  opacity: 1;
-}
-
-.ai-recommendations::before {
-  content: '🤖';
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  font-size: 4rem;
-  opacity: 0.2;
-}
-
-.ai-rec-title {
-  font-weight: 700;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ai-rec-content {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  opacity: 0.95;
-}
-
-/* Smart Navigation */
-.navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 30px;
-}
-
-.nav-button {
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.nav-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-back {
-  background: #f1f5f9;
-  color: #475569;
-  border: 2px solid #e2e8f0;
-}
-
-.btn-back:hover:not(:disabled) {
-  background: #e2e8f0;
-  transform: translateX(-2px);
-}
-
-.btn-next {
-  background: linear-gradient(135deg, var(--jc-orange), #e63900);
-  color: white;
-  padding: 12px 32px;
-  box-shadow: var(--glow);
-  position: relative;
-}
-
-.btn-next::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: left 0.4s ease;
-}
-
-.btn-next:hover:not(:disabled)::before {
-  left: 100%;
-}
-
-.btn-next:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 77, 0, 0.4);
-}
-
-/* Results Panel */
-.results-panel {
-  background: white;
-  border-radius: 24px;
-  padding: 40px;
-  margin: 0 auto;
-  max-width: 800px;
-  box-shadow: var(--card-shadow);
-  position: relative;
-  z-index: 1;
-  display: none;
-}
-
-.results-panel.show {
-  display: block;
-  animation: slideIn 0.8s ease-out;
-}
-
-.results-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.final-score {
-  font-size: 4rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--jc-orange), #10b981);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: 1;
-  margin-bottom: 16px;
-}
-
-.score-label {
-  font-size: 1.2rem;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.priority-actions {
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 24px;
-  margin: 30px 0;
-}
-
-.priority-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--jc-ink);
-  margin-bottom: 16px;
-}
-
-.action-item {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  border-left: 4px solid var(--jc-orange);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.action-urgency {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-.urgency-critical { color: #dc2626; }
-.urgency-important { color: #d97706; }
-.urgency-suggested { color: #059669; }
-
-.results-cta {
-  text-align: center;
-  margin-top: 40px;
-}
-
-.cta-premium {
-  background: linear-gradient(135deg, var(--jc-orange), #e63900);
-  color: white;
-  padding: 16px 40px;
-  border-radius: 16px;
-  font-weight: 700;
-  font-size: 1.2rem;
-  text-decoration: none;
-  display: inline-block;
-  box-shadow: var(--glow);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.cta-premium::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.4s ease;
-}
-
-.cta-premium:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(255, 77, 0, 0.4);
-  text-decoration: none;
-  color: white;
-}
-
-.cta-premium:hover::before {
-  left: 100%;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .jc-strategy-builder {
-    padding: 20px 15px;
-  }
-  
-  .strategy-header {
-    margin-bottom: 30px;
-  }
-  
-  .smart-progress-container,
-  .question-card,
-  .results-panel {
-    padding: 25px 20px;
-    border-radius: 16px;
-  }
-  
-  .question-title {
-    font-size: 1.5rem;
-  }
-  
-  .answer-option {
-    padding: 16px 20px;
-  }
-  
-  .navigation {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-  }
-  
-  .nav-button {
-    width: 100%;
-  }
-  
-  .progress-insights {
-    flex-direction: column;
-  }
-  
-  .final-score {
-    font-size: 3rem;
-  }
+    .live-score-indicator {
+      position: relative;
+      top: auto;
+      right: auto;
+      margin: 10px auto;
+      display: block;
+      width: fit-content;
+    }
 }
 </style>
-
-<div class="jc-strategy-builder" id="strategyBuilder">
-  <!-- AI-Native Header -->
-  <div class="strategy-header">
-    <div class="ai-badge">
-      <span>🤖</span>
-      <span>AI Legal Intelligence</span>
-    </div>
-    <h1 class="strategy-title">Legal Strategy Builder</h1>
-    <p class="strategy-subtitle">Most businesses have 3-5 critical legal gaps they don't know about. Uncover yours and get a personalized protection roadmap in under 3 minutes</p>
-  </div>
-
-  <!-- Smart Progress System -->
-  <div class="smart-progress-container">
-    <div class="progress-header">
-      <div class="progress-title">Assessment Progress</div>
-      <div class="smart-score" id="currentScore">0/100</div>
-    </div>
-    <div class="progress-bar-container">
-      <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-    </div>
-    <div class="progress-insights" id="progressInsights">
-      <div class="insight-item">
-        <span>⏱️</span>
-        <span>2 min remaining</span>
+</head>
+<body>
+<div class="strategy-wrap" id="strategy-app">
+  <div class="jc-bar"></div>
+  
+  <!-- AI Enhancement: Subtle live score indicator -->
+  <div class="live-score-indicator" id="liveScore">Score: 0</div>
+ 
+  <!-- Hero Section -->
+  <section class="strategy-hero">
+    <div class="hero-badge">Free Legal Assessment</div>
+    <h1 class="hero-headline">Don't Guess What Legal Help You Need</h1>
+    <p class="hero-subhead">Get Your Custom Legal Roadmap in 5 Minutes</p>
+  </section>
+  <div class="what-box">
+    <h2>This Free Assessment Will Tell You:</h2>
+    <div class="what-list">
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">Your biggest legal vulnerabilities right now</span>
       </div>
-      <div class="insight-item">
-        <span>🎯</span>
-        <span>Precision recommendations</span>
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">Which legal protections you need first (and which can wait)</span>
+      </div>
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">Your Legal Foundation Score™ from 0-100</span>
+      </div>
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">A prioritized roadmap specific to your role and goals</span>
+      </div>
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">Next steps to protect your affairs</span>
       </div>
     </div>
   </div>
-
-  <!-- Dynamic Question Card -->
-  <div class="question-card" id="questionCard">
-    <div class="question-number" id="questionNumber">Question 1 of 8</div>
-    <h2 class="question-title" id="questionTitle">What's your business structure?</h2>
-    <p class="question-subtitle" id="questionSubtitle">This affects your liability protection and tax optimization opportunities</p>
-    
-    <!-- AI Recommendations will be injected here -->
-    <div class="ai-recommendations" id="aiRecommendations"></div>
-    
-    <div class="answer-options" id="answerOptions">
-      <!-- Options will be dynamically populated -->
+   
+    <div style="text-align:center">
+      <button class="btn btn-primary btn-large" onclick="startAssessment()">Start My Free Assessment →</button>
     </div>
-    
-    <div class="navigation">
-      <button class="nav-button btn-back" id="backButton" disabled onclick="goBack()">
-        ← Previous
-      </button>
-      <button class="nav-button btn-next" id="nextButton" disabled onclick="goNext()">
-        Next →
-      </button>
+  <!-- Assessment Container -->
+  <div class="assessment-container" id="assessment-section" style="display:none">
+    <!-- Progress Section -->
+    <div class="progress-section">
+      <span class="step-counter" id="step-counter">Question 1 of 8</span>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="progress-label" id="progress-label">Getting Started • 5 minutes remaining</div>
     </div>
+    <!-- Questions will be dynamically inserted here -->
   </div>
-
-  <!-- Results Panel -->
-  <div class="results-panel" id="resultsPanel">
-    <div class="results-header">
-      <div class="final-score" id="finalScore">0</div>
-      <div class="score-label">Legal Protection Score</div>
-    </div>
-    
-    <div class="priority-actions" id="priorityActions">
-      <h3 class="priority-title">Your Priority Actions</h3>
-      <!-- Actions will be populated by JS -->
-    </div>
-    
-    <div class="results-cta">
-      <a href="#" class="cta-premium" id="finalCTA" onclick="submitAssessment()">
-Get My Custom Legal Protection Plan
-      </a>
-    </div>
+  <!-- Email Gate -->
+  <div class="email-gate" id="email-gate" style="display:none">
+    <h3>Get Your Legal Roadmap</h3>
+    <p>Enter your email to see your score and receive your personalized strategy.</p>
+    <input type="email" class="email-input" id="email-input" placeholder="your@email.com" required>
+    <button class="btn btn-primary btn-large" onclick="submitEmail()">See My Results →</button>
   </div>
 </div>
-
 <script>
-// AI-Enhanced Assessment Engine
-class SmartLegalAssessment {
-  constructor() {
-    this.currentQuestion = 0;
-    this.answers = {};
-    this.score = 0;
-    this.timeStarted = Date.now();
-    
-    this.questions = [
-      {
-        id: 'business_structure',
-        title: 'What\'s your business structure?',
-        subtitle: 'This affects your liability protection and tax optimization opportunities',
-        options: [
-          {
-            id: 'sole_proprietorship',
-            title: 'Sole Proprietorship',
-            description: 'Just me, no formal structure',
-            impact: 'high',
-            impactText: 'High Risk',
-            points: 10
-          },
-          {
-            id: 'llc',
-            title: 'LLC',
-            description: 'Limited Liability Company',
-            impact: 'medium',
-            impactText: 'Good Protection',
-            points: 25
-          },
-          {
-            id: 'corp',
-            title: 'Corporation (S-Corp/C-Corp)',
-            description: 'Incorporated business entity',
-            impact: 'low',
-            impactText: 'Strong Protection',
-            points: 20
-          },
-          {
-            id: 'partnership',
-            title: 'Partnership',
-            description: 'Multiple owners, shared structure',
-            impact: 'medium',
-            impactText: 'Moderate Risk',
-            points: 15
-          }
-        ],
-        aiRecommendation: (answer) => {
-          if (answer === 'sole_proprietorship') {
-            return '🚨 Personal asset exposure detected. Your home, savings, and investments are at risk from business liabilities. This creates significant personal financial vulnerability.';
-          }
-          if (answer === 'partnership') {
-            return '⚠️ Partnership without proper structure can create unlimited personal liability. Consider LLC conversion.';
-          }
-          return '✅ Good foundation! Let\'s identify other protection gaps.';
-        }
-      },
-      
-      {
-        id: 'revenue_stage',
-        title: 'What\'s your annual revenue range?',
-        subtitle: 'Higher revenue creates more liability exposure and tax optimization opportunities',
-        options: [
-          {
-            id: 'startup',
-            title: 'Pre-revenue / Startup',
-            description: 'Still building, minimal income',
-            impact: 'low',
-            impactText: 'Lower Priority',
-            points: 5
-          },
-          {
-            id: 'small',
-            title: '$1 - $100K',
-            description: 'Getting started, growing slowly',
-            impact: 'low',
-            impactText: 'Foundation Stage',
-            points: 10
-          },
-          {
-            id: 'medium',
-            title: '$100K - $500K',
-            description: 'Solid business, real liability exposure',
-            impact: 'medium',
-            impactText: 'Protection Critical',
-            points: 15
-          },
-          {
-            id: 'large',
-            title: '$500K+',
-            description: 'Significant revenue, major exposure',
-            impact: 'high',
-            impactText: 'Maximum Protection',
-            points: 20
-          }
-        ],
-        aiRecommendation: (answer) => {
-          if (answer === 'large') {
-            return '💰 High-revenue business detected! You need comprehensive liability protection and tax optimization strategies immediately.';
-          }
-          if (answer === 'medium') {
-            return '📈 Your business is at the critical growth stage where proper legal structure becomes essential for protection.';
-          }
-          return '🌱 Perfect time to build proper legal foundations before you scale.';
-        }
-      },
-      
-      {
-        id: 'industry_risk',
-        title: 'What industry are you in?',
-        subtitle: 'Some industries have higher lawsuit risk and regulatory requirements',
-        options: [
-          {
-            id: 'tech',
-            title: 'Technology / Software',
-            description: 'Apps, SaaS, development',
-            impact: 'medium',
-            impactText: 'IP Protection Critical',
-            points: 12
-          },
-          {
-            id: 'healthcare',
-            title: 'Healthcare / Medical',
-            description: 'Medical services, health products',
-            impact: 'high',
-            impactText: 'High Liability Risk',
-            points: 20
-          },
-          {
-            id: 'consulting',
-            title: 'Professional Services',
-            description: 'Consulting, advisory, expertise',
-            impact: 'medium',
-            impactText: 'E&O Insurance Critical',
-            points: 15
-          },
-          {
-            id: 'ecommerce',
-            title: 'E-commerce / Retail',
-            description: 'Selling products online/offline',
-            impact: 'medium',
-            impactText: 'Product Liability',
-            points: 12
-          },
-          {
-            id: 'realestate',
-            title: 'Real Estate',
-            description: 'Property, development, investment',
-            impact: 'high',
-            impactText: 'Complex Liability',
-            points: 18
-          },
-          {
-            id: 'other',
-            title: 'Other',
-            description: 'Different industry',
-            impact: 'low',
-            impactText: 'Standard Risk',
-            points: 10
-          }
-        ],
-        aiRecommendation: (answer) => {
-          if (answer === 'healthcare') {
-            return '🏥 Healthcare businesses face extreme liability exposure. Malpractice protection and regulatory compliance are non-negotiable.';
-          }
-          if (answer === 'tech') {
-            return '💻 Tech businesses need strong IP protection. Your code, designs, and data are valuable assets that need legal shields.';
-          }
-          if (answer === 'realestate') {
-            return '🏠 Real estate has complex liability chains. Property ownership structures and investor protections are critical.';
-          }
-          return '✅ Your industry has manageable risk levels with proper basic protections in place.';
-        }
-      },
-      
-      {
-        id: 'employees',
-        title: 'How many people work for you?',
-        subtitle: 'More employees = more employment law requirements and liability exposure',
-        options: [
-          {
-            id: 'solo',
-            title: 'Just Me',
-            description: 'Solo entrepreneur',
-            impact: 'low',
-            impactText: 'Minimal HR Risk',
-            points: 5
-          },
-          {
-            id: 'small_team',
-            title: '2-5 People',
-            description: 'Small team or contractors',
-            impact: 'medium',
-            impactText: 'Basic HR Needs',
-            points: 10
-          },
-          {
-            id: 'medium_team',
-            title: '6-20 People',
-            description: 'Growing team',
-            impact: 'medium',
-            impactText: 'HR Compliance Critical',
-            points: 15
-          },
-          {
-            id: 'large_team',
-            title: '20+ People',
-            description: 'Established workforce',
-            impact: 'high',
-            impactText: 'Full HR Legal Suite',
-            points: 20
-          }
-        ],
-        aiRecommendation: (answer) => {
-          if (answer === 'large_team') {
-            return '👥 Large team detected! You need comprehensive employment agreements, HR policies, and employment law compliance systems.';
-          }
-          if (answer === 'medium_team') {
-            return '📋 Your team size triggers important employment law requirements. Proper documentation is now critical.';
-          }
-          if (answer === 'small_team') {
-            return '🤝 Small team stage is perfect for implementing proper contractor vs. employee classifications and basic agreements.';
-          }
-          return '🧑‍💼 Solo operation keeps things simple, but proper client agreements are still essential.';
-        }
-      },
-      
-      {
-        id: 'intellectual_property',
-        title: 'Do you have valuable intellectual property?',
-        subtitle: 'Trademarks, copyrights, trade secrets, or proprietary methods that competitors might steal',
-        options: [
-          {
-            id: 'none',
-            title: 'Not Really',
-            description: 'Basic business, no special IP',
-            impact: 'low',
-            impactText: 'Low Priority',
-            points: 2
-          },
-          {
-            id: 'brand',
-            title: 'Brand Name / Logo',
-            description: 'Recognizable brand identity',
-            impact: 'medium',
-            impactText: 'Trademark Protection',
-            points: 12
-          },
-          {
-            id: 'content',
-            title: 'Original Content / Courses',
-            description: 'Educational content, methodologies',
-            impact: 'medium',
-            impactText: 'Copyright Protection',
-            points: 10
-          },
-          {
-            id: 'tech',
-            title: 'Technology / Software',
-            description: 'Proprietary code, algorithms',
-            impact: 'high',
-            impactText: 'Patent/Trade Secret',
-            points: 18
-          },
-          {
-            id: 'comprehensive',
-            title: 'Multiple IP Assets',
-            description: 'Brand + content + proprietary methods',
-            impact: 'high',
-            impactText: 'Full IP Portfolio',
-            points: 22
-          }
-        ],
-        aiRecommendation: (answer) => {
-          if (answer === 'comprehensive' || answer === 'tech') {
-            return '🛡️ Significant IP assets detected! Unprotected intellectual property is like leaving money on the table for competitors to steal.';
-          }
-          if (answer === 'brand') {
-            return '®️ Your brand is valuable! Trademark protection prevents competitors from confusing your customers and stealing market share.';
-          }
-          if (answer === 'content') {
-            return '📚 Original content is intellectual property gold. Copyright protection stops copycats and preserves your competitive edge.';
-          }
-          return '✅ No major IP concerns, but watch for brand development opportunities as you grow.';
-        }
-      },
-      
-      {
-        id: 'contracts',
-        title: 'How do you handle client agreements?',
-        subtitle: 'Proper contracts prevent disputes and protect your business from scope creep and non-payment',
-        options: [
-          {
-            id: 'handshake',
-            title: 'Handshake Deals',
-            description: 'Verbal agreements, nothing formal',
-            impact: 'high',
-            impactText: 'Critical Risk',
-            points: 5
-          },
-          {
-            id: 'basic',
-            title: 'Basic Written Agreements',
-            description: 'Simple contracts, sometimes',
-            impact: 'medium',
-            impactText: 'Needs Improvement',
-            points: 10
-          },
-          {
-            id: 'template',
-            title: 'Template Contracts',
-            description: 'Downloaded templates, not customized',
-            impact: 'medium',
-            impactText: 'Better But Risky',
-            points: 12
-          },
-          {
-            id: 'attorney_drafted',
-            title: 'Attorney-Drafted Contracts',
-            description: 'Professional contracts for my business',
-            impact: 'low',
-            impactText: 'Excellent Protection',
-            points: 20
-          }
-        ],
-        aiRecommendation: (answer) => {
-          if (answer === 'handshake') {
-            return '🚨 Verbal agreements create major risk exposure. Without written contracts, you have limited legal recourse in disputes and collection issues.';
-          }
-          if (answer === 'template') {
-            return '⚠️ Generic templates can backfire badly. They often contain clauses that don\'t match your business or state laws.';
-          }
-          if (answer === 'basic') {
-            return '📄 Basic contracts are better than nothing, but professional agreements pay for themselves in the first dispute they prevent.';
-          }
-          return '✅ Excellent! Proper contracts are your first line of defense against client disputes and collection issues.';
-        }
-      },
-      
-      {
-        id: 'personal_assets',
-        title: 'What personal assets need protection?',
-        subtitle: 'Business liabilities can threaten your personal wealth without proper legal barriers',
-        options: [
-          {
-            id: 'minimal',
-            title: 'Minimal Assets',
-            description: 'Just getting started financially',
-            impact: 'low',
-            impactText: 'Basic Protection',
-            points: 5
-          },
-          {
-            id: 'home',
-            title: 'Primary Home',
-            description: 'Own my house, some savings',
-            impact: 'medium',
-            impactText: 'Asset Protection',
-            points: 10
-          },
-          {
-            id: 'investments',
-            title: 'Investment Portfolio',
-            description: 'Significant investments, retirement accounts',
-            impact: 'medium',
-            impactText: 'Wealth Protection',
-            points: 15
-          },
-          {
-            id: 'substantial',
-            title: 'Substantial Wealth',
-            description: 'Multiple properties, large investment portfolio',
-            impact: 'high',
-            impactText: 'Comprehensive Planning',
-            points: 20
-          }
-        ],
-        aiRecommendation: (answer) => {
-          if (answer === 'substantial') {
-            return '💰 High net worth requires sophisticated asset protection strategies. Trusts, LLCs, and estate planning are essential.';
-          }
-          if (answer === 'investments') {
-            return '📊 Investment portfolios need liability shields. Business lawsuits can reach personal investment accounts without proper barriers.';
-          }
-          if (answer === 'home') {
-            return '🏠 Your home is probably your largest asset. Proper business structure protects it from business liabilities.';
-          }
-          return '🌱 Great time to build wealth protection systems before you accumulate more assets.';
-        }
-      },
-      
-      {
-        id: 'urgency',
-        title: 'What\'s your timeline for legal protection?',
-        subtitle: 'How quickly do you want to address your legal vulnerabilities?',
-        options: [
-          {
-            id: 'immediate',
-            title: 'Immediate (This Week)',
-            description: 'I need protection right now',
-            impact: 'high',
-            impactText: 'Priority Client',
-            points: 15
-          },
-          {
-            id: 'soon',
-            title: 'Within a Month',
-            description: 'Important, but not urgent',
-            impact: 'medium',
-            impactText: 'Normal Timeline',
-            points: 10
-          },
-          {
-            id: 'eventually',
-            title: 'Next 3-6 Months',
-            description: 'Planning ahead, no rush',
-            impact: 'low',
-            impactText: 'Future Planning',
-            points: 5
-          },
-          {
-            id: 'research',
-            title: 'Just Researching',
-            description: 'Learning about options',
-            impact: 'low',
-            impactText: 'Education Stage',
-            points: 2
-          }
-        ],
-        aiRecommendation: (answer) => {
-          if (answer === 'immediate') {
-            return '🚨 Immediate timeline suggests real risk exposure. Smart to prioritize legal protection before problems arise!';
-          }
-          if (answer === 'soon') {
-            return '⏰ Excellent timing! Proactive legal planning prevents expensive problems and gives you peace of mind.';
-          }
-          return '🤔 Good to plan ahead! Building legal foundations early is always more cost-effective than fixing problems later.';
-        }
-      }
-    ];
-    
-    this.init();
+const BACKEND_BASE = 'https://estate-intake-system.onrender.com';
+
+// Your original assessment questions - preserved exactly
+const assessmentQuestions = [
+  {
+    badge: "Strategic Foundation",
+    title: "What best describes your primary role?",
+    subtitle: "This helps us understand your unique legal needs and tailor our recommendations to your specific industry and situation.",
+    type: "single",
+    options: [
+      { value: "founder", icon: "🚀", title: "Founder/Entrepreneur", description: "Building a company, leading a startup, or launching new ventures" },
+      { value: "athlete", icon: "🏆", title: "Professional/Student Athlete", description: "Competing professionally, managing NIL deals, or building an athletic brand" },
+      { value: "creator", icon: "🎨", title: "Content Creator/Influencer", description: "Creating content, building audience, managing brand partnerships" },
+      { value: "professional", icon: "💼", title: "Working Professional", description: "Employed professional focused on personal wealth and asset protection" },
+      { value: "business-owner", icon: "🏪", title: "Business Owner", description: "Running an established business, agency, or service company" },
+      { value: "investor", icon: "🏢", title: "Real Estate/Investor", description: "Managing investments, real estate portfolio, or family wealth" }
+    ]
+  },
+  {
+    badge: "Current Stage",
+    title: "Where are you in your journey?",
+    subtitle: "Understanding your current stage helps us prioritize immediate needs versus long-term planning.",
+    type: "single",
+    options: [
+      { value: "idea", icon: "💡", title: "Planning/Early Stage", description: "Developing concepts, just starting out, or in early stages" },
+      { value: "active", icon: "⚡", title: "Active/Building", description: "Actively working, creating, or establishing operations" },
+      { value: "growth", icon: "📈", title: "Growth/Scaling", description: "Generating consistent income and looking to expand" },
+      { value: "established", icon: "🏛️", title: "Established/Optimizing", description: "Well-established with focus on protection and optimization" }
+    ]
+  },
+  {
+    badge: "Legal Structure",
+    title: "How are your activities currently structured?",
+    subtitle: "Your legal entity structure affects everything from taxes to liability protection.",
+    type: "single",
+    options: [
+      { value: "none", icon: "👤", title: "No Formal Structure", description: "Operating under personal name without a business entity" },
+      { value: "llc", icon: "🏢", title: "LLC", description: "Limited Liability Company for business or asset protection" },
+      { value: "corp", icon: "🏛️", title: "Corporation", description: "C-Corp or S-Corp structure" },
+      { value: "multiple", icon: "🔄", title: "Multiple Entities", description: "Complex structure with multiple companies or trusts" },
+      { value: "unsure", icon: "❓", title: "Unsure/Other", description: "Not certain about current structure or partnership arrangement" }
+    ]
+  },
+  {
+    badge: "Intellectual Property",
+    title: "How protected are your creative works and brand?",
+    subtitle: "Your ideas, content, and brand identity are valuable assets that need proper protection.",
+    type: "single",
+    options: [
+      { value: "none", icon: "🔓", title: "No Protection", description: "Haven't filed any IP protections or registrations" },
+      { value: "basic", icon: "🔒", title: "Basic Protection", description: "Some copyrights or basic trademark filings" },
+      { value: "moderate", icon: "🛡️", title: "Moderate Protection", description: "Key assets protected with formal registrations" },
+      { value: "comprehensive", icon: "⚔️", title: "Comprehensive Strategy", description: "Full IP portfolio with active management and enforcement" }
+    ]
+  },
+  {
+    badge: "Contract Management",
+    title: "How do you handle agreements and deals?",
+    subtitle: "Proper documentation protects your interests in every business relationship.",
+    type: "single",
+    options: [
+      { value: "informal", icon: "🤝", title: "Informal/Verbal", description: "Mostly handshake deals or email confirmations" },
+      { value: "templates", icon: "📄", title: "Basic Templates", description: "Using online templates or simple written agreements" },
+      { value: "standard", icon: "📋", title: "Standard Contracts", description: "Consistent use of proper legal documents" },
+      { value: "professional", icon: "⚖️", title: "Attorney-Reviewed", description: "All significant agreements reviewed by legal counsel" }
+    ]
+  },
+  {
+    badge: "Financial Position",
+    title: "What's your current revenue or asset level?",
+    subtitle: "Your financial position determines the complexity of legal strategies needed.",
+    type: "single",
+    options: [
+      { value: "starting", icon: "🌱", title: "Getting Started", description: "Under $50K in annual revenue or assets" },
+      { value: "moderate", icon: "🌿", title: "Building Momentum", description: "$50K - $250K annually" },
+      { value: "strong", icon: "🌳", title: "Strong Position", description: "$250K - $1M annually" },
+      { value: "substantial", icon: "🏔️", title: "Substantial Wealth", description: "Over $1M in revenue or assets" }
+    ]
+  },
+  {
+    badge: "Risk Concerns",
+    title: "What keeps you up at night legally?",
+    subtitle: "Select all areas where you feel vulnerable or concerned about potential legal issues.",
+    type: "multiple",
+    options: [
+      { value: "liability", icon: "🛡️", title: "Personal Asset Protection", description: "Protecting wealth from lawsuits or claims" },
+      { value: "ip", icon: "💡", title: "IP Theft", description: "Someone stealing ideas or content" },
+      { value: "contracts", icon: "📝", title: "Bad Deals", description: "Getting locked into unfavorable agreements" },
+      { value: "compliance", icon: "⚖️", title: "Legal Compliance", description: "Breaking rules without knowing it" },
+      { value: "tax", icon: "💰", title: "Tax Issues", description: "Paying too much or missing obligations" },
+      { value: "estate", icon: "🏛️", title: "Legacy Planning", description: "What happens to assets if something happens to you" }
+    ]
+  },
+  {
+    badge: "Strategic Goals",
+    title: "What's your primary objective for the next 12 months?",
+    subtitle: "Aligning legal strategy with your business goals ensures maximum impact.",
+    type: "single",
+    options: [
+      { value: "protect", icon: "🔒", title: "Protect & Secure", description: "Lock down foundations and minimize risk" },
+      { value: "scale", icon: "🚀", title: "Scale & Grow", description: "Expand operations and increase revenue" },
+      { value: "fundraise", icon: "💎", title: "Raise Capital", description: "Prepare for investors or major funding" },
+      { value: "optimize", icon: "⚡", title: "Optimize & Refine", description: "Improve efficiency and reduce costs" },
+      { value: "exit", icon: "🎯", title: "Plan Exit/Transition", description: "Prepare for sale, succession, or major change" }
+    ]
   }
-  
-  init() {
-    this.displayQuestion();
-    this.updateProgress();
-  }
-  
-  displayQuestion() {
-    const question = this.questions[this.currentQuestion];
-    const card = document.getElementById('questionCard');
-    
-    // Animate out
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    
-    setTimeout(() => {
-      document.getElementById('questionNumber').textContent = `Question ${this.currentQuestion + 1} of ${this.questions.length}`;
-      document.getElementById('questionTitle').textContent = question.title;
-      document.getElementById('questionSubtitle').textContent = question.subtitle;
-      
-      const optionsContainer = document.getElementById('answerOptions');
-      optionsContainer.innerHTML = '';
-      
-      question.options.forEach(option => {
-        const optionElement = document.createElement('div');
-        optionElement.className = 'answer-option';
-        optionElement.onclick = () => this.selectAnswer(option.id, option.points);
-        
-        optionElement.innerHTML = `
-          <div class="option-title">${option.title}</div>
-          <div class="option-description">${option.description}</div>
-          <div class="option-impact impact-${option.impact}">${option.impactText}</div>
-        `;
-        
-        optionsContainer.appendChild(optionElement);
-      });
-      
-      // Update navigation
-      document.getElementById('backButton').disabled = this.currentQuestion === 0;
-      document.getElementById('nextButton').disabled = true;
-      
-      // Hide AI recommendations initially
-      document.getElementById('aiRecommendations').classList.remove('show');
-      
-      // Animate in
-      card.style.opacity = '1';
-      card.style.transform = 'translateY(0)';
-    }, 300);
-  }
-  
-  selectAnswer(answerId, points) {
-    const question = this.questions[this.currentQuestion];
-    this.answers[question.id] = answerId;
-    
-    // Update score
-    this.score += points;
-    
-    // Visual feedback
-    document.querySelectorAll('.answer-option').forEach(opt => {
-      opt.classList.remove('selected');
-    });
-    event.target.closest('.answer-option').classList.add('selected');
-    
-    // Show AI recommendation
-    const recommendation = question.aiRecommendation(answerId);
-    const aiPanel = document.getElementById('aiRecommendations');
-    aiPanel.innerHTML = `
-      <div class="ai-rec-title">
-        <span>🤖</span>
-        <span>AI Risk Analysis</span>
+];
+
+let currentQuestion = 0;
+let answers = {};
+let userEmail = '';
+
+function startAssessment() {
+  document.getElementById('assessment-section').style.display = 'block';
+ 
+  // Hide all intro content more aggressively
+  const heroSection = document.querySelector('.strategy-hero');
+  const whatBox = document.querySelector('.what-box');
+  const buttonDiv = whatBox.nextElementSibling; // The div right after whatBox
+ 
+  if (heroSection) heroSection.style.display = 'none';
+  if (whatBox) whatBox.style.display = 'none';
+  if (buttonDiv) buttonDiv.style.display = 'none';
+ 
+  // Also hide any remaining button elements
+  const allButtons = document.querySelectorAll('button');
+  allButtons.forEach(btn => {
+    if (btn.textContent.includes('Start My Free Assessment')) {
+      btn.parentElement.style.display = 'none';
+    }
+  });
+
+  // Show live score indicator
+  document.getElementById('liveScore').classList.add('visible');
+ 
+  renderQuestion(0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestion(index) {
+  const question = assessmentQuestions[index];
+  const container = document.getElementById('assessment-section');
+ 
+  document.getElementById('step-counter').textContent = `Question ${index + 1} of 8`;
+  document.getElementById('progress-bar').style.width = `${((index + 1) / 8) * 100}%`;
+ 
+  const timeRemaining = Math.max(1, 5 - Math.floor(index * 0.6));
+  const progressLabels = [
+    "Getting Started",
+    "Building Your Profile",
+    "Understanding Your Structure",
+    "Assessing Protection",
+    "Evaluating Processes",
+    "Financial Analysis",
+    "Risk Assessment",
+    "Final Step"
+  ];
+  document.getElementById('progress-label').textContent = `${progressLabels[index]} • ${timeRemaining} minutes remaining`;
+
+  const questionHTML = `
+    <div class="question-section active" data-question="${index + 1}">
+      <div class="question-card">
+        <div class="question-header">
+          <div class="question-badge">${question.badge}</div>
+          <h2 class="question-title">${question.title}</h2>
+          <p class="question-subtitle">${question.subtitle}</p>
+        </div>
+        <div class="options-grid">
+          ${question.options.map(opt => `
+            <div class="option-card" data-value="${opt.value}" onclick="selectOption(this, ${question.type === 'multiple'})">
+              <div class="option-selector ${question.type === 'multiple' ? 'checkbox' : ''}"></div>
+              <div class="option-content">
+                <div class="option-title">${opt.icon} ${opt.title}</div>
+                <div class="option-description">${opt.description}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
       </div>
-      <div class="ai-rec-content">${recommendation}</div>
-    `;
-    aiPanel.classList.add('show');
-    
-    // Enable next button
-    document.getElementById('nextButton').disabled = false;
-    
-    // Update progress
-    this.updateProgress();
-    
-    // Auto-advance after 2 seconds for better flow
-    setTimeout(() => {
-      if (this.currentQuestion < this.questions.length - 1) {
-        this.goNext();
-      } else {
-        this.showResults();
-      }
-    }, 2000);
+      <div class="nav-section">
+        <button class="btn btn-secondary" onclick="previousQuestion()" ${index === 0 ? 'style="visibility:hidden"' : ''}>← Back</button>
+        <button class="btn btn-primary" onclick="nextQuestion()" ${question.type === 'single' ? 'disabled' : ''}>${index === 7 ? 'Get My Roadmap →' : 'Continue →'}</button>
+      </div>
+    </div>
+  `;
+
+  const existingQuestion = container.querySelector('.question-section');
+  if (existingQuestion) {
+    existingQuestion.remove();
   }
-  
-  updateProgress() {
-    const progress = ((this.currentQuestion + (this.currentQuestion < this.questions.length ? 0.5 : 1)) / this.questions.length) * 100;
-    const progressBar = document.getElementById('progressBar');
-    const scoreDisplay = document.getElementById('currentScore');
-    
-    progressBar.style.width = `${progress}%`;
-    scoreDisplay.textContent = `${this.score}/100`;
-    scoreDisplay.classList.add('animate');
-    
-    setTimeout(() => {
-      scoreDisplay.classList.remove('animate');
-    }, 500);
-    
-    // Update time estimate
-    const timeElapsed = (Date.now() - this.timeStarted) / 1000;
-    const timePerQuestion = timeElapsed / (this.currentQuestion + 1);
-    const remainingTime = Math.max(0, Math.ceil((this.questions.length - this.currentQuestion - 1) * timePerQuestion / 60));
-    
-    const insights = document.getElementById('progressInsights');
-    insights.innerHTML = `
-      <div class="insight-item">
-        <span>⏱️</span>
-        <span>${remainingTime} min remaining</span>
-      </div>
-      <div class="insight-item">
-        <span>🎯</span>
-        <span>AI analysis active</span>
-      </div>
-      <div class="insight-item">
-        <span>🛡️</span>
-        <span>${this.score} protection points</span>
-      </div>
-    `;
+  container.insertAdjacentHTML('beforeend', questionHTML);
+}
+
+function selectOption(element, isMultiple) {
+  const questionCard = element.closest('.question-card');
+  const questionSection = element.closest('.question-section');
+  const questionIndex = parseInt(questionSection.dataset.question) - 1;
+ 
+  if (isMultiple) {
+    element.classList.toggle('selected');
+  } else {
+    questionCard.querySelectorAll('.option-card').forEach(opt => opt.classList.remove('selected'));
+    element.classList.add('selected');
   }
-  
-  goNext() {
-    if (this.currentQuestion < this.questions.length - 1) {
-      this.currentQuestion++;
-      this.displayQuestion();
-      this.updateProgress();
+
+  if (isMultiple) {
+    const selected = Array.from(questionCard.querySelectorAll('.option-card.selected'))
+      .map(opt => opt.dataset.value);
+    answers[`q${questionIndex + 1}`] = selected;
+  } else {
+    answers[`q${questionIndex + 1}`] = element.dataset.value;
+  }
+
+  // Fix: Use more specific selector within the current question section
+  const continueBtn = questionSection.querySelector('.nav-section .btn.btn-primary');
+  if (continueBtn) {
+    if (isMultiple) {
+      continueBtn.disabled = questionCard.querySelectorAll('.option-card.selected').length === 0;
     } else {
-      this.showResults();
+      continueBtn.disabled = false;
     }
   }
-  
-  goBack() {
-    if (this.currentQuestion > 0) {
-      // Remove the score from the previous question
-      const prevQuestion = this.questions[this.currentQuestion];
-      const prevAnswer = this.answers[prevQuestion.id];
-      if (prevAnswer) {
-        const prevPoints = prevQuestion.options.find(opt => opt.id === prevAnswer)?.points || 0;
-        this.score -= prevPoints;
-        delete this.answers[prevQuestion.id];
-      }
-      
-      this.currentQuestion--;
-      this.displayQuestion();
-      this.updateProgress();
-    }
+
+  // AI Enhancement: Update live score
+  updateLiveScore();
+}
+
+// AI Enhancement: Real-time score calculation
+function updateLiveScore() {
+  const currentScore = calculateScore();
+  const liveScoreElement = document.getElementById('liveScore');
+  liveScoreElement.textContent = `Score: ${currentScore}`;
+}
+
+function nextQuestion() {
+  if (currentQuestion < 7) {
+    currentQuestion++;
+    renderQuestion(currentQuestion);
+  } else {
+    showEmailGate();
   }
-  
-  showResults() {
-    // Hide question card
-    document.getElementById('questionCard').style.display = 'none';
-    
-    // Show results
-    const resultsPanel = document.getElementById('resultsPanel');
-    document.getElementById('finalScore').textContent = this.score;
-    
-    // Generate priority actions based on answers
-    this.generatePriorityActions();
-    
-    resultsPanel.classList.add('show');
-    
-    // Update progress to 100%
-    document.getElementById('progressBar').style.width = '100%';
+}
+
+function previousQuestion() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    renderQuestion(currentQuestion);
   }
-  
-  generatePriorityActions() {
-    const actions = [];
-    
-    // Business structure priority
-    if (this.answers.business_structure === 'sole_proprietorship') {
-      actions.push({
-        urgency: 'critical',
-        title: 'Convert to LLC Immediately',
-        description: 'Your personal assets are completely exposed. LLC formation is your highest priority.',
-        timeframe: 'This week'
-      });
-    }
-    
-    // Contracts priority
-    if (this.answers.contracts === 'handshake' || this.answers.contracts === 'basic') {
-      actions.push({
-        urgency: 'critical',
-        title: 'Implement Professional Contracts',
-        description: 'Prevent client disputes and collection issues with attorney-drafted agreements.',
-        timeframe: '2-3 weeks'
-      });
-    }
-    
-    // IP protection
-    if ((this.answers.intellectual_property === 'brand' || this.answers.intellectual_property === 'comprehensive') && this.score >= 60) {
-      actions.push({
-        urgency: 'important',
-        title: 'Trademark Registration',
-        description: 'Protect your brand before competitors file similar marks.',
-        timeframe: '1 month'
-      });
-    }
-    
-    // High revenue protections
-    if (this.answers.revenue_stage === 'large' || this.answers.revenue_stage === 'medium') {
-      actions.push({
-        urgency: 'important',
-        title: 'Comprehensive Liability Protection',
-        description: 'Multi-layered protection strategies for high-revenue businesses.',
-        timeframe: '2-4 weeks'
-      });
-    }
-    
-    // Asset protection for wealthy individuals
-    if (this.answers.personal_assets === 'substantial' || this.answers.personal_assets === 'investments') {
-      actions.push({
-        urgency: 'important',
-        title: 'Asset Protection Planning',
-        description: 'Trust structures and advanced strategies to shield personal wealth.',
-        timeframe: '1-2 months'
-      });
-    }
-    
-    // Employment law for larger teams
-    if (this.answers.employees === 'large_team' || this.answers.employees === 'medium_team') {
-      actions.push({
-        urgency: 'suggested',
-        title: 'Employment Law Compliance',
-        description: 'HR policies, handbooks, and employment agreements.',
-        timeframe: '1 month'
-      });
-    }
-    
-    // Default action if score is low
-    if (actions.length === 0) {
-      actions.push({
-        urgency: 'suggested',
-        title: 'Legal Foundation Package',
-        description: 'Basic protections to build a strong legal foundation as you grow.',
-        timeframe: '2-3 weeks'
-      });
-    }
-    
-    // Render actions
-    const container = document.getElementById('priorityActions');
-    const actionsHtml = actions.map(action => `
-      <div class="action-item">
-        <div class="action-urgency urgency-${action.urgency}">${action.urgency}</div>
-        <strong>${action.title}</strong>
-        <p>${action.description}</p>
-        <small>Recommended timeframe: ${action.timeframe}</small>
-      </div>
-    `).join('');
-    
-    container.innerHTML = `
-      <h3 class="priority-title">Your Priority Actions</h3>
-      ${actionsHtml}
-    `;
+}
+
+function showEmailGate() {
+  document.getElementById('assessment-section').style.display = 'none';
+  document.getElementById('email-gate').style.display = 'block';
+  document.getElementById('liveScore').classList.remove('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+ 
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'assessment_completed', {
+      event_category: 'Legal Strategy Builder',
+      event_label: 'Assessment Completed'
+    });
   }
-  
-  submitAssessment() {
-    const assessmentData = {
-      email: 'temp@example.com', // Will be collected in next step
-      assessmentScore: this.score,
-      answers: this.answers,
+}
+
+async function submitEmail() {
+  const emailInput = document.getElementById('email-input');
+  const email = emailInput.value.trim();
+ 
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid email address');
+    return;
+  }
+ 
+  userEmail = email;
+  const score = calculateScore(); // Calculate score here for submission
+ 
+  try {
+    const submissionData = {
+      email: email,
+      firstName: email.split('@')[0],
       submissionType: 'legal-strategy-builder',
-      source: 'legal-strategy-builder-enhanced',
-      fromAssessment: 'true',
-      timeCompleted: Date.now() - this.timeStarted
+      source: 'legal-strategy-builder',
+      answers: answers,
+      q1: answers.q1,
+      q2: answers.q2,
+      q3: answers.q3,
+      q4: answers.q4,
+      q5: answers.q5,
+      q6: answers.q6,
+      q7: answers.q7,
+      q8: answers.q8,
+      assessmentScore: score, // Add this line
+      submissionId: `strategy-${Date.now()}`,
+      timestamp: new Date().toISOString()
     };
-    
-    // Store results for email collection
-    sessionStorage.setItem('assessmentResults', JSON.stringify(assessmentData));
-    
-    // Redirect to email collection page (you'll need to create this)
-    window.location.href = 'https://www.jacobscounsellaw.com/get-results?score=' + this.score;
+
+    console.log('Submitting strategy builder data:', submissionData);
+    const response = await fetch(`${BACKEND_BASE}/legal-strategy-builder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(submissionData)
+    });
+
+    if (response.ok) {
+      console.log('✅ Successfully submitted to backend');
+    } else {
+      console.error('❌ Backend submission failed:', await response.text());
+    }
+  } catch (error) {
+    console.error('❌ Backend submission error:', error);
   }
+ 
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'email_submitted', {
+      event_category: 'Legal Strategy Builder',
+      event_label: 'Email Submitted'
+    });
+  }
+ 
+  saveAssessmentData();
+  showResults();
 }
 
-// Initialize when DOM loads
-document.addEventListener('DOMContentLoaded', function() {
-  window.assessment = new SmartLegalAssessment();
-});
-
-// Global navigation functions for button onclick
-function goNext() {
-  window.assessment.goNext();
+function calculateScore() {
+  let score = 0;
+  const weights = {
+    structure: { none: 0, unsure: 5, llc: 15, corp: 20, multiple: 25 },
+    ip: { none: 0, basic: 10, moderate: 20, comprehensive: 30 },
+    contracts: { informal: 0, templates: 8, standard: 15, professional: 25 },
+    revenue: { starting: 5, moderate: 10, strong: 15, substantial: 20 }
+  };
+ 
+  score += weights.structure[answers.q3] || 0;
+  score += weights.ip[answers.q4] || 0;
+  score += weights.contracts[answers.q5] || 0;
+  score += weights.revenue[answers.q6] || 0;
+ 
+  if (answers.q7) score += Math.min(answers.q7.length * 3, 15);
+ 
+  return Math.min(100, Math.round(score * 1.1));
 }
 
-function goBack() {
-  window.assessment.goBack();
+function generateRecommendations() {
+  const recommendations = [];
+  const role = answers.q1;
+  const stage = answers.q2;
+  const structure = answers.q3;
+  const ip = answers.q4;
+  const contracts = answers.q5;
+  const risks = answers.q7 || [];
+  const goal = answers.q8;
+
+  if (structure === 'none' || structure === 'unsure') {
+    recommendations.push({
+      priority: 'high',
+      icon: '🏢',
+      title: 'Business Entity Formation',
+      description: 'Establish the right legal entity (LLC, Corporation) to protect personal assets and optimize taxes for your specific situation.'
+    });
+  }
+
+  if ((role === 'creator' || role === 'athlete' || role === 'founder') && (ip === 'none' || ip === 'basic')) {
+    recommendations.push({
+      priority: 'high',
+      icon: '™️',
+      title: 'Brand & IP Protection Strategy',
+      description: 'Secure trademarks, copyrights, and establish ownership of your creative works and brand identity to prevent theft and maximize value.'
+    });
+  }
+
+  if (contracts === 'informal' || contracts === 'templates') {
+    recommendations.push({
+      priority: 'medium',
+      icon: '📝',
+      title: 'Professional Agreement System',
+      description: 'Develop attorney-reviewed contracts tailored to your specific business needs and industry to protect your interests in every deal.'
+    });
+  }
+
+  if (risks.includes('liability')) {
+    recommendations.push({
+      priority: 'high',
+      icon: '🛡️',
+      title: 'Asset Protection Planning',
+      description: 'Implement advanced strategies to shield personal wealth from potential lawsuits and claims while maintaining operational flexibility.'
+    });
+  }
+
+  if (risks.includes('estate')) {
+    recommendations.push({
+      priority: 'medium',
+      icon: '🏛️',
+      title: 'Estate & Succession Planning',
+      description: 'Create comprehensive plans for wealth transfer and business continuity to protect your family and legacy.'
+    });
+  }
+
+  if (goal === 'fundraise') {
+    recommendations.push({
+      priority: 'high',
+      icon: '💎',
+      title: 'Investment Readiness Package',
+      description: 'Prepare all legal documentation and structures required for fundraising, including clean cap tables and investor-friendly terms.'
+    });
+  }
+
+  if (goal === 'scale' && stage !== 'established') {
+    recommendations.push({
+      priority: 'medium',
+      icon: '📈',
+      title: 'Scalable Legal Infrastructure',
+      description: 'Build systems and processes that can grow with your business without constant legal intervention or restructuring.'
+    });
+  }
+
+  if (risks.includes('tax')) {
+    recommendations.push({
+      priority: 'medium',
+      icon: '💰',
+      title: 'Tax Structure Optimization',
+      description: 'Review and optimize your legal structure for maximum tax efficiency and compliance while supporting your growth objectives.'
+    });
+  }
+
+  if (risks.includes('compliance') || recommendations.length < 4) {
+    recommendations.push({
+      priority: 'low',
+      icon: '✅',
+      title: 'Legal Compliance Audit',
+      description: 'Comprehensive review to ensure all legal requirements are met for your industry and identify potential compliance gaps.'
+    });
+  }
+
+  return recommendations.slice(0, 5);
 }
 
-function submitAssessment() {
-  window.assessment.submitAssessment();
+function generateSmartNextStep(answers, score) {
+  let stepTitle = 'Complete Your Legal Assessment';
+  let stepDescription = 'Get personalized legal recommendations';
+  let stepUrl = '/business-protection';
+  let stepUrgency = 'Typical turnaround: 2-3 weeks';
+
+  if (answers.q3 === 'none' || answers.q3 === 'unsure') {
+    if (answers.q8 === 'fundraise') {
+      stepTitle = 'Get VC-Ready Legal Structure';
+      stepDescription = 'Set up your Delaware C-Corp for fundraising';
+      stepUrl = '/business-protection?focus=vc';
+      stepUrgency = '🚨 Urgent: 87% of VC rejections happen during legal review';
+    } else {
+      stepTitle = 'Start Your Business Formation';
+      stepDescription = 'Get your LLC or Corporation set up to protect your personal assets';
+      stepUrl = '/business-protection';
+      stepUrgency = score >= 70 ? '🔥 Priority setup available' : 'Typical turnaround: 2-3 weeks';
+    }
+  } else if ((answers.q4 === 'none' || answers.q4 === 'basic') && (answers.q3 !== 'none' && answers.q3 !== 'unsure')) {
+    if (answers.q1 === 'athlete') {
+      stepTitle = 'Protect Your Athletic Brand';
+      stepDescription = 'Trademark your name and secure your NIL value';
+      stepUrl = '/brand-protection?focus=athlete';
+      stepUrgency = '⚡ Athletes: Protect your brand before someone else claims it';
+    } else if (answers.q1 === 'creator') {
+      stepTitle = 'Secure Your Creator Brand';
+      stepDescription = 'Lock down trademark protection for your content brand';
+      stepUrl = '/brand-protection?focus=creator';
+      stepUrgency = '🎨 Creators: Your brand IS your business - protect it legally';
+    } else if (answers.q1 === 'founder') {
+      stepTitle = 'Protect Your Startup Brand';
+      stepDescription = 'Secure trademark protection for your company and products';
+      stepUrl = '/brand-protection?focus=startup';
+      stepUrgency = '🚀 Startups: Lock down your brand before competitors copy you';
+    } else {
+      stepTitle = 'Protect Your Brand Identity';
+      stepDescription = 'Secure trademark protection before competitors steal your identity';
+      stepUrl = '/brand-protection';
+      stepUrgency = score >= 70 ? '🔥 Priority trademark filing' : 'Standard processing: 4-6 weeks';
+    }
+  } else if (answers.q7?.includes('estate') || answers.q6 === 'substantial') {
+    if (answers.q1 === 'athlete') {
+      stepTitle = 'Plan Your Athletic Wealth Strategy';
+      stepDescription = 'Protect your NIL earnings and athletic career wealth';
+      stepUrl = '/wealth-protection?focus=athlete';
+      stepUrgency = '🏆 Athletes: Plan for career transitions and wealth protection';
+    } else {
+      stepTitle = 'Plan Your Wealth Protection Strategy';
+      stepDescription = 'Create a comprehensive estate plan to protect your assets and family';
+      stepUrl = '/wealth-protection';
+      stepUrgency = answers.q6 === 'substantial' ? '💰 High net worth: Advanced strategies available' : '🛡️ Essential planning for asset protection';
+    }
+  } else if (answers.q2 === 'established' && (answers.q8 === 'scale' || answers.q8 === 'exit')) {
+    stepTitle = 'Get Ongoing Legal Support';
+    stepDescription = 'Access comprehensive legal counsel for your established business';
+    stepUrl = '/outside-counsel';
+    stepUrgency = '🏢 Established businesses: Proactive legal prevents expensive problems';
+  } else {
+    stepTitle = 'Optimize Your Legal Strategy';
+    stepDescription = 'Get ongoing legal counsel to maximize your protection and growth';
+    stepUrl = '/outside-counsel';
+    stepUrgency = '⚡ Strong foundation: Time to optimize and scale';
+  }
+
+  return `
+    <div class="smart-next-step" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 28px 24px; border-radius: 16px; margin: 28px 0; border: 3px solid #22c55e; text-align: center;">
+      <h3 style="margin: 0 0 16px; font-size: 28px; color: #166534; font-weight: 800;">Your Next Step</h3>
+      <h4 style="margin: 0 0 10px; font-size: 24px; color: #15803d; font-weight: 700;">${stepTitle}</h4>
+      <p style="margin: 0 0 8px; font-size: 18px; color: #166534; line-height: 1.5;">${stepDescription}</p>
+      <p class="urgency" style="margin: 0 0 20px; font-size: 16px; color: #15803d; font-weight: 600;">${stepUrgency}</p>
+     
+      <a href="${stepUrl}?from=assessment&role=${answers.q1}"
+         class="btn-next"
+         style="background: linear-gradient(135deg, #22c55e, #16a34a);
+                color: white;
+                padding: 16px 32px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-weight: 700;
+                font-size: 19px;
+                display: inline-block;
+                box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+                margin: 0 0 16px;">
+        Complete Your Intake Now →
+      </a>
+     
+      <div style="margin: 12px 0 0;">
+        <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm"
+           class="alt-link"
+           style="color: #166534; text-decoration: none; font-size: 17px; font-weight: 500;">
+          Or book a strategy call first →
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+function saveAssessmentData() {
+  const assessmentData = {
+    email: userEmail,
+    answers: answers,
+    score: calculateScore(),
+    timestamp: new Date().toISOString(),
+    role: answers.q1,
+    stage: answers.q2,
+    structure: answers.q3,
+    ip: answers.q4
+  };
+ 
+  localStorage.setItem('legal-assessment-data', JSON.stringify(assessmentData));
+  console.log('💾 Saved assessment data:', assessmentData);
+}
+
+function showResults() {
+  const score = calculateScore();
+  const recommendations = generateRecommendations();
+  const role = answers.q1;
+ 
+  const roleData = {
+    founder: { icon: '🚀', title: 'Founder Legal Roadmap' },
+    athlete: { icon: '🏆', title: 'Athlete Protection Strategy' },
+    creator: { icon: '🎨', title: 'Creator Legal Framework' },
+    professional: { icon: '💼', title: 'Professional Asset Plan' },
+    'business-owner': { icon: '🏪', title: 'Business Legal Strategy' },
+    investor: { icon: '🏢', title: 'Investment Protection Plan' }
+  };
+
+  let scoreDescription = '';
+  if (score >= 80) scoreDescription = 'Excellent foundation with minor optimization opportunities';
+  else if (score >= 60) scoreDescription = 'Good foundation with key areas for improvement';
+  else if (score >= 40) scoreDescription = 'Developing foundation with important gaps to address';
+  else scoreDescription = 'Early stage - significant opportunities to strengthen legal position';
+
+  const resultsHTML = `
+    <div class="results-container">
+      <div class="results-header">
+        <div class="results-icon">${roleData[role]?.icon || '📊'}</div>
+        <h2 class="results-title">${roleData[role]?.title || 'Your Legal Roadmap'}</h2>
+        <p class="results-subtitle">Your personalized legal roadmap based on your unique situation and strategic goals</p>
+      </div>
+     
+      <div class="score-card">
+        <div class="score-label">Legal Foundation Score</div>
+        <div class="score-value">${score}</div>
+        <div class="score-description">${scoreDescription}</div>
+      </div>
+
+      <h3 style="margin: 20px 0 16px; font-size: 28px; text-align: center; font-weight: 800; color: var(--ink); letter-spacing: -0.025em">Your Priority Action Plan</h3>
+      <div class="recommendations-grid">
+        ${recommendations.map(rec => `
+          <div class="recommendation-card priority-${rec.priority}">
+            <div class="recommendation-header">
+              <div class="recommendation-icon">${rec.icon}</div>
+              <div class="recommendation-title">${rec.title}</div>
+            </div>
+            <div class="recommendation-description">${rec.description}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      ${generateSmartNextStep(answers, score)}
+
+      <div class="cta-section">
+        <h3>Ready to Secure Your Legal Foundation?</h3>
+        <p>Take action on your personalized recommendations with expert legal guidance.</p>
+        <div class="cta-buttons">
+          <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm"
+             class="btn-cta-primary">
+            📅 Book Free Consultation
+          </a>
+          <a href="mailto:drew@jacobscounsellaw.com"
+             class="btn-cta-secondary">
+            📧 Email Drew Directly
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('email-gate').style.display = 'none';
+  document.getElementById('assessment-section').innerHTML = resultsHTML;
+  document.getElementById('assessment-section').style.display = 'block';
+ 
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'results_viewed', {
+      event_category: 'Legal Strategy Builder',
+      event_label: 'Results Viewed',
+      value: score
+    });
+  }
+ 
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
+</body>
+</html>

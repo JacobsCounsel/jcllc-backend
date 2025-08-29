@@ -17,7 +17,7 @@ import {
   requestLogger,
   validateContentType 
 } from './src/middleware/security.js';
-import { calculateLeadScore, getCalendlyLink } from './src/services/leadScoring.js';
+import { calculateLeadScore } from './src/services/leadScoring.js';
 import { leadDb } from './src/models/database.js';
 import db from './src/models/database.js';
 import analyticsRouter from './src/routes/analytics.js';
@@ -39,6 +39,7 @@ import {
   withNormalizedType,
   processIntakeOperations
 } from './src/legacy/compatibility.js';
+import { getCalendlyLink } from './src/services/leadScoring.js';
 import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
 
 // Initialize services (same as before)
@@ -229,7 +230,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore, getCalendlyLink);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -334,7 +335,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore, getCalendlyLink);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -441,7 +442,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore, getCalendlyLink);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -533,7 +534,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore, getCalendlyLink);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -689,7 +690,7 @@ app.post('/outside-counsel', async (req, res) => {
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
+      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore, getCalendlyLink);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({

@@ -311,9 +311,9 @@ export const legalEmailTemplates = {
     
     <p style="color: #000000 !important;">{{strategicOpening}}</p>
     
-    <div class="highlight-box">
-      <h3 style="color: #ff4d00 !important;">Strategic Legal Framework</h3>
-      <p style="color: #000000 !important;">{{strategicInsight}}</p>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Legal Framework</h3>
+      <p style="color: #1e40af !important; margin: 0 !important;">{{strategicInsight}}</p>
     </div>
     
     <p style="color: #000000 !important;"><strong style="color: #ff4d00 !important;">Our strategic consultation will address:</strong></p>
@@ -339,12 +339,12 @@ export const legalEmailTemplates = {
   
   // Strategic Premium Welcome - Dynamically Generated
   premium_welcome: `
-    <h1>{{firstName}}, Time to Level Up Your Legal Game</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">{{firstName}}, Time to Level Up Your Legal Game</h1>
     
     <p>{{strategicOpening}}</p>
     
-    <div class="highlight-box">
-      <h3>Strategic Legal Counsel</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Legal Counsel</h3>
       <p>{{strategicInsight}}</p>
     </div>
     
@@ -363,12 +363,12 @@ export const legalEmailTemplates = {
   
   // VIP Strategy Email - Focus on Process, Not Outcomes
   vip_strategy: `
-    <h1>Preparing for Your Strategic Legal Consultation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Preparing for Your Strategic Legal Consultation</h1>
     
     <p>{{firstName}}, thank you for scheduling your consultation with our firm. We're looking forward to learning more about your situation and how we might be able to assist you.</p>
     
-    <div class="highlight-box">
-      <h3>About Our Consultation Process</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">About Our Consultation Process</h3>
       <p>Our consultations are designed to be informational and educational. We'll discuss your situation, explore potential legal considerations, and help you understand your options.</p>
     </div>
     
@@ -394,12 +394,12 @@ export const legalEmailTemplates = {
   
   // Premium Welcome Email - Educational Focus
   premium_welcome: `
-    <h1>{{firstName}}, Smart Move Getting Your Legal House in Order</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">{{firstName}}, Smart Move Getting Your Legal House in Order</h1>
     
     <p>Your {{practiceArea}} inquiry tells me you're thinking ahead. That's exactly the kind of forward-planning that separates successful people from everyone else who waits until there's a crisis.</p>
     
-    <div class="highlight-box">
-      <h3>Strategic Legal Counsel</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Legal Counsel</h3>
       <p>We approach {{practiceArea}} with the same methodical strategy we bring to all complex legal matters. Our goal is to help you understand not just what's possible, but what's strategically advantageous for your specific situation.</p>
     </div>
     
@@ -418,14 +418,14 @@ export const legalEmailTemplates = {
 
   // Standard Welcome Email
   standard_welcome: `
-    <h1>{{firstName}}, Let's Get Your Legal Foundation Right</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">{{firstName}}, Let's Get Your Legal Foundation Right</h1>
     
     <p>Great timing on your {{practiceArea}} inquiry. Most people wait too long to get their legal structure in place, then scramble when they need it most.</p>
     
     <p>We specialize in {{practiceArea}} for people who are building something important - whether that's a business, protecting wealth, or creating a legacy. The legal work should support your goals, not slow them down.</p>
     
-    <div class="highlight-box">
-      <h3>Strategic Legal Consultation</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Legal Consultation</h3>
       <p><strong>Here's the deal:</strong> We'll analyze your {{practiceArea}} situation, identify the gaps that could cost you later, and build a plan that actually works for how you operate.</p>
     </div>
     
@@ -450,12 +450,12 @@ export const legalEmailTemplates = {
 
   // ATHLETE-SPECIFIC EMAIL SEQUENCES
   athlete_email_2: `
-    <h1>Protecting Athletic Career Value</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Protecting Athletic Career Value</h1>
     
     <p>{{firstName}}, your athletic career creates unique wealth that needs specialized protection strategies.</p>
     
-    <div class="highlight-box">
-      <h3>Career Earnings vs. Lifetime Wealth</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Career Earnings vs. Lifetime Wealth</h3>
       <p>Athletic careers generate concentrated wealth in compressed timeframes. Smart athletes build legal structures that protect current earnings while creating post-career financial security.</p>
     </div>
     
@@ -479,12 +479,12 @@ export const legalEmailTemplates = {
   `,
 
   athlete_email_3: `
-    <h1>Building Your Athletic Legacy</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Building Your Athletic Legacy</h1>
     
     <p>{{firstName}}, the decisions you make today about wealth structure determine your financial future long after your playing days end.</p>
     
-    <div class="highlight-box">
-      <h3>Beyond the Game</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Beyond the Game</h3>
       <p>Athletic success on the field requires the same strategic thinking for wealth protection off the field. Business ventures, endorsements, and investments all need proper legal foundations.</p>
     </div>
     
@@ -509,12 +509,12 @@ export const legalEmailTemplates = {
 
   // CREATOR-SPECIFIC EMAIL SEQUENCES  
   creator_email_2: `
-    <h1>Your Content Has Real Business Value</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Your Content Has Real Business Value</h1>
     
     <p>{{firstName}}, every piece of content you create is intellectual property. Every brand partnership is a business transaction. Time to protect them like the valuable assets they are.</p>
     
-    <div class="highlight-box">
-      <h3>Creator Economy Reality</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Creator Economy Reality</h3>
       <p>Successful creators aren't just making content - they're building media companies. Your audience, content library, and brand partnerships represent significant business value that needs legal protection.</p>
     </div>
     
@@ -538,12 +538,12 @@ export const legalEmailTemplates = {
   `,
 
   creator_email_3: `
-    <h1>Scale Your Creator Business Strategically</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Scale Your Creator Business Strategically</h1>
     
     <p>{{firstName}}, growing a creator business means moving from content creator to business owner. That transition requires legal structure that supports scaling.</p>
     
-    <div class="highlight-box">
-      <h3>Beyond Brand Deals</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Beyond Brand Deals</h3>
       <p>Creator businesses that scale successfully have strong legal foundations: protected IP, optimized business structures, and strategic partnership frameworks that preserve creative control while enabling growth.</p>
     </div>
     
@@ -568,12 +568,12 @@ export const legalEmailTemplates = {
 
   // STARTUP-SPECIFIC EMAIL SEQUENCES
   startup_email_2: `
-    <h1>Legal Foundation = Investment Readiness</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Legal Foundation = Investment Readiness</h1>
     
     <p>{{firstName}}, investors don't just evaluate your product and market - they audit your legal structure. Clean legal foundations accelerate funding and reduce dilution.</p>
     
-    <div class="highlight-box">
-      <h3>Investor Due Diligence</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Investor Due Diligence</h3>
       <p>Startups with proper legal structures move faster through due diligence, negotiate from stronger positions, and avoid costly legal cleanup that delays funding or reduces valuations.</p>
     </div>
     
@@ -597,12 +597,12 @@ export const legalEmailTemplates = {
   `,
 
   startup_email_3: `
-    <h1>From Startup to Scalable Company</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">From Startup to Scalable Company</h1>
     
     <p>{{firstName}}, transitioning from startup to growth-stage company requires legal infrastructure that supports rapid scaling without creating operational bottlenecks.</p>
     
-    <div class="highlight-box">
-      <h3>Growth Stage Legal Strategy</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Growth Stage Legal Strategy</h3>
       <p>Companies that scale successfully build legal systems that grow with them - from hiring frameworks that support rapid team building to IP strategies that protect innovation while enabling partnerships.</p>
     </div>
     
@@ -627,12 +627,12 @@ export const legalEmailTemplates = {
 
   // FAMILY-SPECIFIC EMAIL SEQUENCES
   family_email_2: `
-    <h1>Generational Wealth Architecture</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Generational Wealth Architecture</h1>
     
     <p>{{firstName}}, building wealth that lasts across generations requires more than estate planning - it needs comprehensive legal architecture that coordinates family, business, and tax objectives.</p>
     
-    <div class="highlight-box">
-      <h3>Multi-Generational Planning</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Multi-Generational Planning</h3>
       <p>High-performing families preserve and grow wealth through integrated strategies that address current needs while building frameworks for family legacy and governance.</p>
     </div>
     
@@ -656,12 +656,12 @@ export const legalEmailTemplates = {
   `,
 
   family_email_3: `
-    <h1>Family Legacy Strategy</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Family Legacy Strategy</h1>
     
     <p>{{firstName}}, protecting and transferring significant wealth requires coordination between estate planning, business strategy, and family governance to preserve both financial and family legacy.</p>
     
-    <div class="highlight-box">
-      <h3>Family Office Strategies</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Family Office Strategies</h3>
       <p>Sophisticated family wealth management integrates legal, financial, and governance strategies to preserve wealth while preparing the next generation for responsible stewardship.</p>
     </div>
     
@@ -686,12 +686,12 @@ export const legalEmailTemplates = {
 
   // Estate Planning Educational Email
   estate_planning_education: `
-    <h1>Strategic Estate Planning: Beyond Basic Documents</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Estate Planning: Beyond Basic Documents</h1>
     
     <p>{{firstName}}, your inquiry about estate planning suggests you understand that thoughtful planning today prevents complications tomorrow. Let's explore what sophisticated estate planning actually encompasses.</p>
     
-    <div class="highlight-box">
-      <h3>🏠 What Is Estate Planning?</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">🏠 What Is Estate Planning?</h3>
       <p>Estate planning involves creating legal documents and strategies to manage your assets during your lifetime and ensure they're distributed according to your wishes after your death.</p>
     </div>
     
@@ -716,12 +716,12 @@ export const legalEmailTemplates = {
 
   // Business Formation Educational Email
   business_formation_education: `
-    <h1>Strategic Business Formation: Choosing Your Entity Structure</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Business Formation: Choosing Your Entity Structure</h1>
     
     <p>{{firstName}}, your business formation inquiry suggests you understand that entity selection is a strategic decision with long-term implications. Let's explore the key considerations for making this choice thoughtfully.</p>
     
-    <div class="highlight-box">
-      <h3>Strategic Entity Selection</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Entity Selection</h3>
       <p>Your choice of business structure creates the legal framework for all future operations. The decision affects not only current tax obligations and liability exposure, but also future flexibility for growth, investment, and succession planning.</p>
     </div>
     
@@ -746,12 +746,12 @@ export const legalEmailTemplates = {
 
   // Brand Protection Educational Email  
   brand_protection_education: `
-    <h1>Strategic Brand Protection: Securing Your Intellectual Assets</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Brand Protection: Securing Your Intellectual Assets</h1>
     
     <p>{{firstName}}, your interest in brand protection demonstrates strategic thinking about one of your business's most valuable assets. Effective intellectual property strategy goes beyond simple trademark registration.</p>
     
-    <div class="highlight-box">
-      <h3>Comprehensive IP Strategy</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Comprehensive IP Strategy</h3>
       <p>Strategic brand protection creates a comprehensive framework for securing, maintaining, and enforcing your intellectual property rights. This involves not only registration but also ongoing monitoring and strategic enforcement decisions.</p>
     </div>
     
@@ -776,12 +776,12 @@ export const legalEmailTemplates = {
 
   // Legal Strategy Builder Educational Series
   legal_strategy_builder_welcome: `
-    <h1>Your Strategic Legal Assessment Results</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Your Strategic Legal Assessment Results</h1>
     
     <p>{{firstName}}, thank you for completing the Legal Strategy Builder assessment. Your responses demonstrate thoughtful consideration of your legal landscape - exactly the approach we value in strategic legal planning.</p>
     
-    <div class="highlight-box">
-      <h3>Assessment-Based Legal Guidance</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Assessment-Based Legal Guidance</h3>
       <p>Based on your assessment responses, we can see you're thinking strategically about complex legal matters. This positions you well for comprehensive legal strategy development that addresses both immediate needs and long-term objectives.</p>
     </div>
     
@@ -799,12 +799,12 @@ export const legalEmailTemplates = {
   `,
 
   legal_strategy_builder_followup: `
-    <h1>Strategic Legal Implementation: Next Steps</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Legal Implementation: Next Steps</h1>
     
     <p>{{firstName}}, having completed our Legal Strategy Builder, you now have valuable insights into your legal landscape. The next step is translating these insights into actionable legal strategy.</p>
     
-    <div class="highlight-box">
-      <h3>From Assessment to Action</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">From Assessment to Action</h3>
       <p>Strategic legal counsel involves more than identifying issues - it requires developing comprehensive approaches that address root causes while positioning you for future success. This methodical approach distinguishes sophisticated legal strategy from reactive legal services.</p>
     </div>
     
@@ -829,12 +829,12 @@ export const legalEmailTemplates = {
 
   // Newsletter Educational Content
   newsletter_welcome: `
-    <h1>Welcome to Strategic Legal Insights</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Welcome to Strategic Legal Insights</h1>
     
     <p>{{firstName}}, thank you for subscribing to receive strategic legal insights from Jacobs Counsel. You'll now receive thoughtful analysis on legal developments that affect strategic business and personal planning.</p>
     
-    <div class="highlight-box">
-      <h3>Strategic Legal Intelligence</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Legal Intelligence</h3>
       <p>Our newsletter focuses on providing actionable insights rather than generic legal updates. Each edition examines how legal developments create strategic opportunities or require adaptive planning.</p>
     </div>
     
@@ -859,12 +859,12 @@ export const legalEmailTemplates = {
 
   // Outside Counsel Educational Series
   outside_counsel_welcome: `
-    <h1>Strategic Outside Counsel Engagement</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Outside Counsel Engagement</h1>
     
     <p>{{firstName}}, your inquiry about outside counsel services indicates you understand the value of sophisticated legal support for complex business matters. Strategic outside counsel relationships provide more than legal services - they provide strategic partnership.</p>
     
-    <div class="highlight-box">
-      <h3>Beyond Traditional Legal Services</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Beyond Traditional Legal Services</h3>
       <p>Effective outside counsel serves as an extension of your strategic team, providing not only legal expertise but also business-minded counsel that supports your operational and growth objectives.</p>
     </div>
     
@@ -889,12 +889,12 @@ export const legalEmailTemplates = {
 
   // Resource Guide Download Series
   resource_guide_welcome: `
-    <h1>Your Strategic Legal Resource Guide</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Your Strategic Legal Resource Guide</h1>
     
     <p>{{firstName}}, thank you for downloading our strategic legal resource guide. This comprehensive guide represents our approach to providing actionable legal intelligence rather than generic legal information.</p>
     
-    <div class="highlight-box">
-      <h3>Strategic Resource Implementation</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Resource Implementation</h3>
       <p>The most valuable legal resources provide frameworks for strategic thinking rather than simple checklists. Our guides focus on helping you understand the strategic implications of legal decisions.</p>
     </div>
     
@@ -919,12 +919,12 @@ export const legalEmailTemplates = {
 
   // Business Guide Download
   business_guide_welcome: `
-    <h1>Strategic Business Legal Planning</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Business Legal Planning</h1>
     
     <p>{{firstName}}, your download of our business legal guide demonstrates strategic thinking about the legal foundations that support business success. Sophisticated business planning requires comprehensive legal strategy.</p>
     
-    <div class="highlight-box">
-      <h3>Comprehensive Business Legal Strategy</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Comprehensive Business Legal Strategy</h3>
       <p>Effective business legal planning addresses not only immediate formation needs but also growth strategy, risk management, and operational optimization. This integrated approach distinguishes strategic business counsel from transactional legal services.</p>
     </div>
     
@@ -947,12 +947,12 @@ export const legalEmailTemplates = {
 
   // Brand Guide Download
   brand_guide_welcome: `
-    <h1>Strategic Brand Protection Implementation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Brand Protection Implementation</h1>
     
     <p>{{firstName}}, downloading our brand protection guide indicates you understand that intellectual property strategy requires more than basic trademark registration. Comprehensive brand protection involves strategic legal planning.</p>
     
-    <div class="highlight-box">
-      <h3>Comprehensive IP Strategy</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Comprehensive IP Strategy</h3>
       <p>Strategic brand protection creates systematic approaches to securing, maintaining, and enforcing intellectual property rights. This comprehensive approach ensures your brand assets receive appropriate protection while supporting business objectives.</p>
     </div>
     
@@ -975,12 +975,12 @@ export const legalEmailTemplates = {
 
   // Estate Guide Download
   estate_guide_welcome: `
-    <h1>Strategic Estate Planning Implementation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Estate Planning Implementation</h1>
     
     <p>{{firstName}}, your download of our estate planning guide demonstrates understanding that sophisticated estate planning involves more than basic document preparation. Strategic estate planning requires comprehensive legal architecture.</p>
     
-    <div class="highlight-box">
-      <h3>Comprehensive Estate Strategy</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Comprehensive Estate Strategy</h3>
       <p>Strategic estate planning integrates asset protection, tax optimization, succession planning, and family governance into cohesive legal architecture. This systematic approach ensures your estate plan serves your complete strategic objectives.</p>
     </div>
     
@@ -1005,12 +1005,12 @@ export const legalEmailTemplates = {
 
   // General Consultation Reminder (used in 12 pathways)
   consultation_reminder: `
-    <h1>Schedule Your Strategic Consultation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Schedule Your Strategic Consultation</h1>
     
     <p>{{firstName}}, you've taken the first step toward strategic legal planning by engaging with our educational content. The next step is discussing how these insights apply to your specific situation.</p>
     
-    <div class="highlight-box">
-      <h3>Strategic Legal Consultation</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Legal Consultation</h3>
       <p><strong>What to expect:</strong> We'll cut through the legal jargon, identify what actually matters for your situation, and give you a clear action plan you can implement immediately.</p>
     </div>
     
@@ -1037,12 +1037,12 @@ export const legalEmailTemplates = {
 
   // General Legal Education (used in 6 pathways)  
   legal_education_general: `
-    <h1>Strategic Legal Planning Fundamentals</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Legal Planning Fundamentals</h1>
     
     <p>{{firstName}}, effective legal strategy requires understanding the foundational principles that govern sophisticated legal planning. These fundamentals apply across all areas of legal strategy.</p>
     
-    <div class="highlight-box">
-      <h3>The Strategic Legal Approach</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">The Strategic Legal Approach</h3>
       <p>Strategic legal planning involves more than addressing immediate issues. It requires systematic evaluation of current position, identification of potential risks and opportunities, and implementation of comprehensive solutions.</p>
     </div>
     
@@ -1069,12 +1069,12 @@ export const legalEmailTemplates = {
 
   // Legal Resources Template
   legal_resources: `
-    <h1>Strategic Legal Resources for Implementation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Legal Resources for Implementation</h1>
     
     <p>{{firstName}}, sophisticated legal strategy requires access to high-quality resources that provide actionable guidance rather than generic information.</p>
     
-    <div class="highlight-box">
-      <h3>Comprehensive Legal Resource Library</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Comprehensive Legal Resource Library</h3>
       <p>Our resource library focuses on providing strategic frameworks and implementation guidance for complex legal matters. These resources are designed to support thoughtful decision-making in sophisticated legal contexts.</p>
     </div>
     
@@ -1099,12 +1099,12 @@ export const legalEmailTemplates = {
 
   // Estate-Specific Templates
   estate_intake_confirmation: `
-    <h1>Estate Planning Inquiry Confirmation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Estate Planning Inquiry Confirmation</h1>
     
     <p>{{firstName}}, thank you for your estate planning inquiry. Your submission demonstrates strategic thinking about wealth preservation and family legacy planning.</p>
     
-    <div class="highlight-box">
-      <h3>Your Estate Planning Journey</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Your Estate Planning Journey</h3>
       <p>Sophisticated estate planning involves comprehensive analysis of your current position, strategic objectives, and optimal structures for achieving your wealth preservation and transfer goals.</p>
     </div>
     
@@ -1126,12 +1126,12 @@ export const legalEmailTemplates = {
   `,
 
   estate_consultation_reminder: `
-    <h1>Schedule Your Estate Planning Strategy Session</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Schedule Your Estate Planning Strategy Session</h1>
     
     <p>{{firstName}}, when you're managing serious wealth, generic estate planning doesn't cut it. We'll build a plan that actually protects what you've built and sets up the next generation for success.</p>
     
-    <div class="highlight-box">
-      <h3>Estate Planning Consultation Process</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Estate Planning Consultation Process</h3>
       <p>During your consultation, we'll examine your current estate structure, identify optimization opportunities, and discuss strategic approaches to wealth preservation and transfer.</p>
     </div>
     
@@ -1154,12 +1154,12 @@ export const legalEmailTemplates = {
 
   // Business-Specific Templates
   business_intake_confirmation: `
-    <h1>Business Formation Inquiry Confirmation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Business Formation Inquiry Confirmation</h1>
     
     <p>{{firstName}}, thank you for your business formation inquiry. Your approach demonstrates understanding that entity selection and business legal strategy are foundational to long-term success.</p>
     
-    <div class="highlight-box">
-      <h3>Strategic Business Formation</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Strategic Business Formation</h3>
       <p>Effective business formation involves comprehensive analysis of your business objectives, growth strategy, and optimal legal structures for supporting your goals while managing risk and tax exposure.</p>
     </div>
     
@@ -1181,12 +1181,12 @@ export const legalEmailTemplates = {
   `,
 
   business_consultation_reminder: `
-    <h1>Schedule Your Business Legal Strategy Session</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Schedule Your Business Legal Strategy Session</h1>
     
     <p>{{firstName}}, strategic business legal planning requires understanding how legal structures can support rather than constrain your business objectives. Our consultation process provides clarity on complex business legal matters.</p>
     
-    <div class="highlight-box">
-      <h3>Business Legal Strategy Consultation</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Business Legal Strategy Consultation</h3>
       <p>During your consultation, we'll examine your business goals, analyze optimal legal structures, and discuss comprehensive approaches to business legal strategy and risk management.</p>
     </div>
     
@@ -1209,12 +1209,12 @@ export const legalEmailTemplates = {
 
   // Brand Protection Templates
   brand_intake_confirmation: `
-    <h1>Brand Protection Inquiry Confirmation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Brand Protection Inquiry Confirmation</h1>
     
     <p>{{firstName}}, thank you for your brand protection inquiry. Your approach demonstrates understanding that intellectual property strategy requires more than basic trademark registration.</p>
     
-    <div class="highlight-box">
-      <h3>Comprehensive Brand Protection Strategy</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Comprehensive Brand Protection Strategy</h3>
       <p>Strategic brand protection involves systematic approaches to securing, maintaining, and enforcing intellectual property rights while supporting business growth and market positioning objectives.</p>
     </div>
     
@@ -1236,12 +1236,12 @@ export const legalEmailTemplates = {
   `,
 
   brand_consultation_reminder: `
-    <h1>Schedule Your Brand Protection Strategy Session</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Schedule Your Brand Protection Strategy Session</h1>
     
     <p>{{firstName}}, strategic brand protection requires comprehensive analysis of your intellectual property landscape and systematic approaches to protection and enforcement. Our consultation provides clarity on complex IP matters.</p>
     
-    <div class="highlight-box">
-      <h3>Brand Protection Consultation Process</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Brand Protection Consultation Process</h3>
       <p>During your consultation, we'll examine your current IP position, identify protection opportunities, and discuss strategic approaches to brand protection and enforcement.</p>
     </div>
     
@@ -1266,12 +1266,12 @@ export const legalEmailTemplates = {
 
   // Consultation Preparation (sent after booking)
   consultation_preparation: `
-    <h1>Preparing for Your Strategic Legal Consultation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Preparing for Your Strategic Legal Consultation</h1>
     
     <p>{{firstName}}, thank you for scheduling your consultation with Jacobs Counsel. To maximize the value of our time together, please consider the following preparation suggestions.</p>
     
-    <div class="highlight-box">
-      <h3>Consultation Preparation Guidelines</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Consultation Preparation Guidelines</h3>
       <p><strong>No time wasters:</strong> We'll focus on the legal moves that actually matter for your business and skip the generic advice you can Google.</p>
     </div>
     
@@ -1297,12 +1297,12 @@ export const legalEmailTemplates = {
 
   // Post-Consultation Thank You
   post_consultation_thank_you: `
-    <h1>Thank You for Your Consultation</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Thank You for Your Consultation</h1>
     
     <p>{{firstName}}, great connecting with you about your legal needs. Now let's turn those plans into action and get your legal foundation locked down.</p>
     
-    <div class="highlight-box">
-      <h3>Next Steps</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Next Steps</h3>
       <p>Following our consultation, you may be considering how to implement the strategic legal approaches we discussed. This is an important decision that deserves thoughtful consideration.</p>
     </div>
     
@@ -1325,12 +1325,12 @@ export const legalEmailTemplates = {
 
   // Follow-up for Non-Engaged Leads
   strategic_follow_up: `
-    <h1>Strategic Legal Planning: Your Next Steps</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Legal Planning: Your Next Steps</h1>
     
     <p>{{firstName}}, I wanted to follow up on our recent discussion about your legal strategy needs. Strategic legal planning often requires time for thoughtful consideration.</p>
     
-    <div class="highlight-box">
-      <h3>The Value of Strategic Timing</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">The Value of Strategic Timing</h3>
       <p>The most effective legal strategies are implemented proactively, before issues become urgent. This approach allows for comprehensive planning and optimal implementation of sophisticated legal solutions.</p>
     </div>
     
@@ -1355,12 +1355,12 @@ export const legalEmailTemplates = {
 
   // Lead Re-engagement for Cold Leads
   lead_reengagement: `
-    <h1>Strategic Legal Updates and Opportunities</h1>
+    <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Strategic Legal Updates and Opportunities</h1>
     
     <p>{{firstName}}, I wanted to reconnect and share some strategic insights that may be relevant to your legal planning needs.</p>
     
-    <div class="highlight-box">
-      <h3>Recent Legal Developments</h3>
+    <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+      <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">Recent Legal Developments</h3>
       <p>The legal landscape continues to evolve, creating both new opportunities and potential challenges for strategic legal planning. Staying informed about these developments helps ensure your legal strategy remains current and effective.</p>
     </div>
     

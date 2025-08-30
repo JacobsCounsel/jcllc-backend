@@ -1,6 +1,6 @@
 // src/routes/analytics.js - Analytics dashboard for lead insights
 import express from 'express';
-import { leadDb } from "../models/database-production.js"';
+import { leadDb } from "../models/database-production.js";
 import { log } from '../utils/logger.js';
 
 const router = express.Router();

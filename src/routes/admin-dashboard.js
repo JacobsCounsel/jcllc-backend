@@ -1,6 +1,6 @@
 // Comprehensive Admin Dashboard for Email Automation System
 import express from 'express';
-import db from "../models/database-production.js"';
+import db from "../models/database-production.js";
 import { log } from '../utils/logger.js';
 
 const router = express.Router();

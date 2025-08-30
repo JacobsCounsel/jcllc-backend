@@ -1,6 +1,6 @@
 // Email Automation Dashboard API Routes
 import express from 'express';
-import db from "../models/database-production.js"';
+import db from "../models/database-production.js";
 import { log } from '../utils/logger.js';
 import { CustomEmailAutomation, processScheduledEmails } from '../services/customEmailAutomation.js';
 import consultationHandler from '../services/consultationHandler.js';

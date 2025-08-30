@@ -21,6 +21,8 @@ import { calculateLeadScore } from './src/services/leadScoring.js';
 import { leadDb } from './src/models/database.js';
 import db from './src/models/database.js';
 import analyticsRouter from './src/routes/analytics.js';
+import emailAutomationRouter from './src/routes/email-automation-routes.js';
+import automationDashboardRouter from './src/routes/automation-dashboard.js';
 
 // Import all existing functions to maintain compatibility
 import {
@@ -41,6 +43,8 @@ import {
 } from './src/legacy/compatibility.js';
 import { getCalendlyLink } from './src/services/leadScoring.js';
 import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
+import { processCustomEmailAutomation } from './src/services/customEmailAutomation.js';
+import emailProcessor from './src/services/emailProcessor.js';
 
 // Fallback email generation function in case import fails
 function generateClientConfirmationEmailFallback(formData, price, submissionType, leadScore) {
@@ -105,10 +109,16 @@ function generateClientConfirmationEmailFallback(formData, price, submissionType
 </html>`;
 }
 
-// Kit automation helper - DISABLED FOR NOW
+// Kit v4 Automation System
+import { processKitV4Automation } from './src/services/kitV4Automation.js';
+
 async function addToKitIfConfigured(formData, leadScore, submissionType, leadId = null) {
-  console.log('Kit integration disabled');
-  return { success: true, disabled: true };
+  try {
+    return await processKitV4Automation(formData, leadScore, submissionType);
+  } catch (error) {
+    console.error('Kit v4 automation failed:', error.message);
+    return { success: false, error: error.message };
+  }
 }
 
 // Initialize services (same as before)
@@ -123,7 +133,8 @@ app.set('trust proxy', 1);
 app.use(securityHeaders);
 app.use(requestLogger);
 app.use(cors());
-app.use(validateContentType);
+// Apply content validation only to form endpoints
+// app.use(validateContentType);
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -136,6 +147,19 @@ app.use('/outside-counsel', intakeRateLimit);
 
 // Analytics routes (NEW - but doesn't break existing)
 app.use('/api/analytics', analyticsRouter);
+
+// Email Automation Dashboard routes
+app.use('/api/email-automations', emailAutomationRouter);
+
+// Admin Dashboard routes
+import adminDashboardRouter from './src/routes/admin-dashboard.js';
+app.use('/admin', adminDashboardRouter);
+// Automations dashboard - no content validation needed
+app.use('/automations', (req, res, next) => {
+  // Skip content type validation for automation routes
+  req.skipContentValidation = true;
+  next();
+}, automationDashboardRouter);
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -294,12 +318,24 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
+    // Custom Email Automation (replaces Mailchimp)
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', {});
+      processCustomEmailAutomation(formData, leadScore, submissionType)
+        .then((result) => {
+          if (leadId && result.success) {
+            leadDb.logInteraction(leadId, 'custom_automation_started', {
+              automation_id: result.automation_id,
+              pathway: result.pathway,
+              emails_scheduled: result.emails_scheduled
+            });
+          }
+          log.info('✅ Custom email automation started', { 
+            email: formData.email, 
+            pathway: result.pathway,
+            emails_scheduled: result.emails_scheduled 
+          });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Custom email automation failed:', e.message))
     );
 
     operations.push(
@@ -405,12 +441,24 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
+    // Custom Email Automation (replaces Mailchimp)
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', {});
+      processCustomEmailAutomation(formData, leadScore, submissionType)
+        .then((result) => {
+          if (leadId && result.success) {
+            leadDb.logInteraction(leadId, 'custom_automation_started', {
+              automation_id: result.automation_id,
+              pathway: result.pathway,
+              emails_scheduled: result.emails_scheduled
+            });
+          }
+          log.info('✅ Custom email automation started', { 
+            email: formData.email, 
+            pathway: result.pathway,
+            emails_scheduled: result.emails_scheduled 
+          });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Custom email automation failed:', e.message))
     );
 
     operations.push(
@@ -518,12 +566,24 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
+    // Custom Email Automation (replaces Mailchimp)
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', {});
+      processCustomEmailAutomation(formData, leadScore, submissionType)
+        .then((result) => {
+          if (leadId && result.success) {
+            leadDb.logInteraction(leadId, 'custom_automation_started', {
+              automation_id: result.automation_id,
+              pathway: result.pathway,
+              emails_scheduled: result.emails_scheduled
+            });
+          }
+          log.info('✅ Custom email automation started', { 
+            email: formData.email, 
+            pathway: result.pathway,
+            emails_scheduled: result.emails_scheduled 
+          });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Custom email automation failed:', e.message))
     );
 
     operations.push(
@@ -610,12 +670,24 @@ app.post('/legal-strategy-builder', async (req, res) => {
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
+    // Custom Email Automation (replaces Mailchimp)
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', {});
+      processCustomEmailAutomation(formData, leadScore, submissionType)
+        .then((result) => {
+          if (leadId && result.success) {
+            leadDb.logInteraction(leadId, 'custom_automation_started', {
+              automation_id: result.automation_id,
+              pathway: result.pathway,
+              emails_scheduled: result.emails_scheduled
+            });
+          }
+          log.info('✅ Custom email automation started', { 
+            email: formData.email, 
+            pathway: result.pathway,
+            emails_scheduled: result.emails_scheduled 
+          });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Custom email automation failed:', e.message))
     );
 
     operations.push(
@@ -707,12 +779,24 @@ app.post('/newsletter-signup', async (req, res) => {
       );
     }
     
+    // Custom Email Automation (replaces Mailchimp)
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', {});
+      processCustomEmailAutomation(formData, leadScore, submissionType)
+        .then((result) => {
+          if (leadId && result.success) {
+            leadDb.logInteraction(leadId, 'custom_automation_started', {
+              automation_id: result.automation_id,
+              pathway: result.pathway,
+              emails_scheduled: result.emails_scheduled
+            });
+          }
+          log.info('✅ Custom email automation started', { 
+            email: formData.email, 
+            pathway: result.pathway,
+            emails_scheduled: result.emails_scheduled 
+          });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Custom email automation failed:', e.message))
     );
     
     await processIntakeOperations(operations);
@@ -766,12 +850,24 @@ app.post('/outside-counsel', async (req, res) => {
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
+    // Custom Email Automation (replaces Mailchimp)
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', {});
+      processCustomEmailAutomation(formData, leadScore, submissionType)
+        .then((result) => {
+          if (leadId && result.success) {
+            leadDb.logInteraction(leadId, 'custom_automation_started', {
+              automation_id: result.automation_id,
+              pathway: result.pathway,
+              emails_scheduled: result.emails_scheduled
+            });
+          }
+          log.info('✅ Custom email automation started', { 
+            email: formData.email, 
+            pathway: result.pathway,
+            emails_scheduled: result.emails_scheduled 
+          });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Custom email automation failed:', e.message))
     );
 
     operations.push(
@@ -869,12 +965,24 @@ app.post('/resource-guide-download', async (req, res) => {
       );
     }
     
+    // Custom Email Automation (replaces Mailchimp)
     operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', {});
+      processCustomEmailAutomation(formData, leadScore, submissionType)
+        .then((result) => {
+          if (leadId && result.success) {
+            leadDb.logInteraction(leadId, 'custom_automation_started', {
+              automation_id: result.automation_id,
+              pathway: result.pathway,
+              emails_scheduled: result.emails_scheduled
+            });
+          }
+          log.info('✅ Custom email automation started', { 
+            email: formData.email, 
+            pathway: result.pathway,
+            emails_scheduled: result.emails_scheduled 
+          });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Custom email automation failed:', e.message))
     );
     
     operations.push(
@@ -1224,6 +1332,46 @@ app.post('/webhook/calendly', async (req, res) => {
 
       console.log(`📅 Meeting booked: ${email}`);
 
+      // CRITICAL: Pause email automation for this lead
+      try {
+        const automationResult = await consultationHandler.handleConsultationBooking({
+          body: {
+            email: email,
+            bookingType: scheduled_event.name,
+            bookingData: {
+              name: name,
+              start_time: scheduled_event.start_time,
+              event_uri: scheduled_event.uri,
+              calendly_event: 'invitee.created'
+            }
+          }
+        });
+        console.log(`✅ Email automation paused for ${email}:`, automationResult.success);
+        
+        // CUSTOMER EXPERIENCE ENHANCEMENT: Send consultation preparation email
+        try {
+          const { CustomEmailAutomation } = await import('./src/services/customEmailAutomation.js');
+          const emailService = new CustomEmailAutomation();
+          const prepEmail = emailService.generateEmailHTML('consultation_preparation', name.split(' ')[0] || 'Valued Client', {
+            submissionType: 'consultation-booking'
+          });
+          
+          // Send preparation email immediately
+          const emailResult = await sendEmail({
+            to: email,
+            subject: `Preparing for Your Consultation - ${name.split(' ')[0] || 'Valued Client'}`,
+            html: prepEmail,
+            from: process.env.FROM_EMAIL || 'noreply@jacobscounsellaw.com'
+          });
+          
+          console.log(`📧 Consultation preparation email sent to ${email}:`, emailResult.success);
+        } catch (prepError) {
+          console.error(`❌ Failed to send preparation email to ${email}:`, prepError.message);
+        }
+      } catch (automationError) {
+        console.error(`❌ Failed to pause automation for ${email}:`, automationError.message);
+      }
+
       if (mixpanel) {
         mixpanel.track('Consultation Booked', {
           distinct_id: email,
@@ -1231,8 +1379,6 @@ app.post('/webhook/calendly', async (req, res) => {
           start_time: scheduled_event.start_time
         });
       }
-
-      // Rest of existing webhook logic...
     }
 
     if (event === 'invitee.canceled') {
@@ -1408,8 +1554,12 @@ app.listen(config.port, () => {
   try {
     const envStatus = validateEnvironment();
     console.log(`🚀 Jacobs Counsel System running on port ${config.port}`);
-    console.log(`📊 Features: Lead Scoring, Analytics Dashboard, Mailchimp, Calendly, Clio`);
+    console.log(`📊 Features: Lead Scoring, Analytics Dashboard, Custom Email Automation, Calendly, Clio`);
     console.log(`🗄️ Database: SQLite with lead tracking and analytics`);
+    
+    // Start the email automation processor
+    emailProcessor.start();
+    console.log(`📧 Email Automation System: ACTIVE`);
     console.log(`✅ Backwards compatible - all existing endpoints preserved`);
     console.log(`📈 New analytics available at /api/analytics/dashboard`);
     console.log(`📅 Calendly webhook active at /webhook/calendly`);

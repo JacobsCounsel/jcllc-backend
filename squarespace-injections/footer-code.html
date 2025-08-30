@@ -16,26 +16,39 @@
 
 /* Newsletter Section */
 .jc-newsletter {
-   background: #ffffff;
-   border: 2px solid #ff4d00;
+   background: var(--card, #ffffff);
+   border: 3px solid var(--jc-orange, #ff4d00);
    border-radius: 16px;
    padding: 32px;
    margin-bottom: 40px;
    text-align: center;
+   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+   transition: all 0.3s ease;
+}
+
+.jc-newsletter:hover {
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-xl, 0 20px 25px -5px rgb(0 0 0 / 0.1));
 }
 
 .jc-newsletter h3 {
-   color: #0a0e27;
+   color: var(--jc-ink, #0f172a);
    font-size: 32px;
    margin: 0 0 8px;
    font-weight: 700;
    letter-spacing: -0.01em;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 8px;
 }
 
+
 .jc-newsletter p {
-   color: #64748b;
+   color: var(--ink2, #64748b);
    margin: 0 0 20px;
    font-size: 18px;
+   line-height: 1.5;
 }
 
 .jc-newsletter-form {
@@ -48,17 +61,23 @@
 .jc-newsletter input {
    flex: 1;
    padding: 14px 18px;
-   border: 2px solid #e5e7eb;
+   border: 2px solid var(--line, #e2e8f0);
    border-radius: 8px;
-   background: #ffffff;
-   color: #000000;
+   background: var(--bg, #ffffff);
+   color: var(--ink, #0f172a);
    font-size: 17px;
-   transition: border-color 0.3s;
+   font-family: inherit;
+   transition: all 0.3s ease;
 }
 
 .jc-newsletter input:focus {
    outline: none;
-   border-color: #ff4d00;
+   border-color: var(--jc-orange, #ff4d00);
+   box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+}
+
+.jc-newsletter input:valid:not(:placeholder-shown) {
+   border-color: var(--ok, #059669);
 }
 
 .jc-newsletter input::placeholder {
@@ -67,21 +86,28 @@
 
 .jc-newsletter button {
    padding: 14px 28px;
-   background: #ff4d00;
+   background: linear-gradient(135deg, var(--jc-orange, #ff4d00), #e63900);
    color: white;
    border: none;
    border-radius: 8px;
    font-weight: 700;
    cursor: pointer;
-   transition: all 0.3s;
+   transition: all 0.3s ease;
    font-size: 17px;
+   font-family: inherit;
    white-space: nowrap;
+   box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
 }
 
 .jc-newsletter button:hover {
-   background: #e63900;
    transform: translateY(-2px);
-   box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);
+   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+}
+
+.jc-newsletter button:disabled {
+   opacity: 0.6;
+   cursor: not-allowed;
+   transform: none;
 }
 
 /* Success message styling */
@@ -292,7 +318,7 @@
        <!-- Newsletter Signup -->
        <div class="jc-newsletter">
            <h3>Join the Jacobs Counsel Community</h3>
-           <p>Weekly legal insights + exclusive resources for our community</p>
+           <p>Weekly strategic legal insights + exclusive resources delivered faster than ever</p>
            <form class="jc-newsletter-form" onsubmit="subscribeNewsletter(event)">
                <input type="email" placeholder="Enter your email" required id="newsletter-email">
                <button type="submit">Join Community</button>
@@ -307,10 +333,10 @@
            <!-- Brand Column -->
            <div class="jc-footer-brand">
                <h4>JACOBS COUNSEL LLC</h4>
-               <p>Strategic Legal Counsel to Unlock Your Edge</p>
+               <p>Strategic Legal Counsel to Unlock Your Edge<br><small style="color: #9ca3af; font-size: 14px; font-style: italic;">Enhanced technology with expert human guidance</small></p>
                
                <div class="jc-disclaimer">
-                   <p><strong>Disclaimer:</strong> This newsletter is for general informational purposes only and does not constitute legal advice or create an attorney-client relationship.</p>
+                   <p><strong>Disclaimer:</strong> Our insights are for informational purposes and don't constitute legal advice or create an attorney-client relationship. All strategic recommendations are reviewed by licensed attorneys.</p>
                </div>
            </div>
 

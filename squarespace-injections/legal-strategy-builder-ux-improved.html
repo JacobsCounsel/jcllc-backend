@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legal Strategy Builder | Discover Your Legal Priorities | Jacobs Counsel</title>
+<style>
+  :root {
+    --jc-orange: #ff4d00;
+    --jc-ink: #0f172a;
+    --bg: #ffffff;
+    --ink: #0f172a;
+    --ink2: #64748b;
+    --line: #e2e8f0;
+    --ok: #059669;
+    --err: #dc2626;
+    --warn: #d97706;
+    --card: #ffffff;
+    --muted: #f8fafc;
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 20px;
+  }
+  .strategy-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--bg);
+  }
+  .jc-bar {
+    height: 5px;
+    background: linear-gradient(90deg, var(--jc-orange), var(--jc-ink));
+  }
+
+  /* Header */
+  .strategy-hero {
+    background: linear-gradient(135deg, var(--muted) 0%, var(--bg) 100%);
+    padding: 40px 20px 24px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--jc-orange);
+    color: white;
+    padding: 5px 16px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .hero-headline {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .hero-subhead {
+    font-size: 24px;
+    color: var(--jc-orange);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .hero-desc {
+    font-size: 18px;
+    color: var(--ink2);
+    max-width: 600px;
+    margin: 0 auto 20px;
+    line-height: 1.5;
+  }
+
+  /* What Box */
+  .what-box {
+    background: linear-gradient(135deg, rgba(255,77,0,0.04), rgba(255,77,0,0.01));
+    border: 2px solid var(--jc-orange);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 0 20px 20px;
+    text-align: left;
+  }
+  
+  .what-box h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: var(--ink);
+    text-align: center;
+  }
+  
+  .what-list {
+    display: grid;
+    gap: 12px;
+  }
+  
+  .what-item {
+    display: flex;
+    align-items: start;
+    gap: 12px;
+  }
+  
+  .what-icon {
+    color: var(--ok);
+    font-size: 20px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  .what-text {
+    flex: 1;
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  /* Form Container */
+  .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .form-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--line);
+  }
+
+  /* Section Headers */
+  .form-section {
+    margin-bottom: 28px;
+  }
+  .form-section:last-child {
+    margin-bottom: 0;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-icon {
+    font-size: 24px;
+  }
+
+  /* Field Groups */
+  .field-group {
+    margin-bottom: 20px;
+  }
+  .field-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* Labels with Help Icons */
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .help-icon {
+    width: 18px;
+    height: 18px;
+    background: var(--ink2);
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+
+  .help-icon:hover {
+    background: var(--jc-orange);
+    transform: scale(1.1);
+  }
+
+  .help-tooltip {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--jc-ink);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    width: 240px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  .help-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--jc-ink);
+  }
+
+  .help-icon:hover .help-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Quick Summary Helper */
+  .field-helper {
+    font-size: 14px;
+    color: var(--ink2);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  /* Form Inputs */
+  .field-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: var(--bg);
+  }
+
+  .field-input:focus {
+    outline: none;
+    border-color: var(--jc-orange);
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  }
+
+  .field-input:valid:not(:placeholder-shown) {
+    border-color: var(--ok);
+  }
+
+  .field-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+
+  /* Choice Cards for Better UX */
+  .choice-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .choice-card {
+    padding: 16px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+  }
+
+  .choice-card:hover {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.02);
+  }
+
+  .choice-card.selected {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.05);
+  }
+
+  .choice-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .choice-card.selected .choice-radio {
+    border-color: var(--jc-orange);
+    background: var(--jc-orange);
+  }
+
+  .choice-card.selected .choice-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .choice-content {
+    flex: 1;
+  }
+
+  .choice-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .choice-description {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.3;
+  }
+
+  .choice-emoji {
+    font-size: 18px;
+  }
+
+    /* Legal Disclaimers */
+  .legal-disclaimers {
+    margin: 32px 0;
+    padding: 24px 0;
+  }
+  
+  .disclaimer-box {
+    background: #fef2f2;
+    border: 3px solid #fca5a5;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  
+  .disclaimer-box.informational {
+    background: #fef7ed;
+    border-color: #fed7aa;
+  }
+  
+  .disclaimer-title {
+    color: #dc2626;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .disclaimer-box.informational .disclaimer-title {
+    color: #9a3412;
+  }
+  
+  .disclaimer-text {
+    color: #7f1d1d;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .disclaimer-box.informational .disclaimer-text {
+    color: #9a3412;
+  }
+
+  /* Consent Checkbox */
+  .consent-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 24px 0;
+    padding: 20px;
+    background: var(--muted);
+    border-radius: 12px;
+    border: 2px solid var(--line);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .consent-checkbox:hover {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.02);
+  }
+  
+  .consent-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+  }
+  
+  .consent-text {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 600;
+    flex: 1;
+  }
+
+
+/* Submit Section */
+  .submit-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid var(--line);
+    text-align: center;
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, var(--jc-orange), #e63900);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .submit-note {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--ink2);
+    font-style: italic;
+  }
+
+  /* Results Display */
+  .results-section {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .results-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--jc-orange);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: white;
+    margin: 0 auto 20px;
+  }
+
+  .results-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .score-display {
+    background: var(--card);
+    border: 3px solid var(--jc-orange);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 20px auto;
+    max-width: 400px;
+  }
+
+  .score-value {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--jc-orange);
+    margin-bottom: 8px;
+  }
+
+  .score-label {
+    font-size: 16px;
+    color: var(--ink2);
+    margin-bottom: 12px;
+  }
+
+  .score-description {
+    font-size: 18px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .recommendations {
+    text-align: left;
+    margin: 32px auto;
+    max-width: 600px;
+  }
+
+  .recommendations h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .recommendation {
+    background: var(--muted);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border-left: 4px solid var(--jc-orange);
+  }
+
+  .rec-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rec-description {
+    font-size: 16px;
+    color: var(--ink2);
+    line-height: 1.4;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    body { font-size: 18px; }
+    .hero-headline { font-size: 2.25rem; }
+    .hero-subhead { font-size: 20px; }
+    .hero-desc { font-size: 16px; }
+    .form-card { padding: 24px; }
+    .field-row { grid-template-columns: 1fr; gap: 12px; }
+    .section-title { font-size: 20px; }
+    .field-label { font-size: 16px; }
+    .field-input { font-size: 16px; padding: 12px 14px; }
+    .help-tooltip { width: 200px; font-size: 12px; }
+    .what-box { margin: 0 16px 20px; padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="strategy-wrap">
+  <div class="jc-bar"></div>
+  
+  <!-- Hero Section -->
+  <section class="strategy-hero">
+    <div class="hero-badge">Free Legal Strategy Assessment</div>
+    <h1 class="hero-headline">Discover Your Legal Priorities</h1>
+    <p class="hero-subhead">Get a personalized legal strategy roadmap in 5 minutes</p>
+    <p class="hero-desc">Understand your biggest legal vulnerabilities and prioritized action plan</p>
+  </section>
+
+  <!-- What Box -->
+  <div class="what-box">
+    <h2>This Free Assessment Will Tell You:</h2>
+    <div class="what-list">
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">Your biggest legal vulnerabilities right now</span>
+      </div>
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">Which legal protections you need first (and which can wait)</span>
+      </div>
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">Your Legal Foundation Score™ from 0-100</span>
+      </div>
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">A prioritized roadmap specific to your role and goals</span>
+      </div>
+      <div class="what-item">
+        <span class="what-icon">✓</span>
+        <span class="what-text">Next steps to protect your business and assets</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Section -->
+  <div class="form-container">
+    <div class="form-card">
+      <form id="strategyForm">
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">👤</span>
+            Let's Get Started
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Your Name
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">We'll use your name to personalize your legal strategy recommendations</div>
+                </span>
+              </label>
+              <input type="text" name="name" class="field-input" placeholder="Your full name" required>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Email Address
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">We'll email your Legal Foundation Score and personalized strategy within minutes</div>
+                </span>
+              </label>
+              <input type="email" name="email" class="field-input" placeholder="your@email.com" required>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              What best describes your primary role?
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Your role determines unique legal vulnerability patterns and protection needs</div>
+              </span>
+            </label>
+            <p class="field-helper">This helps us understand your unique legal needs and risk profile</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'role', 'founder')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🚀</span> Founder/Entrepreneur</div>
+                  <div class="choice-description">Building a company, leading a startup, launching ventures</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'role', 'business-owner')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🏪</span> Business Owner</div>
+                  <div class="choice-description">Running an established business, agency, or service company</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'role', 'professional')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">💼</span> Working Professional</div>
+                  <div class="choice-description">Employed professional focused on personal wealth protection</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'role', 'creator')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🎨</span> Content Creator/Influencer</div>
+                  <div class="choice-description">Creating content, building audience, managing brand partnerships</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'role', 'investor')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🏢</span> Real Estate/Investor</div>
+                  <div class="choice-description">Managing investments, real estate portfolio, or family wealth</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Stage -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">📈</span>
+            Your Current Stage
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Where are you in your journey?
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Your stage determines legal priority timing and complexity requirements</div>
+              </span>
+            </label>
+            <p class="field-helper">This affects which legal strategies we prioritize first</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'stage', 'planning')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">💡</span> Planning/Early Stage</div>
+                  <div class="choice-description">Developing concepts, just starting out, early stages</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'stage', 'building')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">⚡</span> Active/Building</div>
+                  <div class="choice-description">Actively working, creating, establishing operations</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'stage', 'growth')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">📈</span> Growth/Scaling</div>
+                  <div class="choice-description">Generating consistent income, looking to expand</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'stage', 'established')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🏛️</span> Established/Optimizing</div>
+                  <div class="choice-description">Well-established, focused on protection and optimization</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Current Legal Structure
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Your entity structure affects liability protection, taxes, and investment opportunities</div>
+                </span>
+              </label>
+              <p class="field-helper">How are your activities structured?</p>
+              <select name="legalStructure" class="field-input field-select" required>
+                <option value="">Select structure...</option>
+                <option value="none">No Formal Structure</option>
+                <option value="llc">LLC (Limited Liability Company)</option>
+                <option value="corporation">Corporation (C-Corp or S-Corp)</option>
+                <option value="multiple">Multiple Entities</option>
+                <option value="unsure">Unsure/Other</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Revenue/Asset Level
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Financial position determines legal strategy complexity and protection priorities</div>
+                </span>
+              </label>
+              <p class="field-helper">Approximate annual revenue or asset value</p>
+              <select name="financialLevel" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="starting">Getting Started (Under $50K)</option>
+                <option value="moderate">Building Momentum ($50K-$250K)</option>
+                <option value="strong">Strong Position ($250K-$1M)</option>
+                <option value="substantial">Substantial Wealth ($1M+)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Protection Status -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🛡️</span>
+            Current Protection Level
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Intellectual Property Protection
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">IP protection impacts business valuation and competitive positioning</div>
+                </span>
+              </label>
+              <p class="field-helper">How protected are your creative works and brand?</p>
+              <select name="ipProtection" class="field-input field-select" required>
+                <option value="">Select level...</option>
+                <option value="none">No Protection</option>
+                <option value="basic">Basic Protection</option>
+                <option value="moderate">Moderate Protection</option>
+                <option value="comprehensive">Comprehensive Strategy</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Contract Management
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Contract sophistication determines deal-making power and dispute prevention</div>
+                </span>
+              </label>
+              <p class="field-helper">How do you handle agreements and deals?</p>
+              <select name="contractManagement" class="field-input field-select" required>
+                <option value="">Select approach...</option>
+                <option value="informal">Informal/Verbal</option>
+                <option value="templates">Basic Templates</option>
+                <option value="standard">Standard Contracts</option>
+                <option value="professional">Attorney-Reviewed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk Concerns -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">⚠️</span>
+            Risk Assessment
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              What keeps you up at night legally?
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Risk concerns reveal vulnerability priorities and guide strategic protection planning</div>
+              </span>
+            </label>
+            <p class="field-helper">Select all areas where you feel vulnerable (choose all that apply)</p>
+            <div class="choice-grid">
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'riskConcerns', 'liability')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🛡️</span> Personal Asset Protection</div>
+                  <div class="choice-description">Protecting wealth from lawsuits or claims</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'riskConcerns', 'ip-theft')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">💡</span> IP Theft</div>
+                  <div class="choice-description">Someone stealing ideas or content</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'riskConcerns', 'bad-deals')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">📝</span> Bad Deals</div>
+                  <div class="choice-description">Getting locked into unfavorable agreements</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'riskConcerns', 'compliance')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">⚖️</span> Legal Compliance</div>
+                  <div class="choice-description">Breaking rules without knowing it</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'riskConcerns', 'tax-issues')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">💰</span> Tax Issues</div>
+                  <div class="choice-description">Paying too much or missing obligations</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'riskConcerns', 'legacy')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🏛️</span> Legacy Planning</div>
+                  <div class="choice-description">What happens to assets if something happens to you</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Primary Goal for Next 12 Months
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Strategic goals drive legal priority sequencing and resource allocation</div>
+              </span>
+            </label>
+            <p class="field-helper">What's your main objective?</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'protect')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🔒</span> Protect & Secure</div>
+                  <div class="choice-description">Lock down foundations and minimize risk</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'scale')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🚀</span> Scale & Grow</div>
+                  <div class="choice-description">Expand operations and increase revenue</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'fundraise')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">💎</span> Raise Capital</div>
+                  <div class="choice-description">Prepare for investors or major funding</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'optimize')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">⚡</span> Optimize & Refine</div>
+                  <div class="choice-description">Improve efficiency and reduce costs</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'exit')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title"><span class="choice-emoji">🎯</span> Plan Exit/Transition</div>
+                  <div class="choice-description">Prepare for sale, succession, or major change</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+                <!-- Legal Disclaimers -->
+        <div class="legal-disclaimers">
+          <div class="disclaimer-box">
+            <h4 class="disclaimer-title">⚖️ CRITICAL LEGAL NOTICE</h4>
+            <p class="disclaimer-text">
+              <strong>NO ATTORNEY-CLIENT PRIVILEGE EXISTS.</strong> This intake form does NOT create an attorney-client relationship. 
+              Any information you provide is NOT protected by attorney-client privilege until you have executed a formal 
+              engagement letter with Jacobs Counsel LLC. Do not include confidential or sensitive information until a signed 
+              engagement agreement is in place.
+            </p>
+          </div>
+          
+          <div class="disclaimer-box informational">
+            <h4 class="disclaimer-title">📄 Information Notice</h4>
+            <p class="disclaimer-text">
+              This consultation and any resulting communication is for <strong>INFORMATIONAL PURPOSES ONLY</strong> and does not 
+              constitute legal advice. The information provided is general in nature and may not apply to your specific situation. 
+              Legal advice can only be given after establishing a formal attorney-client relationship through a signed engagement agreement.
+            </p>
+          </div>
+        </div>
+
+
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+          <label class="consent-checkbox">
+            <input type="checkbox" name="consentAcknowledged" required>
+            <span class="checkmark"></span>
+            <span class="consent-text">I acknowledge that I have read and understand the legal disclaimers above and that no attorney-client relationship is created by submitting this form.</span>
+          </label>
+          
+          <button type="submit" class="btn-submit">Get My Legal Foundation Score →</button>
+          <p class="submit-note">
+            Free assessment • Personalized results in minutes • No obligation
+          </p>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="results-section" id="resultsSection">
+    <div class="results-icon">📊</div>
+    <h2 class="results-title">Your Legal Foundation Score</h2>
+    
+    <div class="score-display">
+      <div class="score-value" id="scoreValue">--</div>
+      <div class="score-label">Legal Foundation Score™</div>
+      <div class="score-description" id="scoreDescription">Calculating your personalized score...</div>
+    </div>
+
+    <div class="recommendations" id="recommendations">
+      <h3>Your Priority Action Plan</h3>
+      <!-- Recommendations will be populated by JavaScript -->
+    </div>
+
+    <div style="text-align: center; margin-top: 32px;">
+      <a href="https://app.usemotion.com/meet/drew-jacobs-jcllc/8xx9grm" class="btn-submit" style="text-decoration: none; display: inline-block;">
+        📅 Book Free Strategy Call
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Store form data
+let formData = {};
+
+// Handle choice selection (single choice)
+function selectChoice(element, fieldName, value) {
+  // Remove selected from siblings
+  const siblings = element.parentNode.querySelectorAll('.choice-card');
+  siblings.forEach(card => card.classList.remove('selected'));
+  
+  // Add selected to clicked element
+  element.classList.add('selected');
+  
+  // Store value
+  formData[fieldName] = value;
+  
+  console.log('Selected:', fieldName, value);
+}
+
+// Handle multiple choice selection
+function selectMultiple(element, fieldName, value) {
+  element.classList.toggle('selected');
+  
+  // Initialize array if needed
+  if (!formData[fieldName]) {
+    formData[fieldName] = [];
+  }
+  
+  // Add or remove value
+  const index = formData[fieldName].indexOf(value);
+  if (index > -1) {
+    formData[fieldName].splice(index, 1);
+  } else {
+    formData[fieldName].push(value);
+  }
+  
+  console.log('Multiple selected:', fieldName, formData[fieldName]);
+}
+
+// Calculate Legal Foundation Score
+function calculateScore() {
+  let score = 0;
+  
+  // Role-based starting points
+  const rolePoints = {
+    'founder': 10,
+    'business-owner': 15,
+    'professional': 20,
+    'creator': 8,
+    'investor': 25
+  };
+  score += rolePoints[formData.role] || 0;
+  
+  // Stage progression bonus
+  const stagePoints = {
+    'planning': 5,
+    'building': 10,
+    'growth': 15,
+    'established': 20
+  };
+  score += stagePoints[formData.stage] || 0;
+  
+  // Legal structure points
+  const structurePoints = {
+    'none': 0,
+    'llc': 20,
+    'corporation': 25,
+    'multiple': 30,
+    'unsure': 5
+  };
+  score += structurePoints[formData.legalStructure] || 0;
+  
+  // IP protection points
+  const ipPoints = {
+    'none': 0,
+    'basic': 10,
+    'moderate': 20,
+    'comprehensive': 30
+  };
+  score += ipPoints[formData.ipProtection] || 0;
+  
+  // Contract management points
+  const contractPoints = {
+    'informal': 0,
+    'templates': 8,
+    'standard': 15,
+    'professional': 25
+  };
+  score += contractPoints[formData.contractManagement] || 0;
+  
+  // Financial level bonus
+  const financialPoints = {
+    'starting': 0,
+    'moderate': 5,
+    'strong': 10,
+    'substantial': 15
+  };
+  score += financialPoints[formData.financialLevel] || 0;
+  
+  return Math.min(100, Math.max(0, score));
+}
+
+// Generate recommendations based on assessment
+function generateRecommendations(score) {
+  const recommendations = [];
+  
+  // Structure recommendations
+  if (formData.legalStructure === 'none' || formData.legalStructure === 'unsure') {
+    recommendations.push({
+      icon: '🏢',
+      title: 'Business Entity Formation',
+      description: 'Establish proper legal structure to protect personal assets and optimize taxes.'
+    });
+  }
+  
+  // IP recommendations
+  if (formData.ipProtection === 'none' || formData.ipProtection === 'basic') {
+    recommendations.push({
+      icon: '™️',
+      title: 'Intellectual Property Protection',
+      description: 'Secure trademarks and copyrights to protect your brand and creative works.'
+    });
+  }
+  
+  // Contract recommendations
+  if (formData.contractManagement === 'informal' || formData.contractManagement === 'templates') {
+    recommendations.push({
+      icon: '📝',
+      title: 'Professional Contract System',
+      description: 'Implement attorney-reviewed contracts to protect interests in every deal.'
+    });
+  }
+  
+  // Risk-based recommendations
+  if (formData.riskConcerns && formData.riskConcerns.includes('liability')) {
+    recommendations.push({
+      icon: '🛡️',
+      title: 'Asset Protection Planning',
+      description: 'Shield personal wealth from potential lawsuits and business risks.'
+    });
+  }
+  
+  if (formData.riskConcerns && formData.riskConcerns.includes('legacy')) {
+    recommendations.push({
+      icon: '🏛️',
+      title: 'Estate Planning Strategy',
+      description: 'Ensure wealth transfer and legacy protection for your family.'
+    });
+  }
+  
+  // Goal-based recommendations
+  if (formData.primaryGoal === 'fundraise') {
+    recommendations.push({
+      icon: '💎',
+      title: 'Investment Readiness Package',
+      description: 'Prepare legal documentation for fundraising and investor relations.'
+    });
+  }
+  
+  return recommendations.slice(0, 4); // Limit to top 4 recommendations
+}
+
+// Display results
+function displayResults(score) {
+  // Hide form, show results
+  document.querySelector('.form-container').style.display = 'none';
+  document.getElementById('resultsSection').style.display = 'block';
+  
+  // Display score
+  document.getElementById('scoreValue').textContent = score;
+  
+  // Score description
+  let description = '';
+  if (score >= 80) description = 'Excellent foundation with minor optimization opportunities';
+  else if (score >= 60) description = 'Good foundation with key areas for improvement';
+  else if (score >= 40) description = 'Developing foundation with important gaps to address';
+  else description = 'Early stage - significant opportunities to strengthen legal position';
+  
+  document.getElementById('scoreDescription').textContent = description;
+  
+  // Generate and display recommendations
+  const recommendations = generateRecommendations(score);
+  const recommendationsContainer = document.getElementById('recommendations');
+  
+  let recommendationsHTML = '<h3>Your Priority Action Plan</h3>';
+  recommendations.forEach(rec => {
+    recommendationsHTML += `
+      <div class="recommendation">
+        <div class="rec-title">${rec.icon} ${rec.title}</div>
+        <div class="rec-description">${rec.description}</div>
+      </div>
+    `;
+  });
+  
+  recommendationsContainer.innerHTML = recommendationsHTML;
+  
+  // Scroll to results
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Handle form submission
+document.getElementById('strategyForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = e.target.querySelector('.btn-submit');
+  const originalText = submitBtn.textContent;
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Calculating Score...';
+  
+  try {
+    // Collect form data
+    const formDataObj = new FormData(this);
+    
+    // Add choice selections
+    Object.keys(formData).forEach(key => {
+      if (Array.isArray(formData[key])) {
+        formDataObj.append(key, formData[key].join(','));
+      } else {
+        formDataObj.append(key, formData[key]);
+      }
+    });
+    
+    // Calculate score
+    const score = calculateScore();
+    formDataObj.append('legalFoundationScore', score);
+    
+    // Add metadata
+    formDataObj.append('submissionType', 'legal-strategy-builder-ux');
+    formDataObj.append('source', 'legal-strategy-builder-ux-improved');
+    formDataObj.append('timestamp', new Date().toISOString());
+    
+    // Submit to backend (non-blocking)
+    fetch('https://estate-intake-system.onrender.com/legal-strategy-builder', {
+      method: 'POST',
+      body: formDataObj
+    }).catch(error => {
+      console.error('Background submission error:', error);
+    });
+    
+    // Display results immediately
+    displayResults(score);
+    
+  } catch (error) {
+    console.error('Assessment error:', error);
+    // Still show results even if backend fails
+    const score = calculateScore();
+    displayResults(score);
+  }
+});
+
+// Initialize form
+window.addEventListener('load', function() {
+  console.log('Legal strategy builder loaded');
+});
+</script>
+
+</body>
+</html>

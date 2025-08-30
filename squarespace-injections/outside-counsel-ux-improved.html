@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outside Counsel Services | Strategic Legal Partnership | Jacobs Counsel</title>
+<style>
+  :root {
+    --jc-orange: #ff4d00;
+    --jc-ink: #0f172a;
+    --bg: #ffffff;
+    --ink: #0f172a;
+    --ink2: #64748b;
+    --line: #e2e8f0;
+    --ok: #059669;
+    --err: #dc2626;
+    --warn: #d97706;
+    --card: #ffffff;
+    --muted: #f8fafc;
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 20px;
+  }
+  .counsel-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--bg);
+  }
+  .jc-bar {
+    height: 5px;
+    background: linear-gradient(90deg, var(--jc-orange), var(--jc-ink));
+  }
+
+  /* Header */
+  .counsel-hero {
+    background: linear-gradient(135deg, var(--muted) 0%, var(--bg) 100%);
+    padding: 40px 20px 24px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--jc-orange);
+    color: white;
+    padding: 5px 16px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .hero-headline {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .hero-subhead {
+    font-size: 24px;
+    color: var(--jc-orange);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .hero-desc {
+    font-size: 18px;
+    color: var(--ink2);
+    max-width: 600px;
+    margin: 0 auto 20px;
+    line-height: 1.5;
+  }
+
+  /* Form Container */
+  .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .form-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--line);
+  }
+
+  /* Section Headers */
+  .form-section {
+    margin-bottom: 28px;
+  }
+  .form-section:last-child {
+    margin-bottom: 0;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-icon {
+    font-size: 24px;
+  }
+
+  /* Field Groups */
+  .field-group {
+    margin-bottom: 20px;
+  }
+  .field-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* Labels with Help Icons */
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .help-icon {
+    width: 18px;
+    height: 18px;
+    background: var(--ink2);
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+
+  .help-icon:hover {
+    background: var(--jc-orange);
+    transform: scale(1.1);
+  }
+
+  .help-tooltip {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--jc-ink);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    width: 240px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  .help-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--jc-ink);
+  }
+
+  .help-icon:hover .help-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Quick Summary Helper */
+  .field-helper {
+    font-size: 14px;
+    color: var(--ink2);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  /* Form Inputs */
+  .field-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: var(--bg);
+  }
+
+  .field-input:focus {
+    outline: none;
+    border-color: var(--jc-orange);
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  }
+
+  .field-input:valid:not(:placeholder-shown) {
+    border-color: var(--ok);
+  }
+
+  .field-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+
+  .field-textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  /* Choice Cards for Better UX */
+  .choice-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .choice-card {
+    padding: 16px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+  }
+
+  .choice-card:hover {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.02);
+  }
+
+  .choice-card.selected {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.05);
+  }
+
+  .choice-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .choice-card.selected .choice-radio {
+    border-color: var(--jc-orange);
+    background: var(--jc-orange);
+  }
+
+  .choice-card.selected .choice-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .choice-content {
+    flex: 1;
+  }
+
+  .choice-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .choice-description {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.3;
+  }
+
+  /* Expandable Sections */
+  .expandable-section {
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .expandable-header {
+    padding: 16px 20px;
+    background: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+  }
+
+  .expandable-header:hover {
+    background: var(--line);
+  }
+
+  .expandable-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .expandable-icon {
+    font-size: 18px;
+    color: var(--ink2);
+    transition: transform 0.3s ease;
+  }
+
+  .expandable-section.open .expandable-icon {
+    transform: rotate(180deg);
+  }
+
+  .expandable-content {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .expandable-section.open .expandable-content {
+    padding: 20px;
+    max-height: 500px;
+  }
+
+    /* Legal Disclaimers */
+  .legal-disclaimers {
+    margin: 32px 0;
+    padding: 24px 0;
+  }
+  
+  .disclaimer-box {
+    background: #fef2f2;
+    border: 3px solid #fca5a5;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  
+  .disclaimer-box.informational {
+    background: #fef7ed;
+    border-color: #fed7aa;
+  }
+  
+  .disclaimer-title {
+    color: #dc2626;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .disclaimer-box.informational .disclaimer-title {
+    color: #9a3412;
+  }
+  
+  .disclaimer-text {
+    color: #7f1d1d;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .disclaimer-box.informational .disclaimer-text {
+    color: #9a3412;
+  }
+
+  /* Consent Checkbox */
+  .consent-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 24px 0;
+    padding: 20px;
+    background: var(--muted);
+    border-radius: 12px;
+    border: 2px solid var(--line);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .consent-checkbox:hover {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.02);
+  }
+  
+  .consent-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+  }
+  
+  .consent-text {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 600;
+    flex: 1;
+  }
+
+
+/* Submit Section */
+  .submit-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid var(--line);
+    text-align: center;
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, var(--jc-orange), #e63900);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .submit-note {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--ink2);
+    font-style: italic;
+  }
+
+  /* Success State */
+  .success-message {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--ok);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: white;
+    margin: 0 auto 20px;
+  }
+
+  .success-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .success-text {
+    font-size: 18px;
+    color: var(--ink2);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    body { font-size: 18px; }
+    .hero-headline { font-size: 2.25rem; }
+    .hero-subhead { font-size: 20px; }
+    .hero-desc { font-size: 16px; }
+    .form-card { padding: 24px; }
+    .field-row { grid-template-columns: 1fr; gap: 12px; }
+    .section-title { font-size: 20px; }
+    .field-label { font-size: 16px; }
+    .field-input { font-size: 16px; padding: 12px 14px; }
+    .help-tooltip { width: 200px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="counsel-wrap">
+  <div class="jc-bar"></div>
+  
+  <!-- Hero Section -->
+  <section class="counsel-hero">
+    <div class="hero-badge">Outside Counsel Services</div>
+    <h1 class="hero-headline">Strategic Legal Partnership</h1>
+    <p class="hero-subhead">Dedicated Outside Counsel Support</p>
+    <p class="hero-desc">Get ongoing legal guidance and strategic support tailored to your business needs</p>
+  </section>
+
+  <!-- Form Section -->
+  <div class="form-container">
+    <div class="form-card">
+      <form id="counselForm">
+        
+        <!-- Contact Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">👤</span>
+            Contact Information
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Your Name
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">We'll use your name for all legal communications and engagement documentation</div>
+                </span>
+              </label>
+              <input type="text" name="contactName" class="field-input" placeholder="Your full name" required>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Email Address
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">We'll send your legal strategy recommendations and engagement proposal here</div>
+                </span>
+              </label>
+              <input type="email" name="email" class="field-input" placeholder="your@email.com" required>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Phone Number</label>
+              <input type="tel" name="phone" class="field-input" placeholder="(555) 123-4567">
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Company/Organization
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Your company name helps us understand entity structure and business context</div>
+                </span>
+              </label>
+              <input type="text" name="companyName" class="field-input" placeholder="Your company name" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Overview -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🏢</span>
+            Business Intelligence
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Industry/Sector
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Your industry determines regulatory requirements and specialized legal expertise needed</div>
+                </span>
+              </label>
+              <p class="field-helper">What industry are you in?</p>
+              <select name="industry" class="field-input field-select" required>
+                <option value="">Select industry...</option>
+                <option value="technology">Technology/Software</option>
+                <option value="healthcare">Healthcare/Life Sciences</option>
+                <option value="financial">Financial Services</option>
+                <option value="professional-services">Professional Services</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="retail">Retail/E-commerce</option>
+                <option value="real-estate">Real Estate</option>
+                <option value="media">Media/Entertainment</option>
+                <option value="nonprofit">Nonprofit</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Business Stage
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Your business stage affects legal complexity and support structure needs</div>
+                </span>
+              </label>
+              <p class="field-helper">Where are you in your business journey?</p>
+              <select name="businessStage" class="field-input field-select" required>
+                <option value="">Select stage...</option>
+                <option value="startup">Startup/Early Stage</option>
+                <option value="growth">Growth Stage</option>
+                <option value="scaling">Scaling/Expanding</option>
+                <option value="mature">Mature/Established</option>
+                <option value="transition">Transition/Restructuring</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Annual Revenue Range
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Revenue size helps us recommend appropriate engagement level and structure</div>
+                </span>
+              </label>
+              <p class="field-helper">What's your approximate annual revenue?</p>
+              <select name="revenue" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="pre-revenue">Pre-Revenue</option>
+                <option value="under-500k">Under $500K</option>
+                <option value="500k-2m">$500K - $2M</option>
+                <option value="2m-10m">$2M - $10M</option>
+                <option value="10m-50m">$10M - $50M</option>
+                <option value="50m-plus">$50M+</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Team Size
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Team size affects employment law, corporate governance, and operational legal needs</div>
+                </span>
+              </label>
+              <p class="field-helper">How many people work for your organization?</p>
+              <select name="teamSize" class="field-input field-select">
+                <option value="">Select size...</option>
+                <option value="solo">Just me</option>
+                <option value="2-5">2-5 people</option>
+                <option value="6-10">6-10 people</option>
+                <option value="11-25">11-25 people</option>
+                <option value="26-50">26-50 people</option>
+                <option value="50-plus">50+ people</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Business Description
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Understanding your business model helps us identify relevant legal priorities and risks</div>
+              </span>
+            </label>
+            <p class="field-helper">What does your business do? What are your main products/services?</p>
+            <textarea name="businessDescription" class="field-input field-textarea" placeholder="Describe your business model, target customers, products/services, and key operational aspects..." required></textarea>
+          </div>
+        </div>
+
+        <!-- Legal Needs & Priorities -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">⚖️</span>
+            Legal Support Priorities
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Primary Legal Focus Areas
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Select your top legal priorities to help us customize support and resource allocation</div>
+              </span>
+            </label>
+            <p class="field-helper">What legal areas are most important for your business? (Select all that apply)</p>
+            <div class="choice-grid">
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'legalFocus', 'contracts')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Contract Management</div>
+                  <div class="choice-description">Review, drafting, and negotiation support</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'legalFocus', 'employment')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Employment Law</div>
+                  <div class="choice-description">HR policies, compliance, workforce issues</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'legalFocus', 'compliance')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Regulatory Compliance</div>
+                  <div class="choice-description">Industry regulations and ongoing compliance</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'legalFocus', 'ip')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Intellectual Property</div>
+                  <div class="choice-description">Trademarks, copyrights, IP strategy</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'legalFocus', 'fundraising')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Fundraising & Investment</div>
+                  <div class="choice-description">Investor relations, securities compliance</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'legalFocus', 'ma')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">M&A & Transactions</div>
+                  <div class="choice-description">Mergers, acquisitions, strategic deals</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'legalFocus', 'governance')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Corporate Governance</div>
+                  <div class="choice-description">Board management, entity structure</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'legalFocus', 'litigation')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Dispute Resolution</div>
+                  <div class="choice-description">Contract disputes, litigation support</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Current Legal Challenges
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Understanding immediate challenges helps us prioritize support and develop targeted solutions</div>
+              </span>
+            </label>
+            <p class="field-helper">What are your most pressing legal issues or concerns?</p>
+            <textarea name="legalChallenges" class="field-input field-textarea" placeholder="Describe your current legal challenges, upcoming transactions, areas where you need immediate support, or pain points with your current legal setup..."></textarea>
+          </div>
+        </div>
+
+        <!-- Current Legal Setup -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🏛️</span>
+            Current Legal Infrastructure
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Current Legal Counsel
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Understanding your current setup helps us identify how to best complement or improve your legal support</div>
+                </span>
+              </label>
+              <p class="field-helper">What's your current legal support structure?</p>
+              <select name="currentCounsel" class="field-input field-select" required>
+                <option value="">Select current setup...</option>
+                <option value="none">No current legal counsel</option>
+                <option value="occasional">Use lawyers occasionally</option>
+                <option value="multiple-firms">Multiple law firms for different needs</option>
+                <option value="primary-firm">Primary outside law firm</option>
+                <option value="in-house">In-house legal counsel</option>
+                <option value="mixed">Mix of in-house and outside counsel</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Monthly Legal Spend
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Current spend helps us understand your budget expectations and recommend appropriate engagement levels</div>
+                </span>
+              </label>
+              <p class="field-helper">Approximate monthly legal expenses</p>
+              <select name="legalSpend" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="under-1k">Under $1K</option>
+                <option value="1k-5k">$1K - $5K</option>
+                <option value="5k-10k">$5K - $10K</option>
+                <option value="10k-25k">$10K - $25K</option>
+                <option value="25k-plus">$25K+</option>
+                <option value="varies">Varies significantly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Current Legal Pain Points
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Pain points help us design legal support that eliminates frustrations and inefficiencies</div>
+              </span>
+            </label>
+            <p class="field-helper">What's not working with your current legal setup?</p>
+            <div class="choice-grid">
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'painPoints', 'cost')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Cost & Budget Unpredictability</div>
+                  <div class="choice-description">Legal expenses are hard to budget and control</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'painPoints', 'responsiveness')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Slow Response Times</div>
+                  <div class="choice-description">Lawyers are hard to reach when needed</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'painPoints', 'business-understanding')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Lack of Business Context</div>
+                  <div class="choice-description">Lawyers don't understand our business</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'painPoints', 'expertise-gaps')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Expertise Gaps</div>
+                  <div class="choice-description">Missing specialized knowledge we need</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'painPoints', 'coordination')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Poor Coordination</div>
+                  <div class="choice-description">Multiple lawyers don't work well together</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'painPoints', 'strategic-guidance')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Lack of Strategic Guidance</div>
+                  <div class="choice-description">Too reactive, not enough proactive advice</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Partnership Preferences -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🤝</span>
+            Partnership Preferences
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Preferred Engagement Level
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Different engagement levels provide different value and pricing structures</div>
+                </span>
+              </label>
+              <p class="field-helper">What type of legal partnership do you prefer?</p>
+              <select name="engagementLevel" class="field-input field-select">
+                <option value="">Select preference...</option>
+                <option value="project-based">Project-Based (specific matters)</option>
+                <option value="retainer">Monthly Retainer (ongoing support)</option>
+                <option value="comprehensive">Comprehensive Partnership (full service)</option>
+                <option value="consultation">Need consultation to determine</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Implementation Timeline
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Timeline helps us prioritize your setup and initial legal support needs</div>
+                </span>
+              </label>
+              <p class="field-helper">When do you want to start legal support?</p>
+              <select name="timeline" class="field-input field-select" required>
+                <option value="">Select timeline...</option>
+                <option value="immediate">Immediate (this week)</option>
+                <option value="2weeks">Within 2 weeks</option>
+                <option value="1month">Within 1 month</option>
+                <option value="flexible">Flexible timeline</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Communication Preferences
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Communication style affects how we structure our partnership and client interactions</div>
+              </span>
+            </label>
+            <p class="field-helper">How do you prefer to work with legal counsel?</p>
+            <div class="choice-grid">
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'commPrefs', 'email')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Email Updates</div>
+                  <div class="choice-description">Regular email communication and updates</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'commPrefs', 'calls')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Regular Calls</div>
+                  <div class="choice-description">Scheduled check-ins and phone discussions</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'commPrefs', 'slack')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Slack/Teams Integration</div>
+                  <div class="choice-description">Direct integration with business communication</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'commPrefs', 'portal')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Client Portal Access</div>
+                  <div class="choice-description">Dedicated portal for documents and status</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="expandable-section">
+          <div class="expandable-header" onclick="toggleExpand(this)">
+            <h4 class="expandable-title">Additional Details & Special Requirements (Optional)</h4>
+            <span class="expandable-icon">▼</span>
+          </div>
+          <div class="expandable-content">
+            <div class="field-group">
+              <label class="field-label">
+                Operational Complexity
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Operational details help us understand your unique legal support needs</div>
+                </span>
+              </label>
+              <p class="field-helper">Any operational factors that affect legal needs?</p>
+              <textarea name="operationalComplexity" class="field-input field-textarea" placeholder="Examples: Multi-state operations, international business, regulatory environment, customer types, unique operational challenges, etc."></textarea>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">
+                Special Requirements & Preferences
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Special requirements help us customize our partnership approach</div>
+                </span>
+              </label>
+              <textarea name="specialRequirements" class="field-input field-textarea" placeholder="Any specific requirements for working style, reporting needs, budget constraints, confidentiality requirements, or other partnership preferences?"></textarea>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Questions & Additional Information</label>
+              <textarea name="questions" class="field-input field-textarea" placeholder="Any questions about outside counsel services, specific concerns about your legal needs, or additional information that would help us serve you better?"></textarea>
+            </div>
+          </div>
+        </div>
+
+                <!-- Legal Disclaimers -->
+        <div class="legal-disclaimers">
+          <div class="disclaimer-box">
+            <h4 class="disclaimer-title">⚖️ CRITICAL LEGAL NOTICE</h4>
+            <p class="disclaimer-text">
+              <strong>NO ATTORNEY-CLIENT PRIVILEGE EXISTS.</strong> This intake form does NOT create an attorney-client relationship. 
+              Any information you provide is NOT protected by attorney-client privilege until you have executed a formal 
+              engagement letter with Jacobs Counsel LLC. Do not include confidential or sensitive information until a signed 
+              engagement agreement is in place.
+            </p>
+          </div>
+          
+          <div class="disclaimer-box informational">
+            <h4 class="disclaimer-title">📄 Information Notice</h4>
+            <p class="disclaimer-text">
+              This consultation and any resulting communication is for <strong>INFORMATIONAL PURPOSES ONLY</strong> and does not 
+              constitute legal advice. The information provided is general in nature and may not apply to your specific situation. 
+              Legal advice can only be given after establishing a formal attorney-client relationship through a signed engagement agreement.
+            </p>
+          </div>
+        </div>
+
+
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+          <label class="consent-checkbox">
+            <input type="checkbox" name="consentAcknowledged" required>
+            <span class="checkmark"></span>
+            <span class="consent-text">I acknowledge that I have read and understand the legal disclaimers above and that no attorney-client relationship is created by submitting this form.</span>
+          </label>
+          
+          <button type="submit" class="btn-submit">Get My Legal Partnership Strategy →</button>
+          <p class="submit-note">
+            Free consultation • Custom legal support proposal within 24 hours • No obligation
+          </p>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div class="success-message" id="successMessage">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">Thank You!</h2>
+    <p class="success-text">
+      Your outside counsel assessment has been submitted. We'll analyze your legal needs and send a personalized legal partnership proposal to your email within 24 hours.
+    </p>
+  </div>
+</div>
+
+<script>
+// Store form data
+let formData = {};
+
+// Handle choice selection (single choice)
+function selectChoice(element, fieldName, value) {
+  // Remove selected from siblings
+  const siblings = element.parentNode.querySelectorAll('.choice-card');
+  siblings.forEach(card => card.classList.remove('selected'));
+  
+  // Add selected to clicked element
+  element.classList.add('selected');
+  
+  // Store value
+  formData[fieldName] = value;
+  
+  console.log('Selected:', fieldName, value);
+}
+
+// Handle multiple choice selection
+function selectMultiple(element, fieldName, value) {
+  element.classList.toggle('selected');
+  
+  // Initialize array if needed
+  if (!formData[fieldName]) {
+    formData[fieldName] = [];
+  }
+  
+  // Add or remove value
+  const index = formData[fieldName].indexOf(value);
+  if (index > -1) {
+    formData[fieldName].splice(index, 1);
+  } else {
+    formData[fieldName].push(value);
+  }
+  
+  console.log('Multiple selected:', fieldName, formData[fieldName]);
+}
+
+// Toggle expandable sections
+function toggleExpand(header) {
+  const section = header.parentNode;
+  section.classList.toggle('open');
+}
+
+// Handle form submission
+document.getElementById('counselForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = e.target.querySelector('.btn-submit');
+  const originalText = submitBtn.textContent;
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Processing...';
+  
+  try {
+    // Collect form data
+    const formDataObj = new FormData(this);
+    
+    // Add choice selections
+    Object.keys(formData).forEach(key => {
+      if (Array.isArray(formData[key])) {
+        formDataObj.append(key, formData[key].join(','));
+      } else {
+        formDataObj.append(key, formData[key]);
+      }
+    });
+    
+    // Add metadata
+    formDataObj.append('submissionType', 'outside-counsel-ux');
+    formDataObj.append('source', 'outside-counsel-ux-improved');
+    formDataObj.append('timestamp', new Date().toISOString());
+    
+    // Submit to backend
+    const response = await fetch('https://estate-intake-system.onrender.com/outside-counsel', {
+      method: 'POST',
+      body: formDataObj
+    });
+    
+    if (response.ok) {
+      // Hide form and show success
+      document.querySelector('.form-container').style.display = 'none';
+      document.getElementById('successMessage').style.display = 'block';
+      
+      // Scroll to success message
+      document.getElementById('successMessage').scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    } else {
+      throw new Error('Submission failed');
+    }
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    alert('There was an error submitting your information. Please try again or contact us directly.');
+    
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+});
+
+// Auto-expand first expandable section for better UX
+window.addEventListener('load', function() {
+  console.log('Outside counsel form loaded');
+});
+</script>
+
+</body>
+</html>

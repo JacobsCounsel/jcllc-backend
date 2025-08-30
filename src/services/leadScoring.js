@@ -95,6 +95,17 @@ export function calculateLeadScore(formData, submissionType) {
       score += 30; // Increased - higher fees
       scoreFactors.push('Complex situation: +30'); 
     }
+    
+    // ATHLETE-SPECIFIC SCORING
+    if (formData.profession === 'athlete' || formData.careerType === 'professional_athlete' || formData.industry === 'sports') {
+      score += 40;
+      scoreFactors.push('Professional athlete: +40');
+      
+      if (formData.brandPartnerships === 'yes' || formData.brandPartnerships === true) {
+        score += 20;
+        scoreFactors.push('Brand partnerships: +20');
+      }
+    }
   }
   
   // Business Formation Scoring (enhanced for startup potential)
@@ -127,7 +138,7 @@ export function calculateLeadScore(formData, submissionType) {
     }
   }
   
-  // Brand Protection Scoring
+  // Brand Protection Scoring (Enhanced for Creators)
   if (submissionType === 'brand-protection') {
     if (formData.servicePreference?.includes('Portfolio') || formData.servicePreference?.includes('7500')) {
       score += 50; // Increased - portfolio clients are valuable
@@ -142,6 +153,36 @@ export function calculateLeadScore(formData, submissionType) {
     if (formData.protectionGoal === 'enforcement') { 
       score += 40; // Increased - enforcement is high-value
       scoreFactors.push('Enforcement need: +40'); 
+    }
+    
+    // CREATOR-SPECIFIC SCORING
+    const socialFollowing = parseInt(formData.socialFollowing?.replace(/[,]/g, '') || '0');
+    if (socialFollowing > 2000000) {
+      score += 60;
+      scoreFactors.push('Major creator (2M+ followers): +60');
+    } else if (socialFollowing > 1000000) {
+      score += 50;
+      scoreFactors.push('Large creator (1M+ followers): +50');
+    } else if (socialFollowing > 500000) {
+      score += 30;
+      scoreFactors.push('Mid-tier creator (500K+ followers): +30');
+    }
+    
+    const businessRevenue = parseInt(formData.businessRevenue?.replace(/[,]/g, '') || '0');
+    if (businessRevenue > 2000000) {
+      score += 50;
+      scoreFactors.push('High revenue creator ($2M+): +50');
+    } else if (businessRevenue > 1000000) {
+      score += 40;
+      scoreFactors.push('Successful creator ($1M+): +40');
+    } else if (businessRevenue > 500000) {
+      score += 25;
+      scoreFactors.push('Monetizing creator ($500K+): +25');
+    }
+    
+    if (formData.businessType === 'creator' || formData.revenueStreams?.includes('brand_partnerships')) {
+      score += 20;
+      scoreFactors.push('Creator business model: +20');
     }
   }
   

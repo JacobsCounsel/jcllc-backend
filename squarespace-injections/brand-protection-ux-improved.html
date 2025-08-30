@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Protection Intake | Secure Your Brand | Jacobs Counsel</title>
+<style>
+  :root {
+    --jc-orange: #ff4d00;
+    --jc-ink: #0f172a;
+    --bg: #ffffff;
+    --ink: #0f172a;
+    --ink2: #64748b;
+    --line: #e2e8f0;
+    --ok: #059669;
+    --err: #dc2626;
+    --warn: #d97706;
+    --card: #ffffff;
+    --muted: #f8fafc;
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 20px;
+  }
+  .brand-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--bg);
+  }
+  .jc-bar {
+    height: 5px;
+    background: linear-gradient(90deg, var(--jc-orange), var(--jc-ink));
+  }
+
+  /* Header */
+  .brand-hero {
+    background: linear-gradient(135deg, var(--muted) 0%, var(--bg) 100%);
+    padding: 40px 20px 24px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--jc-orange);
+    color: white;
+    padding: 5px 16px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .hero-headline {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .hero-subhead {
+    font-size: 24px;
+    color: var(--jc-orange);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .hero-desc {
+    font-size: 18px;
+    color: var(--ink2);
+    max-width: 600px;
+    margin: 0 auto 20px;
+    line-height: 1.5;
+  }
+
+  /* Form Container */
+  .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .form-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--line);
+  }
+
+  /* Section Headers */
+  .form-section {
+    margin-bottom: 28px;
+  }
+  .form-section:last-child {
+    margin-bottom: 0;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-icon {
+    font-size: 24px;
+  }
+
+  /* Field Groups */
+  .field-group {
+    margin-bottom: 20px;
+  }
+  .field-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* Labels with Help Icons */
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .help-icon {
+    width: 18px;
+    height: 18px;
+    background: var(--ink2);
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+
+  .help-icon:hover {
+    background: var(--jc-orange);
+    transform: scale(1.1);
+  }
+
+  .help-tooltip {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--jc-ink);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    width: 240px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  .help-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--jc-ink);
+  }
+
+  .help-icon:hover .help-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Quick Summary Helper */
+  .field-helper {
+    font-size: 14px;
+    color: var(--ink2);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  /* Form Inputs */
+  .field-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: var(--bg);
+  }
+
+  .field-input:focus {
+    outline: none;
+    border-color: var(--jc-orange);
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  }
+
+  .field-input:valid:not(:placeholder-shown) {
+    border-color: var(--ok);
+  }
+
+  .field-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+
+  .field-textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  /* Choice Cards for Better UX */
+  .choice-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .choice-card {
+    padding: 16px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+  }
+
+  .choice-card:hover {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.02);
+  }
+
+  .choice-card.selected {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.05);
+  }
+
+  .choice-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .choice-card.selected .choice-radio {
+    border-color: var(--jc-orange);
+    background: var(--jc-orange);
+  }
+
+  .choice-card.selected .choice-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .choice-content {
+    flex: 1;
+  }
+
+  .choice-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .choice-description {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.3;
+  }
+
+  /* Expandable Sections */
+  .expandable-section {
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .expandable-header {
+    padding: 16px 20px;
+    background: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+  }
+
+  .expandable-header:hover {
+    background: var(--line);
+  }
+
+  .expandable-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .expandable-icon {
+    font-size: 18px;
+    color: var(--ink2);
+    transition: transform 0.3s ease;
+  }
+
+  .expandable-section.open .expandable-icon {
+    transform: rotate(180deg);
+  }
+
+  .expandable-content {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .expandable-section.open .expandable-content {
+    padding: 20px;
+    max-height: 500px;
+  }
+
+    /* Legal Disclaimers */
+  .legal-disclaimers {
+    margin: 32px 0;
+    padding: 24px 0;
+  }
+  
+  .disclaimer-box {
+    background: #fef2f2;
+    border: 3px solid #fca5a5;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  
+  .disclaimer-box.informational {
+    background: #fef7ed;
+    border-color: #fed7aa;
+  }
+  
+  .disclaimer-title {
+    color: #dc2626;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .disclaimer-box.informational .disclaimer-title {
+    color: #9a3412;
+  }
+  
+  .disclaimer-text {
+    color: #7f1d1d;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .disclaimer-box.informational .disclaimer-text {
+    color: #9a3412;
+  }
+
+  /* Consent Checkbox */
+  .consent-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 24px 0;
+    padding: 20px;
+    background: var(--muted);
+    border-radius: 12px;
+    border: 2px solid var(--line);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .consent-checkbox:hover {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.02);
+  }
+  
+  .consent-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+  }
+  
+  .consent-text {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 600;
+    flex: 1;
+  }
+
+
+/* Submit Section */
+  .submit-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid var(--line);
+    text-align: center;
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, var(--jc-orange), #e63900);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .submit-note {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--ink2);
+    font-style: italic;
+  }
+
+  /* Success State */
+  .success-message {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--ok);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: white;
+    margin: 0 auto 20px;
+  }
+
+  .success-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .success-text {
+    font-size: 18px;
+    color: var(--ink2);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    body { font-size: 18px; }
+    .hero-headline { font-size: 2.25rem; }
+    .hero-subhead { font-size: 20px; }
+    .hero-desc { font-size: 16px; }
+    .form-card { padding: 24px; }
+    .field-row { grid-template-columns: 1fr; gap: 12px; }
+    .section-title { font-size: 20px; }
+    .field-label { font-size: 16px; }
+    .field-input { font-size: 16px; padding: 12px 14px; }
+    .help-tooltip { width: 200px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand-wrap">
+  <div class="jc-bar"></div>
+  
+  <!-- Hero Section -->
+  <section class="brand-hero">
+    <div class="hero-badge">Brand Protection</div>
+    <h1 class="hero-headline">Secure Your Brand</h1>
+    <p class="hero-subhead">Trademark & IP Protection Strategy</p>
+    <p class="hero-desc">Protect your brand identity and intellectual property with strategic trademark registration</p>
+  </section>
+
+  <!-- Form Section -->
+  <div class="form-container">
+    <div class="form-card">
+      <form id="brandForm">
+        
+        <!-- Contact Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">👤</span>
+            Contact Information
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Your Name
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">We'll use your name for all trademark applications and legal documents</div>
+                </span>
+              </label>
+              <input type="text" name="contactName" class="field-input" placeholder="Your full name" required>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Email Address
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">We'll send your brand protection strategy and trademark recommendations here</div>
+                </span>
+              </label>
+              <input type="email" name="email" class="field-input" placeholder="your@email.com" required>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Phone Number (Optional)</label>
+              <input type="tel" name="phone" class="field-input" placeholder="(555) 123-4567">
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Company Name
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">If applying as a business entity, we'll need your official company name</div>
+                </span>
+              </label>
+              <input type="text" name="companyName" class="field-input" placeholder="Your company name (if applicable)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Brand Assets -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🏷️</span>
+            Your Brand Assets
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Primary Brand Name
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Your main brand name is the cornerstone of your IP portfolio - we'll check availability and strength</div>
+              </span>
+            </label>
+            <p class="field-helper">The main name you want to protect (your most important brand asset)</p>
+            <input type="text" name="primaryBrand" class="field-input" placeholder="Your primary brand/business name" required>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Industry/Market
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Your industry affects trademark classification and competitive landscape analysis</div>
+                </span>
+              </label>
+              <p class="field-helper">What industry/market are you in?</p>
+              <select name="industry" class="field-input field-select" required>
+                <option value="">Select industry...</option>
+                <option value="technology">Technology/Software</option>
+                <option value="professional-services">Professional Services</option>
+                <option value="ecommerce">E-commerce/Retail</option>
+                <option value="healthcare">Healthcare/Wellness</option>
+                <option value="creative">Creative/Media/Entertainment</option>
+                <option value="food-beverage">Food & Beverage</option>
+                <option value="fashion">Fashion/Apparel</option>
+                <option value="beauty">Beauty/Cosmetics</option>
+                <option value="fitness">Fitness/Sports</option>
+                <option value="education">Education/Training</option>
+                <option value="real-estate">Real Estate</option>
+                <option value="automotive">Automotive</option>
+                <option value="financial">Financial Services</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Business Stage
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Your business stage affects trademark strategy timing and priority recommendations</div>
+                </span>
+              </label>
+              <p class="field-helper">Where are you in your business journey?</p>
+              <select name="businessStage" class="field-input field-select">
+                <option value="">Select stage...</option>
+                <option value="startup">Startup/Launch Phase</option>
+                <option value="early">Early Stage Business</option>
+                <option value="growing">Growing Business</option>
+                <option value="established">Established Business</option>
+                <option value="expanding">Expanding/New Markets</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Products & Services
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Product/service details determine trademark classifications and scope of protection needed</div>
+              </span>
+            </label>
+            <p class="field-helper">What products or services will you offer under this brand?</p>
+            <textarea name="productsServices" class="field-input field-textarea" placeholder="Describe your main products or services - be specific about what you offer or plan to offer..." required></textarea>
+          </div>
+        </div>
+
+        <!-- Current IP Status -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🔐</span>
+            Current Protection Status
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Existing IP Protection
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Current protections help us understand what you have and identify gaps in your IP portfolio</div>
+              </span>
+            </label>
+            <p class="field-helper">What intellectual property protection do you currently have?</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'existingIP', 'none')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">No Formal Protection</div>
+                  <div class="choice-description">No registered trademarks or other IP filings</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'existingIP', 'pending')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Pending Applications</div>
+                  <div class="choice-description">Filed applications but not yet registered</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'existingIP', 'some-trademarks')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Some Registered Trademarks</div>
+                  <div class="choice-description">Have some trademark registrations but may need more</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'existingIP', 'comprehensive')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Comprehensive IP Portfolio</div>
+                  <div class="choice-description">Multiple registered trademarks and other IP protections</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Domain Names
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Domain ownership supports trademark rights and brand protection strategy</div>
+                </span>
+              </label>
+              <p class="field-helper">Do you own the domain for your brand?</p>
+              <select name="domainStatus" class="field-input field-select">
+                <option value="">Select status...</option>
+                <option value="own-main">Own primary domain (.com)</option>
+                <option value="own-multiple">Own multiple domains/extensions</option>
+                <option value="dont-own">Don't own domain yet</option>
+                <option value="taken">Desired domain is taken</option>
+                <option value="unsure">Not sure/need guidance</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Social Media Handles
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Social media presence supports brand protection and should align with trademark strategy</div>
+                </span>
+              </label>
+              <p class="field-helper">Have you secured social media handles?</p>
+              <select name="socialHandles" class="field-input field-select">
+                <option value="">Select status...</option>
+                <option value="secured-main">Secured on major platforms</option>
+                <option value="secured-some">Secured on some platforms</option>
+                <option value="not-secured">Haven't secured handles</option>
+                <option value="taken">Desired handles are taken</option>
+                <option value="need-help">Need help with strategy</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Protection Goals -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🎯</span>
+            Protection Priorities
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Primary Protection Goal
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Your main goal helps us prioritize recommendations and budget allocation</div>
+              </span>
+            </label>
+            <p class="field-helper">What's your main reason for seeking brand protection?</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'prevent-copycats')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Prevent Copycats & Knockoffs</div>
+                  <div class="choice-description">Stop competitors from copying your brand</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'establish-rights')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Establish Legal Rights</div>
+                  <div class="choice-description">Create enforceable trademark rights and protection</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'prepare-growth')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Prepare for Business Growth</div>
+                  <div class="choice-description">Protect brand before expansion or investment</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'defensive')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Defensive Protection</div>
+                  <div class="choice-description">Respond to existing threats or conflicts</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'primaryGoal', 'comprehensive')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Comprehensive IP Strategy</div>
+                  <div class="choice-description">Build complete intellectual property portfolio</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Additional Protection Needs
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Multiple protection types create comprehensive brand security</div>
+              </span>
+            </label>
+            <p class="field-helper">What other aspects need protection? (Select all that apply)</p>
+            <div class="choice-grid">
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'additionalNeeds', 'logo-design')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Logo & Visual Design</div>
+                  <div class="choice-description">Protect visual brand elements and design</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'additionalNeeds', 'product-names')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Product/Service Names</div>
+                  <div class="choice-description">Individual product or service line names</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'additionalNeeds', 'taglines')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Slogans & Taglines</div>
+                  <div class="choice-description">Marketing phrases and taglines</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'additionalNeeds', 'international')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">International Protection</div>
+                  <div class="choice-description">Protection in other countries</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'additionalNeeds', 'domain-defense')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Domain Defense</div>
+                  <div class="choice-description">Protect against cybersquatting</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Timeline for Protection
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Timeline affects strategy - urgent needs may require expedited filing with additional costs</div>
+                </span>
+              </label>
+              <p class="field-helper">When do you need trademark protection?</p>
+              <select name="timeline" class="field-input field-select" required>
+                <option value="">Select timeline...</option>
+                <option value="immediate">Immediate (This Month)</option>
+                <option value="soon">Within 3 Months</option>
+                <option value="this-year">Within This Year</option>
+                <option value="planning">Planning Ahead</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Budget Range
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Budget helps us recommend the right protection level - from basic trademark to comprehensive IP strategy</div>
+                </span>
+              </label>
+              <p class="field-helper">What's your approximate budget for brand protection?</p>
+              <select name="budget" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="under-2k">Under $2,000</option>
+                <option value="2k-5k">$2,000 - $5,000</option>
+                <option value="5k-10k">$5,000 - $10,000</option>
+                <option value="10k-plus">$10,000+</option>
+                <option value="consultation">Need Budget Guidance</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competition & Concerns -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">⚠️</span>
+            Competitive Landscape
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Competitor Concerns
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Known competitive threats help us develop proactive protection and enforcement strategies</div>
+              </span>
+            </label>
+            <p class="field-helper">Are you aware of any competitive threats or conflicts?</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'competitorConcerns', 'none')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">No Immediate Concerns</div>
+                  <div class="choice-description">Clean competitive landscape, preventive protection</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'competitorConcerns', 'similar-names')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Similar Business Names</div>
+                  <div class="choice-description">Companies with similar names in your space</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'competitorConcerns', 'direct-copying')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Direct Copycats</div>
+                  <div class="choice-description">Competitors copying your brand or products</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'competitorConcerns', 'domain-issues')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Domain Conflicts</div>
+                  <div class="choice-description">Domain name disputes or cybersquatting</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'competitorConcerns', 'infringement-claims')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Infringement Claims</div>
+                  <div class="choice-description">Received cease and desist or infringement notices</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="expandable-section">
+          <div class="expandable-header" onclick="toggleExpand(this)">
+            <h4 class="expandable-title">Additional Details & Special Situations (Optional)</h4>
+            <span class="expandable-icon">▼</span>
+          </div>
+          <div class="expandable-content">
+            <div class="field-group">
+              <label class="field-label">
+                Brand Description & Positioning
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Brand details help us understand your market position and develop stronger trademark applications</div>
+                </span>
+              </label>
+              <p class="field-helper">Tell us more about your brand identity and market positioning</p>
+              <textarea name="brandDescription" class="field-input field-textarea" placeholder="Describe your brand personality, target audience, unique value proposition, and what makes your brand distinctive in the marketplace..."></textarea>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">
+                Existing Marketing Assets
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Existing marketing materials can support trademark applications and show established brand use</div>
+                </span>
+              </label>
+              <textarea name="marketingAssets" class="field-input field-textarea" placeholder="List any existing marketing materials, websites, social media accounts, promotional materials, or other brand assets you currently have..."></textarea>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">
+                Special Circumstances & Questions
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Special situations help us customize our trademark strategy for your unique needs</div>
+                </span>
+              </label>
+              <textarea name="specialCircumstances" class="field-input field-textarea" placeholder="Any unique circumstances, previous trademark issues, partnership considerations, licensing plans, or specific questions about brand protection?"></textarea>
+            </div>
+          </div>
+        </div>
+
+                <!-- Legal Disclaimers -->
+        <div class="legal-disclaimers">
+          <div class="disclaimer-box">
+            <h4 class="disclaimer-title">⚖️ CRITICAL LEGAL NOTICE</h4>
+            <p class="disclaimer-text">
+              <strong>NO ATTORNEY-CLIENT PRIVILEGE EXISTS.</strong> This intake form does NOT create an attorney-client relationship. 
+              Any information you provide is NOT protected by attorney-client privilege until you have executed a formal 
+              engagement letter with Jacobs Counsel LLC. Do not include confidential or sensitive information until a signed 
+              engagement agreement is in place.
+            </p>
+          </div>
+          
+          <div class="disclaimer-box informational">
+            <h4 class="disclaimer-title">📄 Information Notice</h4>
+            <p class="disclaimer-text">
+              This consultation and any resulting communication is for <strong>INFORMATIONAL PURPOSES ONLY</strong> and does not 
+              constitute legal advice. The information provided is general in nature and may not apply to your specific situation. 
+              Legal advice can only be given after establishing a formal attorney-client relationship through a signed engagement agreement.
+            </p>
+          </div>
+        </div>
+
+
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+          <label class="consent-checkbox">
+            <input type="checkbox" name="consentAcknowledged" required>
+            <span class="checkmark"></span>
+            <span class="consent-text">I acknowledge that I have read and understand the legal disclaimers above and that no attorney-client relationship is created by submitting this form.</span>
+          </label>
+          
+          <button type="submit" class="btn-submit">Get My Brand Protection Strategy →</button>
+          <p class="submit-note">
+            Free consultation • Comprehensive trademark analysis within 24 hours • No obligation
+          </p>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div class="success-message" id="successMessage">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">Thank You!</h2>
+    <p class="success-text">
+      Your brand protection assessment has been submitted. We'll analyze your brand and send personalized trademark recommendations to your email within 24 hours.
+    </p>
+  </div>
+</div>
+
+<script>
+// Store form data
+let formData = {};
+
+// Handle choice selection (single choice)
+function selectChoice(element, fieldName, value) {
+  // Remove selected from siblings
+  const siblings = element.parentNode.querySelectorAll('.choice-card');
+  siblings.forEach(card => card.classList.remove('selected'));
+  
+  // Add selected to clicked element
+  element.classList.add('selected');
+  
+  // Store value
+  formData[fieldName] = value;
+  
+  console.log('Selected:', fieldName, value);
+}
+
+// Handle multiple choice selection
+function selectMultiple(element, fieldName, value) {
+  element.classList.toggle('selected');
+  
+  // Initialize array if needed
+  if (!formData[fieldName]) {
+    formData[fieldName] = [];
+  }
+  
+  // Add or remove value
+  const index = formData[fieldName].indexOf(value);
+  if (index > -1) {
+    formData[fieldName].splice(index, 1);
+  } else {
+    formData[fieldName].push(value);
+  }
+  
+  console.log('Multiple selected:', fieldName, formData[fieldName]);
+}
+
+// Toggle expandable sections
+function toggleExpand(header) {
+  const section = header.parentNode;
+  section.classList.toggle('open');
+}
+
+// Handle form submission
+document.getElementById('brandForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = e.target.querySelector('.btn-submit');
+  const originalText = submitBtn.textContent;
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Processing...';
+  
+  try {
+    // Collect form data
+    const formDataObj = new FormData(this);
+    
+    // Add choice selections
+    Object.keys(formData).forEach(key => {
+      if (Array.isArray(formData[key])) {
+        formDataObj.append(key, formData[key].join(','));
+      } else {
+        formDataObj.append(key, formData[key]);
+      }
+    });
+    
+    // Add metadata
+    formDataObj.append('submissionType', 'brand-protection-ux');
+    formDataObj.append('source', 'brand-protection-ux-improved');
+    formDataObj.append('timestamp', new Date().toISOString());
+    
+    // Submit to backend
+    const response = await fetch('https://estate-intake-system.onrender.com/brand-protection-intake', {
+      method: 'POST',
+      body: formDataObj
+    });
+    
+    if (response.ok) {
+      // Hide form and show success
+      document.querySelector('.form-container').style.display = 'none';
+      document.getElementById('successMessage').style.display = 'block';
+      
+      // Scroll to success message
+      document.getElementById('successMessage').scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    } else {
+      throw new Error('Submission failed');
+    }
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    alert('There was an error submitting your information. Please try again or contact us directly.');
+    
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+});
+
+// Auto-expand first expandable section for better UX
+window.addEventListener('load', function() {
+  console.log('Brand protection form loaded');
+});
+</script>
+
+</body>
+</html>

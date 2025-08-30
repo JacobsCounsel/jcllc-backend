@@ -1,0 +1,10 @@
+# render.yaml
+services:
+  - type: web
+    name: estate-intake-system
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node index-improved.js
+    branch: main
+    autoDeploy: true

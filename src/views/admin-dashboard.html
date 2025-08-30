@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Automation Dashboard | Jacobs Counsel</title>
+    <style>
+        /* Base Variables - Matching your Squarespace theme */
+        :root {
+            --jc-orange: #ff4d00;
+            --jc-orange-hover: #e63900;
+            --jc-ink: #0f172a;
+            --jc-ink2: #64748b;
+            --card: #ffffff;
+            --bg: #f8fafc;
+            --line: #e2e8f0;
+            --ok: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--jc-ink);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--jc-ink) 0%, #374151 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            background: var(--jc-orange);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .brand h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand p {
+            color: #d1d5db;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--jc-orange);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #d1d5db;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        /* Main Content */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            gap: 2rem;
+        }
+
+        /* Card Styles */
+        .dashboard-card {
+            background: var(--card);
+            border-radius: 16px;
+            border: 2px solid var(--line);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--jc-orange);
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid var(--line);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--jc-ink);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        /* Journey Overview Cards */
+        .journey-card {
+            background: linear-gradient(135deg, var(--card) 0%, #f1f5f9 100%);
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .journey-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--jc-orange);
+        }
+
+        .journey-icon {
+            background: linear-gradient(135deg, var(--jc-orange), var(--jc-orange-hover));
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .journey-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--jc-ink);
+            margin-bottom: 0.5rem;
+        }
+
+        .journey-count {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--jc-orange);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .journey-label {
+            font-size: 0.875rem;
+            color: var(--jc-ink2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Contact List */
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .contact-item {
+            background: linear-gradient(135deg, var(--card) 0%, #fefefe 100%);
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .contact-item:hover {
+            border-color: var(--jc-orange);
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--jc-orange), var(--jc-orange-hover));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.125rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--jc-ink);
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-email {
+            font-size: 0.875rem;
+            color: var(--jc-ink2);
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-journey {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #bbf7d0;
+            color: #15803d;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .contact-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #bbf7d0;
+            color: #15803d;
+        }
+
+        .status-paused {
+            background: linear-gradient(135deg, #fef3f2, #fee2e2);
+            border: 2px solid #fca5a5;
+            color: #dc2626;
+        }
+
+        .status-completed {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 2px solid #93c5fd;
+            color: #1d4ed8;
+        }
+
+        /* Action Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--jc-orange), var(--jc-orange-hover));
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            border-color: var(--line);
+            color: var(--jc-ink);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--jc-orange);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-stats {
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .contact-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .contact-status {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 77, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--jc-orange);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Real-time Updates */
+        .update-indicator {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--ok);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .update-indicator.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">⚖️</div>
+                <div>
+                    <h1>Email Automation Dashboard</h1>
+                    <p>AI-Native Email Journey Management</p>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="active-contacts">-</div>
+                    <div class="stat-label">Active Contacts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="emails-today">-</div>
+                    <div class="stat-label">Emails Today</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="conversion-rate">-</div>
+                    <div class="stat-label">Conversion Rate</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-container">
+        <!-- Journey Overview -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2 class="card-title">🛤️ Active Email Journeys</h2>
+                <button class="btn btn-primary" id="refresh-btn">
+                    <span class="loading" id="refresh-spinner" style="display: none;"></span>
+                    Refresh Data
+                </button>
+                <button class="btn btn-secondary" id="test-api-btn" style="margin-left: 10px;">
+                    Test API
+                </button>
+            </div>
+            <div class="card-content">
+                <div class="grid-3" id="journey-overview">
+                    <!-- Journey cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Contact List -->
+        <div class="grid-2">
+            <!-- Active Contacts -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">👥 Active Contacts</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="filterContacts('all')">All</button>
+                        <button class="btn btn-secondary" onclick="filterContacts('active')">Active</button>
+                        <button class="btn btn-secondary" onclick="filterContacts('paused')">Paused</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="contact-list" id="contact-list">
+                        <!-- Contacts will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Emails -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">📧 Scheduled Emails</h2>
+                    <button class="btn btn-primary" onclick="openEmailPreview()">
+                        Preview Next Email
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div id="scheduled-emails">
+                        <!-- Scheduled emails will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Analytics -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2 class="card-title">📊 Performance Analytics</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="changeTimeframe('24h')">24h</button>
+                    <button class="btn btn-secondary" onclick="changeTimeframe('7d')">7d</button>
+                    <button class="btn btn-secondary" onclick="changeTimeframe('30d')">30d</button>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="grid-3">
+                    <div class="journey-card">
+                        <div class="journey-icon">📈</div>
+                        <div class="journey-title">Open Rate</div>
+                        <span class="journey-count" id="open-rate">-</span>
+                        <div class="journey-label">Average</div>
+                    </div>
+                    <div class="journey-card">
+                        <div class="journey-icon">🎯</div>
+                        <div class="journey-title">Click Rate</div>
+                        <span class="journey-count" id="click-rate">-</span>
+                        <div class="journey-label">Average</div>
+                    </div>
+                    <div class="journey-card">
+                        <div class="journey-icon">🏆</div>
+                        <div class="journey-title">Consultations</div>
+                        <span class="journey-count" id="consultations">-</span>
+                        <div class="journey-label">This Period</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Update Indicator -->
+    <div class="update-indicator" id="update-indicator">
+        Dashboard Updated
+    </div>
+
+    <script>
+        // Dashboard State
+        let currentData = {
+            journeys: [],
+            contacts: [],
+            scheduledEmails: [],
+            analytics: {}
+        };
+
+        // Simple test function
+        function testAPI() {
+            console.log('Testing API...');
+            fetch('./active-contacts')
+                .then(r => r.json())
+                .then(data => {
+                    console.log('API test success:', data);
+                    alert('API test success! Check console.');
+                })
+                .catch(error => {
+                    console.error('API test failed:', error);
+                    alert('API test failed! Check console.');
+                });
+        }
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard DOM loaded!');
+            
+            // Set up button event listeners
+            const refreshBtn = document.getElementById('refresh-btn');
+            const testBtn = document.getElementById('test-api-btn');
+            
+            if (refreshBtn) {
+                console.log('Refresh button found, adding event listener');
+                refreshBtn.addEventListener('click', refreshData);
+            } else {
+                console.error('Refresh button not found!');
+            }
+            
+            if (testBtn) {
+                console.log('Test button found, adding event listener');
+                testBtn.addEventListener('click', testAPI);
+            } else {
+                console.error('Test button not found!');
+            }
+            
+            // Start initial refresh
+            console.log('Starting initial refresh...');
+            refreshData();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(refreshData, 30000);
+            
+            // Real-time updates via WebSocket (if available)
+            if ('WebSocket' in window) {
+                connectWebSocket();
+            }
+        });
+
+        // Fetch and refresh all dashboard data
+        async function refreshData() {
+            const spinner = document.getElementById('refresh-spinner');
+            spinner.style.display = 'inline-block';
+            
+            console.log('Starting refresh...');
+            try {
+                const [journeyData, contactData, emailData, analyticsData] = await Promise.all([
+                    fetch('./journey-overview').then(r => r.json()),
+                    fetch('./active-contacts').then(r => r.json()),
+                    fetch('./scheduled-emails').then(r => r.json()),
+                    fetch('./analytics').then(r => r.json())
+                ]);
+
+                console.log('Data fetched:', { journeyData, contactData, emailData, analyticsData });
+
+                currentData.journeys = journeyData.journeys || [];
+                currentData.contacts = contactData.contacts || [];
+                currentData.scheduledEmails = emailData.emails || [];
+                currentData.analytics = analyticsData || {};
+
+                console.log('Current data updated:', currentData);
+
+                updateDashboard();
+                showUpdateIndicator();
+            } catch (error) {
+                console.error('Failed to refresh dashboard:', error);
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        // Update all dashboard components
+        function updateDashboard() {
+            updateHeaderStats();
+            updateJourneyOverview();
+            updateContactList();
+            updateScheduledEmails();
+            updateAnalytics();
+        }
+
+        // Update header statistics
+        function updateHeaderStats() {
+            const activeContacts = currentData.contacts.filter(c => c.status === 'active').length;
+            const emailsToday = currentData.scheduledEmails.filter(e => 
+                new Date(e.send_at).toDateString() === new Date().toDateString()
+            ).length;
+            const conversionRate = currentData.analytics.conversionRate || '0%';
+
+            document.getElementById('active-contacts').textContent = activeContacts;
+            document.getElementById('emails-today').textContent = emailsToday;
+            document.getElementById('conversion-rate').textContent = conversionRate;
+        }
+
+        // Update journey overview cards
+        function updateJourneyOverview() {
+            const container = document.getElementById('journey-overview');
+            
+            const journeyTypes = [
+                { name: 'VIP Experience', icon: '💎', key: 'trigger-vip-sequence' },
+                { name: 'Premium Legal', icon: '🛡️', key: 'trigger-premium-nurture' },
+                { name: 'Standard Nurture', icon: '⚖️', key: 'trigger-standard-nurture' },
+                { name: 'Asset Protection', icon: '🏛️', key: 'sequence-asset-protection' },
+                { name: 'Estate Planning', icon: '📋', key: 'intake-estate-intake' }
+            ];
+
+            container.innerHTML = journeyTypes.map(journey => {
+                const count = currentData.journeys.filter(j => j.trigger_type === journey.key).length;
+                return `
+                    <div class="journey-card" onclick="filterByJourney('${journey.key}')">
+                        <div class="journey-icon">${journey.icon}</div>
+                        <div class="journey-title">${journey.name}</div>
+                        <span class="journey-count">${count}</span>
+                        <div class="journey-label">Active Contacts</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update contact list
+        function updateContactList() {
+            const container = document.getElementById('contact-list');
+            
+            container.innerHTML = currentData.contacts.slice(0, 10).map(contact => {
+                const initials = (contact.first_name?.charAt(0) || '') + (contact.last_name?.charAt(0) || '');
+                const statusClass = contact.status === 'active' ? 'status-active' : 
+                                  contact.status === 'paused' ? 'status-paused' : 'status-completed';
+                
+                return `
+                    <div class="contact-item" onclick="viewContactDetails('${contact.email}')">
+                        <div class="contact-avatar">${initials || '?'}</div>
+                        <div class="contact-info">
+                            <div class="contact-name">${contact.first_name || ''} ${contact.last_name || ''}</div>
+                            <div class="contact-email">${contact.email}</div>
+                            <div class="contact-journey">${contact.pathway_name || 'Unknown Journey'}</div>
+                        </div>
+                        <div class="contact-status">
+                            <div class="status-badge ${statusClass}">
+                                ${contact.status || 'Unknown'}
+                            </div>
+                            ${contact.status === 'active' ? 
+                                `<button class="btn btn-secondary" onclick="pauseContact('${contact.email}', event)">Pause</button>` :
+                                `<button class="btn btn-primary" onclick="resumeContact('${contact.email}', event)">Resume</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update scheduled emails
+        function updateScheduledEmails() {
+            const container = document.getElementById('scheduled-emails');
+            
+            const upcomingEmails = currentData.scheduledEmails
+                .filter(email => email.status === 'pending')
+                .sort((a, b) => new Date(a.send_at) - new Date(b.send_at))
+                .slice(0, 5);
+
+            container.innerHTML = upcomingEmails.map(email => {
+                const sendTime = new Date(email.send_at);
+                const timeUntil = getTimeUntil(sendTime);
+                
+                return `
+                    <div class="contact-item">
+                        <div class="contact-avatar">📧</div>
+                        <div class="contact-info">
+                            <div class="contact-name">${email.subject}</div>
+                            <div class="contact-email">${email.email}</div>
+                            <div class="contact-journey">Sends in ${timeUntil}</div>
+                        </div>
+                        <div class="contact-status">
+                            <button class="btn btn-secondary" onclick="previewEmail('${email.id}')">Preview</button>
+                            <button class="btn btn-primary" onclick="sendEmailNow('${email.id}')">Send Now</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update analytics
+        function updateAnalytics() {
+            document.getElementById('open-rate').textContent = currentData.analytics.openRate || '0%';
+            document.getElementById('click-rate').textContent = currentData.analytics.clickRate || '0%';
+            document.getElementById('consultations').textContent = currentData.analytics.consultations || '0';
+        }
+
+        // Utility Functions
+        function getTimeUntil(date) {
+            const now = new Date();
+            const diff = date - now;
+            
+            if (diff < 0) return 'Past due';
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (hours > 24) {
+                const days = Math.floor(hours / 24);
+                return `${days} day${days === 1 ? '' : 's'}`;
+            } else if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else {
+                return `${minutes}m`;
+            }
+        }
+
+        function showUpdateIndicator() {
+            const indicator = document.getElementById('update-indicator');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 3000);
+        }
+
+        // Contact Management Functions
+        async function pauseContact(email, event) {
+            event.stopPropagation();
+            try {
+                const response = await fetch(`./pause/${email}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: 'Manual pause' })
+                });
+                
+                if (response.ok) {
+                    refreshData();
+                } else {
+                    throw new Error('Failed to pause contact');
+                }
+            } catch (error) {
+                console.error('Error pausing contact:', error);
+                alert('Failed to pause contact. Please try again.');
+            }
+        }
+
+        async function resumeContact(email, event) {
+            event.stopPropagation();
+            try {
+                const response = await fetch(`./resume/${email}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    refreshData();
+                } else {
+                    throw new Error('Failed to resume contact');
+                }
+            } catch (error) {
+                console.error('Error resuming contact:', error);
+                alert('Failed to resume contact. Please try again.');
+            }
+        }
+
+        // Filter and Search Functions
+        function filterContacts(status) {
+            // Update active button
+            document.querySelectorAll('.btn-secondary').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            event.target.classList.remove('btn-secondary');
+            event.target.classList.add('btn-primary');
+            
+            // Filter contacts (implementation would depend on your needs)
+            console.log('Filtering contacts by:', status);
+        }
+
+        function filterByJourney(journeyKey) {
+            console.log('Filtering by journey:', journeyKey);
+            // Implement journey-specific filtering
+        }
+
+        // Email Preview and Management
+        function previewEmail(emailId) {
+            window.open(`./preview/${emailId}`, '_blank');
+        }
+
+        function openEmailPreview() {
+            if (currentData.scheduledEmails.length > 0) {
+                previewEmail(currentData.scheduledEmails[0].id);
+            } else {
+                alert('No scheduled emails to preview');
+            }
+        }
+
+        async function sendEmailNow(emailId) {
+            if (confirm('Send this email immediately?')) {
+                try {
+                    const response = await fetch(`./send-now/${emailId}`, {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        refreshData();
+                        alert('Email sent successfully!');
+                    } else {
+                        throw new Error('Failed to send email');
+                    }
+                } catch (error) {
+                    console.error('Error sending email:', error);
+                    alert('Failed to send email. Please try again.');
+                }
+            }
+        }
+
+        // WebSocket Connection for Real-time Updates
+        function connectWebSocket() {
+            const ws = new WebSocket(`ws://${window.location.host}/ws/dashboard`);
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'dashboard_update') {
+                    refreshData();
+                }
+            };
+            
+            ws.onerror = function(error) {
+                console.log('WebSocket error:', error);
+            };
+        }
+
+        // Additional utility functions
+        function viewContactDetails(email) {
+            // Open contact detail modal or navigate to detail page
+            console.log('Viewing details for:', email);
+        }
+
+        function changeTimeframe(timeframe) {
+            console.log('Changing timeframe to:', timeframe);
+            // Update analytics based on timeframe
+        }
+    </script>
+</body>
+</html>

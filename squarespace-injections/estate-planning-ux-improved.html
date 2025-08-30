@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Planning Intake | Protect Your Legacy | Jacobs Counsel</title>
+<style>
+  :root {
+    --jc-orange: #ff4d00;
+    --jc-ink: #0f172a;
+    --bg: #ffffff;
+    --ink: #0f172a;
+    --ink2: #64748b;
+    --line: #e2e8f0;
+    --ok: #059669;
+    --err: #dc2626;
+    --warn: #d97706;
+    --card: #ffffff;
+    --muted: #f8fafc;
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 20px;
+  }
+  .estate-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--bg);
+  }
+  .jc-bar {
+    height: 5px;
+    background: linear-gradient(90deg, var(--jc-orange), var(--jc-ink));
+  }
+
+  /* Header */
+  .estate-hero {
+    background: linear-gradient(135deg, var(--muted) 0%, var(--bg) 100%);
+    padding: 40px 20px 24px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--jc-orange);
+    color: white;
+    padding: 5px 16px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .hero-headline {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .hero-subhead {
+    font-size: 24px;
+    color: var(--jc-orange);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .hero-desc {
+    font-size: 18px;
+    color: var(--ink2);
+    max-width: 600px;
+    margin: 0 auto 20px;
+    line-height: 1.5;
+  }
+
+  /* Form Container */
+  .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .form-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--line);
+  }
+
+  /* Section Headers */
+  .form-section {
+    margin-bottom: 28px;
+  }
+  .form-section:last-child {
+    margin-bottom: 0;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-icon {
+    font-size: 24px;
+  }
+
+  /* Field Groups */
+  .field-group {
+    margin-bottom: 20px;
+  }
+  .field-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* Labels with Help Icons */
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .help-icon {
+    width: 18px;
+    height: 18px;
+    background: var(--ink2);
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+
+  .help-icon:hover {
+    background: var(--jc-orange);
+    transform: scale(1.1);
+  }
+
+  .help-tooltip {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--jc-ink);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    width: 240px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  .help-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--jc-ink);
+  }
+
+  .help-icon:hover .help-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Quick Summary Helper */
+  .field-helper {
+    font-size: 14px;
+    color: var(--ink2);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  /* Form Inputs */
+  .field-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: var(--bg);
+  }
+
+  .field-input:focus {
+    outline: none;
+    border-color: var(--jc-orange);
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  }
+
+  .field-input:valid:not(:placeholder-shown) {
+    border-color: var(--ok);
+  }
+
+  .field-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+
+  .field-textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  /* Choice Cards for Better UX */
+  .choice-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .choice-card {
+    padding: 16px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+  }
+
+  .choice-card:hover {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.02);
+  }
+
+  .choice-card.selected {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.05);
+  }
+
+  .choice-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .choice-card.selected .choice-radio {
+    border-color: var(--jc-orange);
+    background: var(--jc-orange);
+  }
+
+  .choice-card.selected .choice-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .choice-content {
+    flex: 1;
+  }
+
+  .choice-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .choice-description {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.3;
+  }
+
+  /* Expandable Sections */
+  .expandable-section {
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .expandable-header {
+    padding: 16px 20px;
+    background: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+  }
+
+  .expandable-header:hover {
+    background: var(--line);
+  }
+
+  .expandable-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .expandable-icon {
+    font-size: 18px;
+    color: var(--ink2);
+    transition: transform 0.3s ease;
+  }
+
+  .expandable-section.open .expandable-icon {
+    transform: rotate(180deg);
+  }
+
+  .expandable-content {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .expandable-section.open .expandable-content {
+    padding: 20px;
+    max-height: 500px;
+  }
+
+    /* Legal Disclaimers */
+  .legal-disclaimers {
+    margin: 32px 0;
+    padding: 24px 0;
+  }
+  
+  .disclaimer-box {
+    background: #fef2f2;
+    border: 3px solid #fca5a5;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  
+  .disclaimer-box.informational {
+    background: #fef7ed;
+    border-color: #fed7aa;
+  }
+  
+  .disclaimer-title {
+    color: #dc2626;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .disclaimer-box.informational .disclaimer-title {
+    color: #9a3412;
+  }
+  
+  .disclaimer-text {
+    color: #7f1d1d;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .disclaimer-box.informational .disclaimer-text {
+    color: #9a3412;
+  }
+
+  /* Consent Checkbox */
+  .consent-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 24px 0;
+    padding: 20px;
+    background: var(--muted);
+    border-radius: 12px;
+    border: 2px solid var(--line);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .consent-checkbox:hover {
+    border-color: var(--jc-orange);
+    background: rgba(255, 77, 0, 0.02);
+  }
+  
+  .consent-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+  }
+  
+  .consent-text {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 600;
+    flex: 1;
+  }
+
+/* Submit Section */
+  .submit-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid var(--line);
+    text-align: center;
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, var(--jc-orange), #e63900);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .submit-note {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--ink2);
+    font-style: italic;
+  }
+
+  /* Success State */
+  .success-message {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--ok);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: white;
+    margin: 0 auto 20px;
+  }
+
+  .success-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .success-text {
+    font-size: 18px;
+    color: var(--ink2);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    body { font-size: 18px; }
+    .hero-headline { font-size: 2.25rem; }
+    .hero-subhead { font-size: 20px; }
+    .hero-desc { font-size: 16px; }
+    .form-card { padding: 24px; }
+    .field-row { grid-template-columns: 1fr; gap: 12px; }
+    .section-title { font-size: 20px; }
+    .field-label { font-size: 16px; }
+    .field-input { font-size: 16px; padding: 12px 14px; }
+    .help-tooltip { width: 200px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="estate-wrap">
+  <div class="jc-bar"></div>
+  
+  <!-- Hero Section -->
+  <section class="estate-hero">
+    <div class="hero-badge">Estate Planning Intake</div>
+    <h1 class="hero-headline">Protect Your Legacy</h1>
+    <p class="hero-subhead">Personalized Estate Planning Strategy</p>
+    <p class="hero-desc">Complete this assessment to receive customized estate planning recommendations within 24 hours</p>
+  </section>
+
+  <!-- Form Section -->
+  <div class="form-container">
+    <div class="form-card">
+      <form id="estateForm">
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">👤</span>
+            Basic Information
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Full Name
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">We use your name to personalize recommendations and prepare consultation materials</div>
+                </span>
+              </label>
+              <input type="text" name="fullName" class="field-input" placeholder="Your full name" required>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Email Address
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">We'll email your personalized estate plan recommendations within 24 hours</div>
+                </span>
+              </label>
+              <input type="email" name="email" class="field-input" placeholder="your@email.com" required>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Phone Number (Optional)</label>
+              <input type="tel" name="phone" class="field-input" placeholder="(555) 123-4567">
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Best Time to Call
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">When would you prefer to discuss your estate planning strategy?</div>
+                </span>
+              </label>
+              <select name="callTime" class="field-input field-select">
+                <option value="">Select preference</option>
+                <option value="morning">Morning (9am-12pm)</option>
+                <option value="afternoon">Afternoon (12pm-5pm)</option>
+                <option value="evening">Evening (5pm-8pm)</option>
+                <option value="flexible">I'm flexible</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Family & Relationship Status -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">👨‍👩‍👧‍👦</span>
+            Family Structure
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Current Marital Status
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Married couples can use joint strategies and spousal exemptions. Single individuals need different approaches.</div>
+              </span>
+            </label>
+            <p class="field-helper">This affects tax strategies and asset protection approaches</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'maritalStatus', 'single')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Single</div>
+                  <div class="choice-description">Never married, individual planning focus</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'maritalStatus', 'married')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Married</div>
+                  <div class="choice-description">Joint planning and spousal strategies available</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'maritalStatus', 'divorced')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Divorced</div>
+                  <div class="choice-description">May have ongoing obligations to consider</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'maritalStatus', 'widowed')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Widowed</div>
+                  <div class="choice-description">May need existing plan updates</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Children & Dependents
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Minor children need guardianship planning. Adult children affect inheritance strategies.</div>
+              </span>
+            </label>
+            <p class="field-helper">Determines guardianship and inheritance structure needs</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'children', 'none')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">No Children</div>
+                  <div class="choice-description">Focus on spouse, family, or charitable giving</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'children', 'minor')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Minor Children (Under 18)</div>
+                  <div class="choice-description">Need guardianship and trust planning</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'children', 'adult')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Adult Children Only</div>
+                  <div class="choice-description">Inheritance and wealth transfer focus</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'children', 'both')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Both Minor & Adult Children</div>
+                  <div class="choice-description">Complex planning for different ages</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset & Financial Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">💰</span>
+            Financial Overview
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Approximate Estate Value
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Include all assets (home, investments, retirement accounts, life insurance, business interests) minus debts</div>
+                </span>
+              </label>
+              <p class="field-helper">Total assets minus debts - determines planning sophistication</p>
+              <select name="estateValue" class="field-input field-select" required>
+                <option value="">Select range...</option>
+                <option value="under-250k">Under $250K</option>
+                <option value="250k-500k">$250K - $500K</option>
+                <option value="500k-1m">$500K - $1M</option>
+                <option value="1m-2m">$1M - $2M</option>
+                <option value="2m-5m">$2M - $5M</option>
+                <option value="over-5m">Over $5M</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Primary Residence Value
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Your home's current market value affects estate tax calculations and planning strategies</div>
+                </span>
+              </label>
+              <p class="field-helper">Current market value of your primary home</p>
+              <select name="homeValue" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="rent">I rent/no property</option>
+                <option value="under-200k">Under $200K</option>
+                <option value="200k-500k">$200K - $500K</option>
+                <option value="500k-1m">$500K - $1M</option>
+                <option value="1m-2m">$1M - $2M</option>
+                <option value="over-2m">Over $2M</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Business Ownership
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Business interests require succession planning, valuation strategies, and special tax considerations</div>
+              </span>
+            </label>
+            <p class="field-helper">Business ownership affects succession and tax planning</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'businessOwnership', 'none')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">No Business Interests</div>
+                  <div class="choice-description">Employee or retired, no business ownership</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'businessOwnership', 'small')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Small Business/Side Business</div>
+                  <div class="choice-description">Solo practice, consulting, or small operation</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'businessOwnership', 'significant')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Significant Business Interest</div>
+                  <div class="choice-description">Major ownership in established business</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'businessOwnership', 'multiple')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Multiple Business Interests</div>
+                  <div class="choice-description">Portfolio of business investments or entities</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Estate Planning -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">📋</span>
+            Current Planning Status
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Existing Estate Planning Documents
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Current documents provide a foundation but may need updates for changing laws or circumstances</div>
+                </span>
+              </label>
+              <p class="field-helper">What estate planning do you currently have in place?</p>
+              <select name="currentPlanning" class="field-input field-select" required>
+                <option value="">Select current status...</option>
+                <option value="none">No estate planning documents</option>
+                <option value="basic-will">Basic will only</option>
+                <option value="will-powers">Will + power of attorney</option>
+                <option value="trust-basic">Simple trust structure</option>
+                <option value="comprehensive">Comprehensive estate plan</option>
+                <option value="outdated">Have documents but outdated (5+ years)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Last Plan Update
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Estate plans should be reviewed every 3-5 years or after major life changes</div>
+                </span>
+              </label>
+              <p class="field-helper">When did you last review your estate plan?</p>
+              <select name="lastUpdate" class="field-input field-select">
+                <option value="">Select timeframe...</option>
+                <option value="never">Never had estate planning</option>
+                <option value="recent">Within last 2 years</option>
+                <option value="3-5years">3-5 years ago</option>
+                <option value="5plus">More than 5 years ago</option>
+                <option value="unknown">Not sure/inherited documents</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fiduciary Selection -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">👥</span>
+            Fiduciary & Guardian Selection
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Executor/Personal Representative
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Your executor handles estate administration, pays debts, and distributes assets. Choose someone trustworthy and organized.</div>
+              </span>
+            </label>
+            <p class="field-helper">Who would handle your estate administration?</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'executor', 'spouse')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Spouse/Partner</div>
+                  <div class="choice-description">Most common choice for married couples</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'executor', 'adult-child')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Adult Child</div>
+                  <div class="choice-description">Responsible adult child or children jointly</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'executor', 'sibling-family')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Sibling/Family Member</div>
+                  <div class="choice-description">Trusted family member</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'executor', 'professional')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Professional Executor</div>
+                  <div class="choice-description">Bank, attorney, or trust company</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'executor', 'unsure')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Need Guidance</div>
+                  <div class="choice-description">Help me choose the right executor</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="guardian-section" class="field-group" style="display: none;">
+            <label class="field-label">
+              Guardian for Minor Children
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Guardians raise your children if something happens to you. Choose people who share your values and parenting philosophy.</div>
+              </span>
+            </label>
+            <p class="field-helper">Who would raise your minor children?</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'guardian', 'family-member')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Family Member</div>
+                  <div class="choice-description">Grandparents, siblings, or close family</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'guardian', 'close-friends')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Close Friends</div>
+                  <div class="choice-description">Trusted friends who know your children well</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'guardian', 'unsure')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Need to Discuss Options</div>
+                  <div class="choice-description">Help me think through guardian selection</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Trustee Selection (if using trusts)
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Trustees manage trust assets and make distributions. Different from executors - this is ongoing management, not just estate settlement.</div>
+              </span>
+            </label>
+            <p class="field-helper">Who would manage trust assets for beneficiaries?</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'trustee', 'same-as-executor')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Same as Executor</div>
+                  <div class="choice-description">Simplify by using same person</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'trustee', 'different-person')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Different Trusted Individual</div>
+                  <div class="choice-description">Someone better suited for long-term management</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'trustee', 'professional-trustee')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Professional Trustee</div>
+                  <div class="choice-description">Bank or trust company for expertise</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'trustee', 'co-trustees')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Co-Trustees</div>
+                  <div class="choice-description">Combine family member with professional</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estate Planning Package Level -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">📋</span>
+            Estate Planning Approach
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Preferred Estate Planning Structure
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Different structures serve different needs. Wills go through probate, revocable trusts avoid probate, advanced planning minimizes taxes.</div>
+              </span>
+            </label>
+            <p class="field-helper">What type of estate plan makes sense for your situation?</p>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="selectChoice(this, 'planningApproach', 'simple-will')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Simple Will Package</div>
+                  <div class="choice-description">Basic will, powers of attorney - goes through probate</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'planningApproach', 'revocable-trust')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Revocable Living Trust</div>
+                  <div class="choice-description">Avoids probate, provides privacy, easier for beneficiaries</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'planningApproach', 'advanced-planning')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Advanced Tax Planning</div>
+                  <div class="choice-description">Irrevocable trusts, tax strategies, generation-skipping</div>
+                </div>
+              </div>
+              <div class="choice-card" onclick="selectChoice(this, 'planningApproach', 'need-recommendation')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Need Professional Recommendation</div>
+                  <div class="choice-description">Help me choose the right approach</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Key Estate Planning Priorities
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Your priorities determine which planning strategies we emphasize and how we structure your estate plan.</div>
+              </span>
+            </label>
+            <p class="field-helper">What's most important in your estate plan? (Select all that apply)</p>
+            <div class="choice-grid">
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'estatePriorities', 'avoid-probate')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Avoid Probate Process</div>
+                  <div class="choice-description">Keep estate matters private and efficient</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'estatePriorities', 'minimize-taxes')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Minimize Estate Taxes</div>
+                  <div class="choice-description">Reduce tax burden on inherited assets</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'estatePriorities', 'protect-children')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Protect Minor Children</div>
+                  <div class="choice-description">Guardianship and financial protection for kids</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'estatePriorities', 'asset-protection')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Asset Protection</div>
+                  <div class="choice-description">Shield assets from creditors and lawsuits</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'estatePriorities', 'business-succession')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Business Succession</div>
+                  <div class="choice-description">Smooth transfer of business interests</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'estatePriorities', 'charitable-giving')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Charitable Giving</div>
+                  <div class="choice-description">Tax-efficient support of important causes</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'estatePriorities', 'control-distributions')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Control Asset Distributions</div>
+                  <div class="choice-description">Manage when and how beneficiaries receive assets</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Asset Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🏦</span>
+            Asset Details
+          </h3>
+          
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Retirement Accounts
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Retirement accounts have special beneficiary rules and tax considerations that affect estate planning strategy.</div>
+                </span>
+              </label>
+              <p class="field-helper">401k, IRA, pension values</p>
+              <select name="retirementAccounts" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="none">No retirement accounts</option>
+                <option value="under-100k">Under $100K</option>
+                <option value="100k-500k">$100K - $500K</option>
+                <option value="500k-1m">$500K - $1M</option>
+                <option value="1m-plus">Over $1M</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Life Insurance Coverage
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Life insurance can provide liquidity for estate taxes and support for beneficiaries, but needs proper beneficiary planning.</div>
+                </span>
+              </label>
+              <p class="field-helper">Total death benefit amount</p>
+              <select name="lifeInsurance" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="none">No life insurance</option>
+                <option value="under-250k">Under $250K</option>
+                <option value="250k-500k">$250K - $500K</option>
+                <option value="500k-1m">$500K - $1M</option>
+                <option value="1m-plus">Over $1M</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Investment Accounts
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Taxable investment accounts, brokerage accounts, and other investments outside of retirement plans.</div>
+                </span>
+              </label>
+              <p class="field-helper">Stocks, bonds, brokerage accounts</p>
+              <select name="investments" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="none">No investments</option>
+                <option value="under-100k">Under $100K</option>
+                <option value="100k-500k">$100K - $500K</option>
+                <option value="500k-1m">$500K - $1M</option>
+                <option value="1m-plus">Over $1M</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Other Real Estate
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Investment property, vacation homes, or land beyond your primary residence.</div>
+                </span>
+              </label>
+              <p class="field-helper">Beyond primary residence</p>
+              <select name="otherRealEstate" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="none">No other real estate</option>
+                <option value="under-250k">Under $250K</option>
+                <option value="250k-500k">$250K - $500K</option>
+                <option value="500k-1m">$500K - $1M</option>
+                <option value="1m-plus">Over $1M</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">
+              Special Assets Requiring Attention
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Some assets require special planning consideration due to complexity or tax implications.</div>
+              </span>
+            </label>
+            <p class="field-helper">Assets that may need special planning (select all that apply)</p>
+            <div class="choice-grid">
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'specialAssets', 'business-interests')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Business Ownership</div>
+                  <div class="choice-description">Partnership interests, LLC ownership, corporate stock</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'specialAssets', 'collectibles')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Collectibles/Art</div>
+                  <div class="choice-description">Valuable collections, artwork, antiques</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'specialAssets', 'intellectual-property')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Intellectual Property</div>
+                  <div class="choice-description">Royalties, patents, trademarks, copyrights</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'specialAssets', 'foreign-assets')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Foreign Assets</div>
+                  <div class="choice-description">International property, foreign accounts</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'specialAssets', 'digital-assets')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Digital Assets</div>
+                  <div class="choice-description">Cryptocurrency, online businesses, digital accounts</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Goals & Priorities -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">🎯</span>
+            Timeline & Implementation
+          </h3>
+          
+          <div class="field-group">
+            <label class="field-label">
+              Primary Estate Planning Goals
+              <span class="help-icon">
+                ?
+                <div class="help-tooltip">Your goals determine which strategies we prioritize and how we structure your plan</div>
+              </span>
+            </label>
+            <p class="field-helper">What's most important to you? (Select top 2-3 priorities)</p>
+            <div class="choice-grid">
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'goals', 'protect-family')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Protect My Family</div>
+                  <div class="choice-description">Ensure family is taken care of if something happens</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'goals', 'avoid-probate')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Avoid Probate & Court</div>
+                  <div class="choice-description">Keep estate matters private and efficient</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'goals', 'minimize-taxes')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Minimize Estate Taxes</div>
+                  <div class="choice-description">Reduce tax burden on inherited assets</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'goals', 'protect-assets')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Protect Assets from Creditors</div>
+                  <div class="choice-description">Shield wealth from potential lawsuits or claims</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'goals', 'business-succession')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Business Succession Planning</div>
+                  <div class="choice-description">Ensure smooth business transfer or sale</div>
+                </div>
+              </div>
+              <div class="choice-card multi-select" onclick="selectMultiple(this, 'goals', 'charitable-giving')">
+                <div class="choice-radio"></div>
+                <div class="choice-content">
+                  <div class="choice-title">Charitable Giving Strategy</div>
+                  <div class="choice-description">Support causes important to me tax-efficiently</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">
+                Planning Timeline
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Timeline affects strategy complexity and implementation approach</div>
+                </span>
+              </label>
+              <p class="field-helper">When do you want your estate plan completed?</p>
+              <select name="timeline" class="field-input field-select" required>
+                <option value="">Select timeline...</option>
+                <option value="asap">As soon as possible (urgent)</option>
+                <option value="1-2months">Within 1-2 months</option>
+                <option value="3-6months">Within 3-6 months</option>
+                <option value="this-year">Sometime this year</option>
+                <option value="exploring">Just exploring options</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                Budget Considerations
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Different strategies have different costs. We'll recommend options within your budget.</div>
+                </span>
+              </label>
+              <p class="field-helper">What's your approximate budget for estate planning?</p>
+              <select name="budget" class="field-input field-select">
+                <option value="">Select range...</option>
+                <option value="under-2k">Under $2,000</option>
+                <option value="2k-5k">$2,000 - $5,000</option>
+                <option value="5k-10k">$5,000 - $10,000</option>
+                <option value="10k-25k">$10,000 - $25,000</option>
+                <option value="25k-plus">$25,000+</option>
+                <option value="consult">Need guidance on appropriate budget</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="expandable-section">
+          <div class="expandable-header" onclick="toggleExpand(this)">
+            <h4 class="expandable-title">Additional Details & Special Situations (Optional)</h4>
+            <span class="expandable-icon">▼</span>
+          </div>
+          <div class="expandable-content">
+            <div class="field-group">
+              <label class="field-label">
+                Special Circumstances
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Special situations may require customized planning approaches</div>
+                </span>
+              </label>
+              <textarea name="specialCircumstances" class="field-input field-textarea" placeholder="Any special family dynamics, health considerations, previous marriages with children, family business complexities, charitable interests, or other unique situations we should know about..."></textarea>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">
+                Questions or Concerns
+                <span class="help-icon">
+                  ?
+                  <div class="help-tooltip">Help us address your specific concerns in our recommendations</div>
+                </span>
+              </label>
+              <textarea name="questions" class="field-input field-textarea" placeholder="Any specific questions about estate planning, concerns about your current situation, or topics you'd like us to address in your consultation..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legal Disclaimers -->
+        <div class="legal-disclaimers">
+          <div class="disclaimer-box">
+            <h4 class="disclaimer-title">⚖️ CRITICAL LEGAL NOTICE</h4>
+            <p class="disclaimer-text">
+              <strong>NO ATTORNEY-CLIENT PRIVILEGE EXISTS.</strong> This intake form does NOT create an attorney-client relationship. 
+              Any information you provide is NOT protected by attorney-client privilege until you have executed a formal 
+              engagement letter with Jacobs Counsel LLC. Do not include confidential or sensitive information until a signed 
+              engagement agreement is in place.
+            </p>
+          </div>
+          
+          <div class="disclaimer-box informational">
+            <h4 class="disclaimer-title">📄 Information Notice</h4>
+            <p class="disclaimer-text">
+              This consultation and any resulting communication is for <strong>INFORMATIONAL PURPOSES ONLY</strong> and does not 
+              constitute legal advice. The information provided is general in nature and may not apply to your specific situation. 
+              Legal advice can only be given after establishing a formal attorney-client relationship through a signed engagement agreement.
+            </p>
+          </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+          <label class="consent-checkbox">
+            <input type="checkbox" name="consentAcknowledged" required>
+            <span class="checkmark"></span>
+            <span class="consent-text">I acknowledge that I have read and understand the legal disclaimers above and that no attorney-client relationship is created by submitting this form.</span>
+          </label>
+          
+          <button type="submit" class="btn-submit">Get My Estate Plan Strategy →</button>
+          <p class="submit-note">
+            Free consultation • Personalized recommendations within 24 hours • No obligation
+          </p>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div class="success-message" id="successMessage">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">Thank You!</h2>
+    <p class="success-text">
+      Your estate planning assessment has been submitted. We'll analyze your information and send personalized recommendations to your email within 24 hours.
+    </p>
+  </div>
+</div>
+
+<script>
+// Store form data
+let formData = {};
+
+// Handle choice selection (single choice)
+function selectChoice(element, fieldName, value) {
+  // Remove selected from siblings
+  const siblings = element.parentNode.querySelectorAll('.choice-card');
+  siblings.forEach(card => card.classList.remove('selected'));
+  
+  // Add selected to clicked element
+  element.classList.add('selected');
+  
+  // Store value
+  formData[fieldName] = value;
+  
+  console.log('Selected:', fieldName, value);
+  
+  // Show guardian section if minor children are selected
+  if (fieldName === 'children' && (value === 'minor' || value === 'both')) {
+    document.getElementById('guardian-section').style.display = 'block';
+  } else if (fieldName === 'children' && (value === 'none' || value === 'adult')) {
+    document.getElementById('guardian-section').style.display = 'none';
+  }
+}
+
+// Handle multiple choice selection
+function selectMultiple(element, fieldName, value) {
+  element.classList.toggle('selected');
+  
+  // Initialize array if needed
+  if (!formData[fieldName]) {
+    formData[fieldName] = [];
+  }
+  
+  // Add or remove value
+  const index = formData[fieldName].indexOf(value);
+  if (index > -1) {
+    formData[fieldName].splice(index, 1);
+  } else {
+    formData[fieldName].push(value);
+  }
+  
+  console.log('Multiple selected:', fieldName, formData[fieldName]);
+}
+
+// Toggle expandable sections
+function toggleExpand(header) {
+  const section = header.parentNode;
+  section.classList.toggle('open');
+}
+
+// Handle form submission
+document.getElementById('estateForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = e.target.querySelector('.btn-submit');
+  const originalText = submitBtn.textContent;
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Processing...';
+  
+  try {
+    // Collect form data
+    const formDataObj = new FormData(this);
+    
+    // Add choice selections
+    Object.keys(formData).forEach(key => {
+      if (Array.isArray(formData[key])) {
+        formDataObj.append(key, formData[key].join(','));
+      } else {
+        formDataObj.append(key, formData[key]);
+      }
+    });
+    
+    // Add metadata
+    formDataObj.append('submissionType', 'estate-planning-ux');
+    formDataObj.append('source', 'estate-planning-ux-improved');
+    formDataObj.append('timestamp', new Date().toISOString());
+    
+    // Submit to backend
+    const response = await fetch('https://estate-intake-system.onrender.com/estate-intake', {
+      method: 'POST',
+      body: formDataObj
+    });
+    
+    if (response.ok) {
+      // Hide form and show success
+      document.querySelector('.form-container').style.display = 'none';
+      document.getElementById('successMessage').style.display = 'block';
+      
+      // Scroll to success message
+      document.getElementById('successMessage').scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    } else {
+      throw new Error('Submission failed');
+    }
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    alert('There was an error submitting your information. Please try again or contact us directly.');
+    
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+});
+
+// Auto-expand first expandable section for better UX
+window.addEventListener('load', function() {
+  console.log('Estate planning form loaded');
+});
+</script>
+
+</body>
+</html>

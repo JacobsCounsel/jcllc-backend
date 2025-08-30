@@ -90,6 +90,11 @@ export const requestLogger = (req, res, next) => {
 
 // Input validation middleware
 export const validateContentType = (req, res, next) => {
+  // Skip validation if explicitly requested (for automation controls)
+  if (req.skipContentValidation) {
+    return next();
+  }
+  
   if (req.method === 'POST' && !req.is('application/json') && !req.is('multipart/form-data')) {
     return res.status(400).json({
       ok: false,

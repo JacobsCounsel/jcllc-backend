@@ -1,4 +1,4 @@
-// index.js - Simplified with Calendly integration, no database
+// index.js - Smart automation system with advanced personalization
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -8,6 +8,9 @@ import rateLimit from 'express-rate-limit';
 import validator from 'validator';
 import NodeCache from 'node-cache';
 import Mixpanel from 'mixpanel';
+
+// Smart Automation Integration
+import smartAutomation from './src/integrations/smartAutomationIntegration.js';
 const mixpanel = process.env.MIXPANEL_TOKEN ? Mixpanel.init(process.env.MIXPANEL_TOKEN) : null;
 const cache = new NodeCache({ stdTTL: 600 });
 // ==================== CONFIGURATION ====================
@@ -1100,43 +1103,29 @@ const submissionType = formData._normalizedType; // <- use normalized everywhere
       });
     }
   
+    // SMART AUTOMATION: Process with advanced personalization system
+    const smartResult = await smartAutomation.processFormSubmission(
+      formData.email, 
+      formData, 
+      submissionType
+    );
+    
+    console.log(`🧠 Smart automation result:`, smartResult);
+    
+    // Continue with existing systems for backup/compatibility
     const operations = [];
-    const alertRecipients = leadScore.score >= 70
-      ? [INTAKE_NOTIFY_TO, HIGH_VALUE_NOTIFY_TO]
-      : [INTAKE_NOTIFY_TO];
-  
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Estate Planning — ${formData.email} (Score: ${leadScore.score})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
-        priority: leadScore.score >= 70 ? 'high' : 'normal',
-        attachments
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-  
-    operations.push(
-      addToMailchimpWithAutomation(formData, leadScore, submissionType)
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
-    );
-  
+    
+    // Still create Clio lead for CRM tracking
     operations.push(
       createClioLead(formData, submissionType, leadScore)
         .catch(e => console.error('❌ Clio Grow failed:', e.message))
     );
-  
-    if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
-      if (clientEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'Jacobs Counsel — Your Estate Planning Intake & Next Steps',
-            html: clientEmailHtml
-          }).catch(e => console.error('❌ Client email failed:', e.message))
-        );
-      }
-    }
+    
+    // Backup Mailchimp integration
+    operations.push(
+      addToMailchimpWithAutomation(formData, leadScore, submissionType)
+        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+    );
   
     await processIntakeOperations(operations);
   
@@ -1651,15 +1640,56 @@ app.get('/health', async (req, res) => {
     }
   });
 });
+// Smart automation dashboard endpoint
+app.get('/automations', async (req, res) => {
+  try {
+    // Serve the automation dashboard by redirecting to the dashboard server
+    res.redirect('http://localhost:3000/automations');
+  } catch (error) {
+    res.status(500).json({ error: 'Dashboard temporarily unavailable' });
+  }
+});
+
+// Smart automation API endpoint for dashboard data
+app.get('/api/automation-stats', async (req, res) => {
+  try {
+    const stats = await smartAutomation.getDashboardStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch automation stats' });
+  }
+});
+
+// Test smart automation endpoint
+app.post('/api/test-smart-automation', async (req, res) => {
+  try {
+    const { email, formData, submissionType } = req.body;
+    
+    if (!email || !formData) {
+      return res.status(400).json({ error: 'Email and formData required' });
+    }
+    
+    const result = await smartAutomation.processFormSubmission(
+      email, 
+      formData, 
+      submissionType || 'estate-intake'
+    );
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
     ok: true,
-    service: 'jacobs-counsel-unified-intake',
-    version: '3.0.0-SIMPLIFIED',
+    service: 'jacobs-counsel-smart-automation',
+    version: '4.0.0-SMART',
     endpoints: [
       '/estate-intake',
-      '/business-formation-intake',
+      '/business-formation-intake', 
       '/brand-protection-intake',
       '/outside-counsel',
       '/legal-strategy-builder',
@@ -1667,9 +1697,12 @@ app.get('/', (req, res) => {
       '/resource-guide-download',
       '/add-subscriber',
       '/webhook/calendly',
+      '/automations',
+      '/api/automation-stats',
+      '/api/test-smart-automation',
       '/health'
     ],
-    features: ['Lead Scoring', 'Mailchimp', 'Calendly', 'Clio', 'Email Notifications']
+    features: ['Smart Personalization', 'Lead Scoring', 'Mailchimp', 'Calendly', 'Clio', 'Interactive Dashboard', 'Strategic Analytics']
   });
 });
 // Error handling

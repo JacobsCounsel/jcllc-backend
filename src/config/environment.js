@@ -22,11 +22,29 @@ export const config = {
     sender: process.env.MS_GRAPH_SENDER || ''
   },
   
+  // Email Configuration
+  email: {
+    fromAddress: process.env.FROM_EMAIL || 'drew@jacobscounsellaw.com',
+    fromName: process.env.FROM_NAME || 'Drew Jacobs, Esq.',
+  },
+  
+  // Base URL
+  baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+  
+  // Development flag
+  isDevelopment: process.env.NODE_ENV !== 'production',
+  
   // Mailchimp
   mailchimp: {
     apiKey: process.env.MAILCHIMP_API_KEY || '',
     server: process.env.MAILCHIMP_SERVER || 'us21',
     audienceId: process.env.MAILCHIMP_AUDIENCE_ID || ''
+  },
+  
+  // Kit (ConvertKit)
+  kit: {
+    apiKey: process.env.KIT_API_KEY || '_asjUkBoW6K8ORx6w2lSpg',
+    apiSecret: process.env.KIT_API_SECRET || 'WfeiRBsWUCmG1K2mTpA4AXfm-orT866YY3-p5A9Oo14'
   },
   
   // Calendly Links - YOUR ACTUAL LINKS (preserved exactly)

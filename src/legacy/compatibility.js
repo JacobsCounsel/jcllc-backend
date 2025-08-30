@@ -468,6 +468,96 @@ function buildSmartFields(formData, leadScore, submissionType) {
   return fields;
 }
 
+// Kit (ConvertKit) Integration - Better for professional newsletters
+export async function addToKitWithAutomation(formData, leadScore, submissionType) {
+  if (!config.kit?.apiKey) {
+    console.log('Kit not configured, skipping newsletter automation');
+    return { skipped: true };
+  }
+
+  try {
+    const tags = [];
+    
+    // Add smart tags based on lead score and submission type
+    if (leadScore.score >= 80) tags.push('vip-subscriber');
+    if (leadScore.score >= 50) tags.push('premium-subscriber'); 
+    tags.push('newsletter-subscriber');
+    tags.push(`source-${submissionType}`);
+    
+    // Add audience-specific tags
+    const email = formData.email?.toLowerCase() || '';
+    const source = formData.source?.toLowerCase() || '';
+    
+    // Detect high-performer categories
+    if (source.includes('athlete') || formData.profession?.includes('athlete')) {
+      tags.push('athlete');
+    }
+    if (source.includes('creator') || formData.profession?.includes('creator')) {
+      tags.push('creator');
+    }
+    if (source.includes('entrepreneur') || formData.businessType?.includes('entrepreneur')) {
+      tags.push('entrepreneur');  
+    }
+    if (formData.familyOffice || formData.estateValue > 5000000) {
+      tags.push('high-performing-family');
+    }
+    
+    // Add subscriber to Kit
+    const subscriberData = {
+      email: formData.email,
+      first_name: formData.firstName || formData.fullName?.split(' ')[0] || '',
+      fields: {
+        lead_score: leadScore.score,
+        signup_date: new Date().toISOString(),
+        source: submissionType
+      }
+    };
+
+    const response = await fetch('https://api.convertkit.com/v3/subscribers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        api_key: config.kit.apiKey,
+        ...subscriberData
+      })
+    });
+
+    if (!response.ok) {
+      console.error('Kit subscription failed:', await response.text());
+      return { success: false, error: 'Kit subscription failed' };
+    }
+
+    const result = await response.json();
+    console.log('✅ Added to Kit newsletter:', formData.email);
+    
+    // Apply tags if subscriber was added
+    if (result.subscriber?.id && tags.length > 0) {
+      for (const tag of tags) {
+        try {
+          await fetch(`https://api.convertkit.com/v3/tags`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              api_key: config.kit.apiKey,
+              tag: { name: tag },
+              email: formData.email
+            })
+          });
+        } catch (e) {
+          console.warn('Tag application failed:', tag, e.message);
+        }
+      }
+    }
+
+    return { success: true, subscriber_id: result.subscriber?.id, tags };
+  } catch (error) {
+    console.error('Kit integration error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function addToMailchimpWithAutomation(formData, leadScore, submissionType) {
   if (!config.mailchimp.apiKey || !config.mailchimp.audienceId) {
     console.log('Mailchimp not configured, skipping');

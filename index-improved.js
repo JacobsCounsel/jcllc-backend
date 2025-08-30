@@ -30,7 +30,7 @@ import {
   sanitizeInput,
   escapeHtml,
   analyzeIntakeWithAI,
-  addToMailchimpWithAutomation,
+  addToKitWithAutomation,
   getGraphToken,
   sendEnhancedEmail,
   createClioLead,
@@ -751,12 +751,21 @@ app.post('/newsletter-signup', async (req, res) => {
     const operations = [];
     
     if (formData.email) {
-      const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
+      // Use new black text newsletter template
+      const { CustomEmailAutomation } = await import('./src/services/customEmailAutomation.js');
+      const automation = new CustomEmailAutomation();
+      const welcomeEmailHtml = automation.generateEmailHTML('newsletter_welcome', 'Newsletter welcome content', formData.firstName || 'there', {
+        strategicOpening: 'The same legal blind spots that destroy 90% of successful athletes, creators, and entrepreneurs? You just avoided them.',
+        strategicInsight: 'Every Thursday at 8 AM, I send 50,000+ high-performers a single legal strategy that takes 3 minutes to read and could protect millions in wealth. LeBron\'s business manager credits strategies like these for saving $50M+ in taxes. Last week: How MrBeast\'s IP structure protects his empire. This week: The entity setup that saves crypto millionaires from IRS disasters.',
+        ctaText: 'Get This Week\'s Legal Intel →',
+        ctaUrl: 'https://www.jacobscounsellaw.com/legal-strategy-builder'
+      });
+      
       if (welcomeEmailHtml) {
         operations.push(
           sendEnhancedEmail({
             to: [formData.email],
-            subject: 'Your Legal Playbook Starts Here [+ Free Resources Inside]',
+            subject: 'You\'re in → This week: How crypto millionaires avoid IRS disasters',
             html: welcomeEmailHtml
           }).then(() => {
             if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'welcome_email' });
@@ -1029,12 +1038,20 @@ app.post('/add-subscriber', async (req, res) => {
       submissionId
     );
 
-    // Send welcome email
+    // Send welcome email using new black text template
     if (formData.email) {
-      const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
+      const { CustomEmailAutomation } = await import('./src/services/customEmailAutomation.js');
+      const automation = new CustomEmailAutomation();
+      const welcomeEmailHtml = automation.generateEmailHTML('newsletter_welcome', 'Newsletter welcome content', formData.firstName || 'there', {
+        strategicOpening: 'The same legal blind spots that destroy 90% of successful athletes, creators, and entrepreneurs? You just avoided them.',
+        strategicInsight: 'Every Thursday at 8 AM, I send 50,000+ high-performers a single legal strategy that takes 3 minutes to read and could protect millions in wealth. LeBron\'s business manager credits strategies like these for saving $50M+ in taxes. Last week: How MrBeast\'s IP structure protects his empire. This week: The entity setup that saves crypto millionaires from IRS disasters.',
+        ctaText: 'Get This Week\'s Legal Intel →',
+        ctaUrl: 'https://www.jacobscounsellaw.com/legal-strategy-builder'
+      });
+      
       await sendEnhancedEmail({
         to: [formData.email],
-        subject: 'Your Legal Playbook Starts Here [+ Free Resources Inside]',
+        subject: 'You\'re in → This week: How crypto millionaires avoid IRS disasters',
         html: welcomeEmailHtml
       }).then(() => {
         if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'welcome_email' });
@@ -1055,7 +1072,8 @@ app.post('/add-subscriber', async (req, res) => {
       });
     }
 
-    await addToMailchimpWithAutomation(formData, leadScore, 'newsletter');
+    // Add to Kit (ConvertKit) for newsletter automation
+    await addToKitWithAutomation(formData, leadScore, 'newsletter');
 
     if (mixpanel) {
       mixpanel.track('Newsletter Signup', {
@@ -1121,14 +1139,14 @@ app.post('/business-guide-download', async (req, res) => {
       );
     }
     
-    // Add to Mailchimp with business-focused tags
+    // Add to Kit newsletter with business-focused tags
     const customFormData = { ...formData, tags: ['business-guide-download', 'trigger-business-sequence'] };
     operations.push(
-      addToMailchimpWithAutomation(customFormData, leadScore, submissionType)
+      addToKitWithAutomation(customFormData, leadScore, submissionType)
         .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', { tags: ['business-guide'] });
+          if (leadId) leadDb.logInteraction(leadId, 'kit_added', { tags: ['business-guide'] });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Kit newsletter failed:', e.message))
     );
     
     operations.push(
@@ -1202,11 +1220,11 @@ app.post('/brand-guide-download', async (req, res) => {
     
     const customFormData = { ...formData, tags: ['brand-guide-download', 'trigger-brand-sequence'] };
     operations.push(
-      addToMailchimpWithAutomation(customFormData, leadScore, submissionType)
+      addToKitWithAutomation(customFormData, leadScore, submissionType)
         .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', { tags: ['brand-guide'] });
+          if (leadId) leadDb.logInteraction(leadId, 'kit_added', { tags: ['brand-guide'] });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Kit newsletter failed:', e.message))
     );
     
     operations.push(
@@ -1280,11 +1298,11 @@ app.post('/estate-guide-download', async (req, res) => {
     
     const customFormData = { ...formData, tags: ['estate-guide-download', 'trigger-estate-sequence'] };
     operations.push(
-      addToMailchimpWithAutomation(customFormData, leadScore, submissionType)
+      addToKitWithAutomation(customFormData, leadScore, submissionType)
         .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'mailchimp_added', { tags: ['estate-guide'] });
+          if (leadId) leadDb.logInteraction(leadId, 'kit_added', { tags: ['estate-guide'] });
         })
-        .catch(e => console.error('❌ Mailchimp failed:', e.message))
+        .catch(e => console.error('❌ Kit newsletter failed:', e.message))
     );
     
     operations.push(
@@ -1529,7 +1547,7 @@ app.get('/', (req, res) => {
       '/api/analytics/dashboard',
       '/api/analytics/lead-intelligence',
       '/api/analytics/followup-recommendations',
-      '/admin/build-mailchimp-journeys',
+      '/admin/build-kit-sequences',
       '/admin/build-kit-automations'
     ],
     features: ['Lead Scoring', 'Mailchimp', 'Calendly', 'Clio', 'Email Notifications', 'Analytics Dashboard'] // Added analytics

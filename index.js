@@ -1108,13 +1108,13 @@ const submissionType = formData._normalizedType; // <- use normalized everywhere
     }
   
     // SMART AUTOMATION: Process with advanced personalization system
-    const smartResult = await smartAutomation.processFormSubmission(
-      formData.email, 
-      formData, 
-      submissionType
-    );
+    // const smartResult = await smartAutomation.processFormSubmission(
+    //   formData.email, 
+    //   formData, 
+    //   submissionType
+    // );
     
-    console.log(`🧠 Smart automation result:`, smartResult);
+    // console.log(`🧠 Smart automation result:`, smartResult);
     
     // Continue with existing systems for backup/compatibility
     const operations = [];
@@ -1657,7 +1657,8 @@ app.get('/automations', async (req, res) => {
 // Smart automation API endpoint for dashboard data
 app.get('/api/automation-stats', async (req, res) => {
   try {
-    const stats = await smartAutomation.getDashboardStats();
+    // const stats = await smartAutomation.getDashboardStats();
+    const stats = { message: 'Smart automation disabled in production' };
     res.json(stats);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch automation stats' });
@@ -1673,11 +1674,12 @@ app.post('/api/test-smart-automation', async (req, res) => {
       return res.status(400).json({ error: 'Email and formData required' });
     }
     
-    const result = await smartAutomation.processFormSubmission(
-      email, 
-      formData, 
-      submissionType || 'estate-intake'
-    );
+    // const result = await smartAutomation.processFormSubmission(
+    //   email, 
+    //   formData, 
+    //   submissionType || 'estate-intake'
+    // );
+    const result = { message: 'Smart automation disabled in production', email, formData };
     
     res.json(result);
   } catch (error) {

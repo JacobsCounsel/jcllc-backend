@@ -820,13 +820,13 @@ export class CustomEmailAutomation {
   _oldGetEmailContent(templateType, firstName = 'Valued Client') {
     const templates = {
       vip_welcome: `
-        <h1>Welcome to Your VIP Legal Experience!</h1>
+        <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Welcome to Your VIP Legal Experience!</h1>
         
         <p>{{firstName}}, thank you for trusting Jacobs Counsel with your most important legal needs. You've just taken the most critical step toward protecting what matters most to you.</p>
         
-        <div class="highlight-box">
-          <h3>🛡️ What Makes Our Approach Revolutionary</h3>
-          <p>Our advanced AI-enhanced legal analysis has already begun processing your unique situation. Within the next 24 hours, you'll receive personalized recommendations that traditional attorneys often miss—strategies that could save you thousands in taxes and prevent costly legal disputes.</p>
+        <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+          <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">🛡️ What Makes Our Approach Revolutionary</h3>
+          <p style="color: #1e40af !important; margin: 0 !important;">Our advanced AI-enhanced legal analysis has already begun processing your unique situation. Within the next 24 hours, you'll receive personalized recommendations that traditional attorneys often miss—strategies that could save you thousands in taxes and prevent costly legal disputes.</p>
         </div>
         
         <p><strong>Your Immediate Action Plan:</strong></p>
@@ -838,8 +838,9 @@ export class CustomEmailAutomation {
         
         <p>I personally review every VIP client situation. Your success deserves nothing less than premium, personalized attention.</p>
         
-        <a href="https://calendly.com/jacobscounsel/vip-consultation" class="cta-button">
-          Book Your VIP Consultation →
+        <a href="https://calendly.com/jacobscounsel/vip-consultation" 
+           style="display: inline-block; background-color: #2563eb !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; font-size: 16px !important;">
+          📅 Book Your VIP Consultation →
         </a>
         
         <p>Questions about your legal strategy? Simply reply to this email—I read every VIP response personally.</p>
@@ -851,13 +852,13 @@ export class CustomEmailAutomation {
       `,
       
       vip_strategy: `
-        <h1>Your Personal Legal Strategy Session Awaits</h1>
+        <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Your Personal Legal Strategy Session Awaits</h1>
         
         <p>{{firstName}}, I've been reviewing your information and I'm excited about the strategic opportunities I see for your situation.</p>
         
-        <div class="highlight-box">
-          <h3>⚡ Why This Session Matters</h3>
-          <p>Most high-performers wait until they face legal problems to seek counsel. You're different. You understand that offensive legal strategy prevents problems before they happen and creates competitive advantages others miss.</p>
+        <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+          <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">⚡ Why This Session Matters</h3>
+          <p style="color: #1e40af !important; margin: 0 !important;">Most high-performers wait until they face legal problems to seek counsel. You're different. You understand that offensive legal strategy prevents problems before they happen and creates competitive advantages others miss.</p>
         </div>
         
         <p><strong>In your VIP strategy session, we'll cover:</strong></p>
@@ -870,8 +871,9 @@ export class CustomEmailAutomation {
         
         <p>This isn't a sales call. It's a strategic planning session designed to give you clarity and actionable next steps.</p>
         
-        <a href="https://calendly.com/jacobscounsel/vip-consultation" class="cta-button">
-          Schedule Your Strategy Session →
+        <a href="https://calendly.com/jacobscounsel/vip-consultation" 
+           style="display: inline-block; background-color: #2563eb !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; font-size: 16px !important;">
+          📅 Schedule Your Strategy Session →
         </a>
         
         <p>Your success is my priority.</p>
@@ -880,19 +882,20 @@ export class CustomEmailAutomation {
       `,
       
       premium_welcome: `
-        <h1>Welcome to Premium Legal Protection</h1>
+        <h1 style="color: #1f2937 !important; font-size: 28px !important; font-weight: bold !important; margin: 20px 0 !important;">Welcome to Premium Legal Protection</h1>
         
         <p>{{firstName}}, congratulations on prioritizing your legal protection. You're ahead of 90% of high-performers who wait until problems arise to seek strategic legal counsel.</p>
         
-        <div class="highlight-box">
-          <h3>🚀 Your Premium Analysis Is Underway</h3>
-          <p>Our advanced legal intelligence system is already analyzing your situation and developing personalized strategies for maximum protection and advantage.</p>
+        <div style="background-color: #f0f9ff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+          <h3 style="color: #1d4ed8 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 0 10px !important;">🚀 Your Premium Analysis Is Underway</h3>
+          <p style="color: #1e40af !important; margin: 0 !important;">Our advanced legal intelligence system is already analyzing your situation and developing personalized strategies for maximum protection and advantage.</p>
         </div>
         
         <p>Over the next few days, you'll receive strategic insights that will help you understand exactly how to build an offensive legal foundation that protects and advances your interests.</p>
         
-        <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button">
-          Book Your Strategic Consultation →
+        <a href="https://calendly.com/jacobscounsel/strategic-consultation" 
+           style="display: inline-block; background-color: #2563eb !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; font-size: 16px !important;">
+          📅 Book Your Strategic Consultation →
         </a>
         
         <p>To your legal advantage,<br>

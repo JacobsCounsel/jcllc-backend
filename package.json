@@ -5,6 +5,7 @@
   "main": "index-improved.js",
   "scripts": {
     "start": "node index-improved.js",
+    "build": "npm install --build-from-source",
     "analytics": "node src/scripts/show-analytics.js",
     "build-mailchimp": "node src/scripts/build-mailchimp-journeys.js",
     "build-kit": "node src/scripts/build-kit-automations.js",
@@ -12,7 +13,6 @@
     "build-complete-kit": "node src/scripts/build-premium-kit.js"
   },
   "dependencies": {
-    "better-sqlite3": "^12.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.18.2",

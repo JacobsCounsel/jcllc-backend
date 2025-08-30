@@ -9,10 +9,14 @@ import validator from 'validator';
 import NodeCache from 'node-cache';
 import Mixpanel from 'mixpanel';
 
-// Smart Automation Integration
-import smartAutomation from './src/integrations/smartAutomationIntegration.js';
+// Smart Automation Integration (Fallback without SQLite for production)
+// const smartAutomation = null; // Disabled for production deployment
 const mixpanel = process.env.MIXPANEL_TOKEN ? Mixpanel.init(process.env.MIXPANEL_TOKEN) : null;
 const cache = new NodeCache({ stdTTL: 600 });
+
+// In-memory storage for production (no SQLite dependency)
+const leads = new Map();
+const automations = new Map();
 // ==================== CONFIGURATION ====================
 const PORT = process.env.PORT || 3000;
 // AI Configuration

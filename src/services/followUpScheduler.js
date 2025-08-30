@@ -1,5 +1,5 @@
 // src/services/followUpScheduler.js - Smart follow-up reminder system
-import { leadDb } from '../models/database.js';
+import { leadDb } from "../models/database-production.js"';
 import { log } from '../utils/logger.js';
 import { getCalendlyLink } from './leadScoring.js';
 

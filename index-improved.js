@@ -18,14 +18,9 @@ import {
   validateContentType 
 } from './src/middleware/security.js';
 import { calculateLeadScore } from './src/services/leadScoring.js';
-// Use production-safe database in production
-const isDevelopment = process.env.NODE_ENV !== 'production';
-const { leadDb } = isDevelopment 
-  ? await import('./src/models/database.js').catch(() => import('./src/models/database-production.js'))
-  : await import('./src/models/database-production.js');
-const db = isDevelopment
-  ? (await import('./src/models/database.js').catch(() => import('./src/models/database-production.js'))).default
-  : (await import('./src/models/database-production.js')).default;
+// Use production-safe database 
+import { leadDb } from './src/models/database-production.js';
+import db from './src/models/database-production.js';
 import analyticsRouter from './src/routes/analytics.js';
 import emailAutomationRouter from './src/routes/email-automation-routes.js';
 import automationDashboardRouter from './src/routes/automation-dashboard.js';

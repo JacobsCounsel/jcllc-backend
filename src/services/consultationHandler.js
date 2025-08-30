@@ -1,7 +1,7 @@
 // Smart Consultation Booking Handler
 // Automatically pauses email sequences and manages post-consultation flows
 
-import db from '../models/database.js';
+import db from "../models/database-production.js"';
 import { log } from '../utils/logger.js';
 import { processCustomEmailAutomation } from './customEmailAutomation.js';
 import { sendEmail } from './emailService.js';

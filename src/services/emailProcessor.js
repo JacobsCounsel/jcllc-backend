@@ -2,7 +2,7 @@
 import cron from 'node-cron';
 import { processScheduledEmails } from './customEmailAutomation.js';
 import { log } from '../utils/logger.js';
-import db from '../models/database.js';
+import db from "../models/database-production.js"';
 
 class EmailProcessor {
   constructor() {

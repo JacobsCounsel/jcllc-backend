@@ -4,7 +4,7 @@
 import { config } from '../config/environment.js';
 import { log } from '../utils/logger.js';
 import { sendEmail } from './emailService.js';
-import db from '../models/database.js';
+import db from "../models/database-production.js"';
 import { legalEmailTemplates, generateLegallyCompliantEmail } from './legallyCompliantEmailTemplates.js';
 
 export class CustomEmailAutomation {

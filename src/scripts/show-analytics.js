@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/scripts/show-analytics.js - Command line analytics viewer
-import { leadDb } from '../models/database.js';
+import { leadDb } from "../models/database-production.js"';
 
 console.log('\n📊 JACOBS COUNSEL LEAD ANALYTICS\n');
 console.log('='.repeat(50));

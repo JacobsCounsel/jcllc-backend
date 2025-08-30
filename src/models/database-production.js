@@ -15,19 +15,23 @@ const stats = {
 // Mock database interface compatible with SQLite version
 const db = {
   prepare: (query) => ({
-    run: (params) => {
+    run: (...params) => {
       log.info('Mock DB operation:', { query, params });
       return { lastInsertRowid: Date.now(), changes: 1 };
     },
-    get: (params) => {
+    get: (...params) => {
       log.info('Mock DB get:', { query, params });
       return null; // Return null for missing records
     },
-    all: (params) => {
+    all: (...params) => {
       log.info('Mock DB all:', { query, params });
       return []; // Return empty array
     }
-  })
+  }),
+  exec: (query) => {
+    log.info('Mock DB exec:', { query });
+    return true;
+  }
 };
 
 // Lead database interface
@@ -75,6 +79,11 @@ export const leadDb = {
 
   getActiveAutomations: (email) => {
     return Array.from(emailAutomations.values()).filter(a => a.email === email && a.status === 'active');
+  },
+
+  logInteraction: (leadId, type, details = {}) => {
+    log.info('Lead interaction logged:', { leadId, type, details });
+    return { lastInsertRowid: Date.now(), changes: 1 };
   }
 };
 

@@ -307,34 +307,38 @@ function generateContextualContent(templateType, clientProfile, practiceAreaNeed
 export const legalEmailTemplates = {
   // Strategic VIP Welcome - Dynamically Generated
   vip_welcome: `
-    <h1 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 20px 0 !important;">{{firstName}}, Let's Build Something That Lasts</h1>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicOpening}}</p>
-    
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
-      <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Framework</h3>
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicInsight}}</p>
+    <div style="background-color: #ffffff !important; color: #000000 !important; padding: 20px !important;">
+      <h1 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 20px 0 !important; font-size: 24px !important;">{{firstName}}, Let's Build Something That Lasts</h1>
+      
+      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicOpening}}</p>
+      
+      <div style="background-color: #ffffff !important; color: #000000 !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+        <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Framework</h3>
+        <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicInsight}}</p>
+      </div>
+      
+      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Our strategic consultation will address:</strong></p>
+      <ul style="background-color: #ffffff !important; color: #000000 !important;">
+        <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Comprehensive Assessment</strong> - Understanding your unique position and strategic objectives</li>
+        <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Integrated Legal Strategy</strong> - Coordinating business, brand, and wealth protection priorities</li>
+        <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Implementation Framework</strong> - Developing actionable approaches tailored to your situation</li>
+      </ul>
+      
+      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Here's what we'll accomplish in your consultation:</strong> We'll identify your biggest legal risks, create a strategic protection plan, and give you a clear roadmap for implementation.</p>
+      
+      <div style="text-align: center !important; margin: 30px 0 !important;">
+        <a href="{{ctaUrl}}" style="background-color: #ffffff !important; color: #000000 !important; border: 3px solid #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; font-size: 16px !important;">
+          {{ctaText}}
+        </a>
+      </div>
+      
+      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Ready to get started? Book your consultation now and we'll have a strategic plan in place within 30 days.</p>
+      
+      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Best regards,<br>
+      <strong style="background-color: #ffffff !important; color: #000000 !important;">Drew Jacobs, Esq.</strong><br>
+      Founder & Managing Attorney<br>
+      Jacobs Counsel LLC</p>
     </div>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;"  style="background-color: #ffffff !important; color: #000000 !important;">Our strategic consultation will address:</strong></p>
-    <ul style="background-color: #ffffff !important; color: #000000 !important;">
-      <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;"  style="background-color: #ffffff !important; color: #000000 !important;">Comprehensive Assessment</strong> - Understanding your unique position and strategic objectives</li>
-      <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;"  style="background-color: #ffffff !important; color: #000000 !important;">Integrated Legal Strategy</strong> - Coordinating business, brand, and wealth protection priorities</li>
-      <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;"  style="background-color: #ffffff !important; color: #000000 !important;">Implementation Framework</strong> - Developing actionable approaches tailored to your situation</li>
-    </ul>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >Here's what we'll accomplish in your consultation:</strong> We'll identify your biggest legal risks, create a strategic protection plan, and give you a clear roadmap for implementation.</p>
-    
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
-      {{ctaText}}
-    </a>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Ready to get started? Book your consultation now and we'll have a strategic plan in place within 30 days.</p>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Best regards,<br>
-    <strong style="color: #000000 !important;"  style="background-color: #ffffff !important; color: #000000 !important;">Drew Jacobs, Esq.</strong><br>
-    Founder & Managing Attorney<br>
-    Jacobs Counsel LLC</p>
   `,
   
   // Strategic Premium Welcome - Dynamically Generated
@@ -343,7 +347,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicOpening}}</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Counsel</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicInsight}}</p>
     </div>
@@ -367,7 +371,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for scheduling your consultation with our firm. We're looking forward to learning more about your situation and how we might be able to assist you.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">About Our Consultation Process</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Our consultations are designed to be informational and educational. We'll discuss your situation, explore potential legal considerations, and help you understand your options.</p>
     </div>
@@ -398,7 +402,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Your {{practiceArea}} inquiry tells me you're thinking ahead. That's exactly the kind of forward-planning that separates successful people from everyone else who waits until there's a crisis.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Counsel</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">We approach {{practiceArea}} with the same methodical strategy we bring to all complex legal matters. Our goal is to help you understand not just what's possible, but what's strategically advantageous for your specific situation.</p>
     </div>
@@ -424,7 +428,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">We specialize in {{practiceArea}} for people who are building something important - whether that's a business, protecting wealth, or creating a legacy. The legal work should support your goals, not slow them down.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Consultation</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >Here's the deal:</strong> We'll analyze your {{practiceArea}} situation, identify the gaps that could cost you later, and build a plan that actually works for how you operate.</p>
     </div>
@@ -454,7 +458,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, your athletic career creates unique wealth that needs specialized protection strategies.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Career Earnings vs. Lifetime Wealth</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Athletic careers generate concentrated wealth in compressed timeframes. Smart athletes build legal structures that protect current earnings while creating post-career financial security.</p>
     </div>
@@ -483,7 +487,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, the decisions you make today about wealth structure determine your financial future long after your playing days end.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Beyond the Game</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Athletic success on the field requires the same strategic thinking for wealth protection off the field. Business ventures, endorsements, and investments all need proper legal foundations.</p>
     </div>
@@ -513,7 +517,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, every piece of content you create is intellectual property. Every brand partnership is a business transaction. Time to protect them like the valuable assets they are.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Creator Economy Reality</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Successful creators aren't just making content - they're building media companies. Your audience, content library, and brand partnerships represent significant business value that needs legal protection.</p>
     </div>
@@ -542,7 +546,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, growing a creator business means moving from content creator to business owner. That transition requires legal structure that supports scaling.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Beyond Brand Deals</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Creator businesses that scale successfully have strong legal foundations: protected IP, optimized business structures, and strategic partnership frameworks that preserve creative control while enabling growth.</p>
     </div>
@@ -572,7 +576,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, investors don't just evaluate your product and market - they audit your legal structure. Clean legal foundations accelerate funding and reduce dilution.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Investor Due Diligence</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Startups with proper legal structures move faster through due diligence, negotiate from stronger positions, and avoid costly legal cleanup that delays funding or reduces valuations.</p>
     </div>
@@ -601,7 +605,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, transitioning from startup to growth-stage company requires legal infrastructure that supports rapid scaling without creating operational bottlenecks.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Growth Stage Legal Strategy</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Companies that scale successfully build legal systems that grow with them - from hiring frameworks that support rapid team building to IP strategies that protect innovation while enabling partnerships.</p>
     </div>
@@ -631,7 +635,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, building wealth that lasts across generations requires more than estate planning - it needs comprehensive legal architecture that coordinates family, business, and tax objectives.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Multi-Generational Planning</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">High-performing families preserve and grow wealth through integrated strategies that address current needs while building frameworks for family legacy and governance.</p>
     </div>
@@ -660,7 +664,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, protecting and transferring significant wealth requires coordination between estate planning, business strategy, and family governance to preserve both financial and family legacy.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Family Office Strategies</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Sophisticated family wealth management integrates legal, financial, and governance strategies to preserve wealth while preparing the next generation for responsible stewardship.</p>
     </div>
@@ -690,7 +694,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, your inquiry about estate planning suggests you understand that thoughtful planning today prevents complications tomorrow. Let's explore what sophisticated estate planning actually encompasses.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">🏠 What Is Estate Planning?</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Estate planning involves creating legal documents and strategies to manage your assets during your lifetime and ensure they're distributed according to your wishes after your death.</p>
     </div>
@@ -720,7 +724,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, your business formation inquiry suggests you understand that entity selection is a strategic decision with long-term implications. Let's explore the key considerations for making this choice thoughtfully.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Entity Selection</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Your choice of business structure creates the legal framework for all future operations. The decision affects not only current tax obligations and liability exposure, but also future flexibility for growth, investment, and succession planning.</p>
     </div>
@@ -750,7 +754,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, your interest in brand protection demonstrates strategic thinking about one of your business's most valuable assets. Effective intellectual property strategy goes beyond simple trademark registration.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Comprehensive IP Strategy</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Strategic brand protection creates a comprehensive framework for securing, maintaining, and enforcing your intellectual property rights. This involves not only registration but also ongoing monitoring and strategic enforcement decisions.</p>
     </div>
@@ -780,7 +784,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for completing the Legal Strategy Builder assessment. Your responses demonstrate thoughtful consideration of your legal landscape - exactly the approach we value in strategic legal planning.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Assessment-Based Legal Guidance</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Based on your assessment responses, we can see you're thinking strategically about complex legal matters. This positions you well for comprehensive legal strategy development that addresses both immediate needs and long-term objectives.</p>
     </div>
@@ -803,7 +807,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, having completed our Legal Strategy Builder, you now have valuable insights into your legal landscape. The next step is translating these insights into actionable legal strategy.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">From Assessment to Action</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Strategic legal counsel involves more than identifying issues - it requires developing comprehensive approaches that address root causes while positioning you for future success. This methodical approach distinguishes sophisticated legal strategy from reactive legal services.</p>
     </div>
@@ -833,7 +837,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for subscribing to receive strategic legal insights from Jacobs Counsel. You'll now receive thoughtful analysis on legal developments that affect strategic business and personal planning.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Intelligence</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Our newsletter focuses on providing actionable insights rather than generic legal updates. Each edition examines how legal developments create strategic opportunities or require adaptive planning.</p>
     </div>
@@ -863,7 +867,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, your inquiry about outside counsel services indicates you understand the value of sophisticated legal support for complex business matters. Strategic outside counsel relationships provide more than legal services - they provide strategic partnership.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Beyond Traditional Legal Services</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Effective outside counsel serves as an extension of your strategic team, providing not only legal expertise but also business-minded counsel that supports your operational and growth objectives.</p>
     </div>
@@ -893,7 +897,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for downloading our strategic legal resource guide. This comprehensive guide represents our approach to providing actionable legal intelligence rather than generic legal information.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Resource Implementation</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">The most valuable legal resources provide frameworks for strategic thinking rather than simple checklists. Our guides focus on helping you understand the strategic implications of legal decisions.</p>
     </div>
@@ -923,7 +927,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, your download of our business legal guide demonstrates strategic thinking about the legal foundations that support business success. Sophisticated business planning requires comprehensive legal strategy.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Comprehensive Business Legal Strategy</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Effective business legal planning addresses not only immediate formation needs but also growth strategy, risk management, and operational optimization. This integrated approach distinguishes strategic business counsel from transactional legal services.</p>
     </div>
@@ -951,7 +955,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, downloading our brand protection guide indicates you understand that intellectual property strategy requires more than basic trademark registration. Comprehensive brand protection involves strategic legal planning.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Comprehensive IP Strategy</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Strategic brand protection creates systematic approaches to securing, maintaining, and enforcing intellectual property rights. This comprehensive approach ensures your brand assets receive appropriate protection while supporting business objectives.</p>
     </div>
@@ -979,7 +983,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, your download of our estate planning guide demonstrates understanding that sophisticated estate planning involves more than basic document preparation. Strategic estate planning requires comprehensive legal architecture.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Comprehensive Estate Strategy</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Strategic estate planning integrates asset protection, tax optimization, succession planning, and family governance into cohesive legal architecture. This systematic approach ensures your estate plan serves your complete strategic objectives.</p>
     </div>
@@ -1009,7 +1013,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, you've taken the first step toward strategic legal planning by engaging with our educational content. The next step is discussing how these insights apply to your specific situation.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Consultation</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >What to expect:</strong> We'll cut through the legal jargon, identify what actually matters for your situation, and give you a clear action plan you can implement immediately.</p>
     </div>
@@ -1041,7 +1045,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, effective legal strategy requires understanding the foundational principles that govern sophisticated legal planning. These fundamentals apply across all areas of legal strategy.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">The Strategic Legal Approach</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Strategic legal planning involves more than addressing immediate issues. It requires systematic evaluation of current position, identification of potential risks and opportunities, and implementation of comprehensive solutions.</p>
     </div>
@@ -1073,7 +1077,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, sophisticated legal strategy requires access to high-quality resources that provide actionable guidance rather than generic information.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Comprehensive Legal Resource Library</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Our resource library focuses on providing strategic frameworks and implementation guidance for complex legal matters. These resources are designed to support thoughtful decision-making in sophisticated legal contexts.</p>
     </div>
@@ -1103,7 +1107,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for your estate planning inquiry. Your submission demonstrates strategic thinking about wealth preservation and family legacy planning.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Your Estate Planning Journey</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Sophisticated estate planning involves comprehensive analysis of your current position, strategic objectives, and optimal structures for achieving your wealth preservation and transfer goals.</p>
     </div>
@@ -1130,7 +1134,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, when you're managing serious wealth, generic estate planning doesn't cut it. We'll build a plan that actually protects what you've built and sets up the next generation for success.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Estate Planning Consultation Process</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">During your consultation, we'll examine your current estate structure, identify optimization opportunities, and discuss strategic approaches to wealth preservation and transfer.</p>
     </div>
@@ -1158,7 +1162,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for your business formation inquiry. Your approach demonstrates understanding that entity selection and business legal strategy are foundational to long-term success.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Business Formation</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Effective business formation involves comprehensive analysis of your business objectives, growth strategy, and optimal legal structures for supporting your goals while managing risk and tax exposure.</p>
     </div>
@@ -1185,7 +1189,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, strategic business legal planning requires understanding how legal structures can support rather than constrain your business objectives. Our consultation process provides clarity on complex business legal matters.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Business Legal Strategy Consultation</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">During your consultation, we'll examine your business goals, analyze optimal legal structures, and discuss comprehensive approaches to business legal strategy and risk management.</p>
     </div>
@@ -1213,7 +1217,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for your brand protection inquiry. Your approach demonstrates understanding that intellectual property strategy requires more than basic trademark registration.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Comprehensive Brand Protection Strategy</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Strategic brand protection involves systematic approaches to securing, maintaining, and enforcing intellectual property rights while supporting business growth and market positioning objectives.</p>
     </div>
@@ -1240,7 +1244,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, strategic brand protection requires comprehensive analysis of your intellectual property landscape and systematic approaches to protection and enforcement. Our consultation provides clarity on complex IP matters.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Brand Protection Consultation Process</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">During your consultation, we'll examine your current IP position, identify protection opportunities, and discuss strategic approaches to brand protection and enforcement.</p>
     </div>
@@ -1270,7 +1274,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for scheduling your consultation with Jacobs Counsel. To maximize the value of our time together, please consider the following preparation suggestions.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Consultation Preparation Guidelines</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >No time wasters:</strong> We'll focus on the legal moves that actually matter for your business and skip the generic advice you can Google.</p>
     </div>
@@ -1301,7 +1305,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, great connecting with you about your legal needs. Now let's turn those plans into action and get your legal foundation locked down.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Next Steps</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Following our consultation, you may be considering how to implement the strategic legal approaches we discussed. This is an important decision that deserves thoughtful consideration.</p>
     </div>
@@ -1329,7 +1333,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, I wanted to follow up on our recent discussion about your legal strategy needs. Strategic legal planning often requires time for thoughtful consideration.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">The Value of Strategic Timing</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">The most effective legal strategies are implemented proactively, before issues become urgent. This approach allows for comprehensive planning and optimal implementation of sophisticated legal solutions.</p>
     </div>
@@ -1359,7 +1363,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, I wanted to reconnect and share some strategic insights that may be relevant to your legal planning needs.</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #3b82f6 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Recent Legal Developments</h3>
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">The legal landscape continues to evolve, creating both new opportunities and potential challenges for strategic legal planning. Staying informed about these developments helps ensure your legal strategy remains current and effective.</p>
     </div>

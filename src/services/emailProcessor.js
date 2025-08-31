@@ -41,6 +41,7 @@ class EmailProcessor {
   // Stop the email processing service
   stop() {
     if (this.cronJob) {
+      this.cronJob.stop();
       this.cronJob.destroy();
       this.cronJob = null;
       log.info('📧 Email processor stopped');

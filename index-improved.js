@@ -319,7 +319,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
-    // Custom Email Automation (replaces Mailchimp)
+    // Custom Email Automation + Kit Newsletter
     operations.push(
       processCustomEmailAutomation(formData, leadScore, submissionType)
         .then((result) => {
@@ -442,7 +442,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
-    // Custom Email Automation (replaces Mailchimp)
+    // Custom Email Automation + Kit Newsletter
     operations.push(
       processCustomEmailAutomation(formData, leadScore, submissionType)
         .then((result) => {
@@ -567,7 +567,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
-    // Custom Email Automation (replaces Mailchimp)
+    // Custom Email Automation + Kit Newsletter
     operations.push(
       processCustomEmailAutomation(formData, leadScore, submissionType)
         .then((result) => {
@@ -671,7 +671,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
-    // Custom Email Automation (replaces Mailchimp)
+    // Custom Email Automation + Kit Newsletter
     operations.push(
       processCustomEmailAutomation(formData, leadScore, submissionType)
         .then((result) => {
@@ -789,7 +789,7 @@ app.post('/newsletter-signup', async (req, res) => {
       );
     }
     
-    // Custom Email Automation (replaces Mailchimp)
+    // Custom Email Automation + Kit Newsletter
     operations.push(
       processCustomEmailAutomation(formData, leadScore, submissionType)
         .then((result) => {
@@ -860,7 +860,7 @@ app.post('/outside-counsel', async (req, res) => {
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
 
-    // Custom Email Automation (replaces Mailchimp)
+    // Custom Email Automation + Kit Newsletter
     operations.push(
       processCustomEmailAutomation(formData, leadScore, submissionType)
         .then((result) => {
@@ -975,7 +975,7 @@ app.post('/resource-guide-download', async (req, res) => {
       );
     }
     
-    // Custom Email Automation (replaces Mailchimp)
+    // Custom Email Automation + Kit Newsletter
     operations.push(
       processCustomEmailAutomation(formData, leadScore, submissionType)
         .then((result) => {
@@ -1462,47 +1462,6 @@ app.post('/admin/build-kit-automations', async (req, res) => {
   }
 });
 
-// Mailchimp Journey Builder Endpoint
-app.post('/admin/build-mailchimp-journeys', async (req, res) => {
-  try {
-    const { buildCompleteJourneyArchitecture, testJourneySetup } = await import('./src/services/mailchimpJourneyBuilder.js');
-    
-    console.log('🚀 Building Mailchimp journey architecture...');
-    
-    // Test connection first
-    const testResult = await testJourneySetup();
-    if (!testResult.success) {
-      return res.status(400).json({
-        ok: false,
-        error: 'Mailchimp connection failed',
-        details: testResult.error
-      });
-    }
-    
-    // Build architecture
-    const results = await buildCompleteJourneyArchitecture();
-    
-    res.json({
-      ok: true,
-      message: 'Mailchimp journey architecture built successfully',
-      results: {
-        journeys: results.journeys.length,
-        segments: results.segments.length,
-        tags: results.tags.length,
-        mergeFields: results.mergeFields.length,
-        errors: results.errors
-      }
-    });
-    
-  } catch (error) {
-    console.error('Mailchimp build error:', error);
-    res.status(500).json({
-      ok: false,
-      error: 'Failed to build Mailchimp architecture',
-      details: error.message
-    });
-  }
-});
 
 // Health Check (enhanced with database status)
 app.get('/health', async (req, res) => {
@@ -1550,7 +1509,7 @@ app.get('/', (req, res) => {
       '/admin/build-kit-sequences',
       '/admin/build-kit-automations'
     ],
-    features: ['Lead Scoring', 'Mailchimp', 'Calendly', 'Clio', 'Email Notifications', 'Analytics Dashboard'] // Added analytics
+    features: ['Lead Scoring', 'Kit Newsletter', 'Calendly', 'Clio', 'Email Notifications', 'Analytics Dashboard'] // Added analytics
   });
 });
 

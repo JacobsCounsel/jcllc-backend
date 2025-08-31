@@ -558,63 +558,6 @@ export async function addToKitWithAutomation(formData, leadScore, submissionType
   }
 }
 
-export async function addToMailchimpWithAutomation(formData, leadScore, submissionType) {
-  if (!config.mailchimp.apiKey || !config.mailchimp.audienceId) {
-    console.log('Mailchimp not configured, skipping');
-    return { skipped: true };
-  }
-  
-  const tags = generateSmartTags(formData, leadScore, submissionType);
-  const mergeFields = buildSmartFields(formData, leadScore, submissionType);
-  
-  const memberData = {
-    email_address: formData.email,
-    status: 'subscribed',
-    merge_fields: mergeFields,
-    tags: tags,
-    timestamp_signup: new Date().toISOString()
-  };
-  
-  try {
-    const response = await fetch(
-      `https://${config.mailchimp.server}.api.mailchimp.com/3.0/lists/${config.mailchimp.audienceId}/members`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${config.mailchimp.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(memberData)
-      }
-    );
-
-    if (response.status === 400) {
-      const crypto = await import('crypto');
-      const hashedEmail = crypto.createHash('md5').update(formData.email.toLowerCase()).digest('hex');
-    
-      const updateResponse = await fetch(
-        `https://${config.mailchimp.server}.api.mailchimp.com/3.0/lists/${config.mailchimp.audienceId}/members/${hashedEmail}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${config.mailchimp.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            merge_fields: mergeFields,
-            tags: tags
-          })
-        }
-      );
-      return await updateResponse.json();
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Mailchimp error:', error);
-    return { error: error.message };
-  }
-}
 
 // ==================== MICROSOFT GRAPH (Exact copies) ====================
 export async function getGraphToken() {

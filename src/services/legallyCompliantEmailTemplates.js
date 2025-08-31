@@ -327,7 +327,7 @@ export const legalEmailTemplates = {
       <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Here's what we'll accomplish in your consultation:</strong> We'll identify your biggest legal risks, create a strategic protection plan, and give you a clear roadmap for implementation.</p>
       
       <div style="text-align: center !important; margin: 30px 0 !important;">
-        <a href="{{ctaUrl}}" style="background-color: #ffffff !important; color: #000000 !important; border: 3px solid #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; font-size: 16px !important;">
+        <a href="{{ctaUrl}}" style="background-color: #ff4d00 !important; color: #ffffff !important; border: 3px solid #ff4d00 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; font-size: 16px !important;">
           {{ctaText}}
         </a>
       </div>
@@ -354,7 +354,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Over the next few days, you'll receive targeted insights about your specific legal landscape that can help inform your strategic decision-making process. This educational content is designed to help you think strategically about opportunities and challenges ahead.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -386,7 +386,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Please remember: Until we establish a formal attorney-client relationship through a signed engagement agreement, our discussions are for informational purposes only.</p>
     
-    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       View Your Scheduled Consultation →
     </a>
     
@@ -409,7 +409,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Over the next few days, you'll receive targeted insights about {{practiceArea}} that can help inform your decision-making process. This educational content is designed to help you think strategically about your legal landscape.</p>
     
-    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Strategic Consultation
     </a>
     
@@ -441,7 +441,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;">Determine if we're a good fit for your needs</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Consultation →
     </a>
     
@@ -473,7 +473,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Every month without proper legal structure is earnings at risk. Champions protect their legacy both on and off the field.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -502,7 +502,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Your athletic discipline applies to wealth building - consistent, strategic action creates lasting results.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -532,7 +532,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Platform changes happen overnight. Smart creators build businesses that survive algorithm updates and platform shifts.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -561,7 +561,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">The creators who build lasting businesses think beyond the next viral post - they build legal architecture for long-term success.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -591,7 +591,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Every legal issue discovered during due diligence becomes leverage for investors. Smart founders eliminate that leverage early.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -620,7 +620,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">The legal decisions you make at startup stage echo through every funding round, partnership, and exit opportunity.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -650,7 +650,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Generational wealth requires generational thinking - legal structures designed to serve not just your objectives, but your family's long-term success.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -679,7 +679,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">The wealthiest families think in decades, not years. Legal structures should match that timeframe and vision.</p>
     
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       {{ctaText}}
     </a>
     
@@ -709,7 +709,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >Important:</strong> Estate planning needs vary significantly based on individual circumstances, family structure, asset types, and state laws. This information is general in nature and should not be considered legal advice for your specific situation.</p>
     
-    <a href="https://calendly.com/jacobscounsel/wealth-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/wealth-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Discuss Your Estate Planning Needs →
     </a>
     
@@ -739,7 +739,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >Important:</strong> Business formation decisions should be made based on your specific circumstances, business goals, and applicable state and federal laws. This information is educational only and not legal advice.</p>
     
-    <a href="https://calendly.com/jacobscounsel/business-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/business-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Discuss Your Business Formation Needs →
     </a>
     
@@ -769,7 +769,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >Important:</strong> Intellectual property law is complex and varies by jurisdiction. The appropriate protection strategy depends on your specific business, industry, and goals. This information is general in nature and not legal advice.</p>
     
-    <a href="https://calendly.com/jacobscounsel/brand-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/brand-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Discuss Your Brand Protection Needs →
     </a>
     
@@ -791,7 +791,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Over the next few days, you'll receive targeted insights that build on your assessment responses. This educational content is designed to help you think strategically about the legal considerations most relevant to your situation.</p>
     
-    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Strategic Consultation
     </a>
     
@@ -822,7 +822,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">This comprehensive approach ensures your legal strategy serves as a foundation for success rather than a reactive measure.</p>
     
-    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Book Your Strategy Session
     </a>
     
@@ -835,11 +835,11 @@ export const legalEmailTemplates = {
   newsletter_welcome: `
     <h1 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 20px 0 !important;">Welcome to Strategic Legal Insights</h1>
     
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, thank you for subscribing to receive strategic legal insights from Jacobs Counsel. You'll now receive thoughtful analysis on legal developments that affect strategic business and personal planning.</p>
+    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{firstName}}, {{strategicOpening}}</p>
     
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
+    <div style="background-color: #ffffff !important; color: #000000 !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
       <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Intelligence</h3>
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Our newsletter focuses on providing actionable insights rather than generic legal updates. Each edition examines how legal developments create strategic opportunities or require adaptive planning.</p>
+      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicInsight}}</p>
     </div>
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">You can expect coverage of:</p>
@@ -852,7 +852,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">This content is designed for individuals and businesses who approach legal matters strategically rather than reactively.</p>
     
-    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule a Strategic Consultation
     </a>
     
@@ -882,7 +882,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">This approach ensures legal counsel supports rather than constrains your strategic initiatives.</p>
     
-    <a href="https://calendly.com/jacobscounsel/outside-counsel-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/outside-counsel-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Discuss Your Outside Counsel Needs
     </a>
     
@@ -912,7 +912,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">This methodical approach ensures you extract maximum strategic value from legal resources.</p>
     
-    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Implementation Discussion
     </a>
     
@@ -940,7 +940,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Risk Management Systems</strong> - Comprehensive approaches to business risk mitigation</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/business-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/business-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Discuss Your Business Legal Strategy
     </a>
     
@@ -968,7 +968,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Enforcement Strategy</strong> - Measured responses to IP violations that protect without overreach</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/brand-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/brand-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Brand Strategy Discussion
     </a>
     
@@ -996,7 +996,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Family Governance</strong> - Structures that support family harmony and objective achievement</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/wealth-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/wealth-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Estate Strategy Consultation
     </a>
     
@@ -1028,7 +1028,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">This consultation provides clarity on complex legal matters without obligation.</p>
     
-    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important;">
+    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Strategic Consultation
     </a>
     
@@ -1062,7 +1062,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >Important:</strong> Legal strategy should always be developed based on your specific circumstances, objectives, and applicable laws. This information is educational and not legal advice.</p>
     
-    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Discuss Your Strategic Legal Needs
     </a>
     
@@ -1092,7 +1092,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">These resources complement professional legal counsel and provide additional context for strategic legal planning.</p>
     
-    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Access Strategic Resources
     </a>
     
@@ -1120,7 +1120,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Succession Planning</strong> - Ensuring smooth transition of assets and responsibilities</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/wealth-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/wealth-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Estate Planning Consultation
     </a>
     
@@ -1147,7 +1147,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Legacy Planning</strong> - Ensuring your estate plan reflects your values and objectives</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/wealth-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/wealth-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Estate Strategy Session
     </a>
     
@@ -1175,7 +1175,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Operational Legal Architecture</strong> - Creating contracts and policies that protect and enable</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/business-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/business-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Business Strategy Consultation
     </a>
     
@@ -1202,7 +1202,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Growth Planning</strong> - Legal structures that facilitate rather than complicate expansion</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/business-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/business-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Business Strategy Session
     </a>
     
@@ -1230,7 +1230,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Brand Architecture</strong> - Legal frameworks that support brand development and expansion</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/brand-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/brand-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Brand Strategy Consultation
     </a>
     
@@ -1257,7 +1257,7 @@ export const legalEmailTemplates = {
       <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="color: #000000 !important;" >Brand Architecture</strong> - Legal structures that support brand development and expansion</li>
     </ul>
     
-    <a href="https://calendly.com/jacobscounsel/brand-protection-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/brand-protection-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule Your Brand Strategy Session
     </a>
     
@@ -1348,7 +1348,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">If you're ready to explore strategic legal implementation, or if you have questions about your legal planning options, I'm here to help.</p>
     
-    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule a Follow-Up Discussion
     </a>
     
@@ -1378,7 +1378,7 @@ export const legalEmailTemplates = {
     
     <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">These developments may create new opportunities for optimizing your legal position. If you're interested in discussing how these changes might affect your situation, I'd be happy to reconnect.</p>
     
-    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button">
+    <a href="https://calendly.com/jacobscounsel/strategic-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
       Schedule a Strategic Update Discussion
     </a>
     
@@ -1391,6 +1391,41 @@ export const legalEmailTemplates = {
 // Enhanced email wrapper with proper legal disclaimers
 export function generateLegallyCompliantEmail(templateType, firstName = 'Valued Client', additionalData = {}) {
   const content = legalEmailTemplates[templateType] || legalEmailTemplates.standard_welcome;
+  
+  // NUCLEAR OPTION: Force perfect formatting on EVERY element
+  const forceReadableFormatting = (html) => {
+    return html
+      // Force ALL headers to be black text on white background
+      .replace(/<h1([^>]*)>/g, '<h1 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 20px 0 !important; font-size: 24px !important;">')
+      .replace(/<h2([^>]*)>/g, '<h2 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 15px 0 !important; font-size: 20px !important;">')
+      .replace(/<h3([^>]*)>/g, '<h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 18px !important;">')
+      .replace(/<h4([^>]*)>/g, '<h4 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 16px !important;">')
+      .replace(/<h5([^>]*)>/g, '<h5 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 14px !important;">')
+      .replace(/<h6([^>]*)>/g, '<h6 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 12px !important;">')
+      // Force ALL links/buttons to be bright orange
+      .replace(/<a([^>]*href[^>]*)style="[^"]*"/g, '<a$1style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;"')
+      // Force ALL text to be black on white
+      .replace(/<p([^>]*)>/g, '<p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">')
+      .replace(/<li([^>]*)>/g, '<li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;">')
+      .replace(/<strong([^>]*)>/g, '<strong style="background-color: #ffffff !important; color: #000000 !important;">')
+      .replace(/<div([^>]*style="[^"]*")>/g, (match, attrs) => {
+        if (match.includes('text-align: center')) {
+          return '<div style="text-align: center !important; margin: 30px 0 !important; background-color: #ffffff !important;">';
+        }
+        return '<div style="background-color: #ffffff !important; color: #000000 !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">';
+      })
+      // NUCLEAR OPTION: Remove ANY white text on white background disasters
+      .replace(/color:\s*#ffffff/g, 'color: #000000')
+      .replace(/color:\s*white/g, 'color: #000000')
+      .replace(/style="([^"]*?)color:\s*#ffffff([^"]*?)"/g, 'style="$1color: #000000$2"')
+      // Force black text on ALL remaining elements
+      .replace(/<([^>]*?)style="([^"]*?)"([^>]*?)>/g, (match, before, style, after) => {
+        if (!style.includes('color:') && !before.includes('header') && !after.includes('href')) {
+          return `<${before}style="${style}; color: #000000 !important;"${after}>`;
+        }
+        return match;
+      });
+  };
   
   // Strategic personalization for ALL templates
   const strategicTemplates = [
@@ -1420,19 +1455,21 @@ export function generateLegallyCompliantEmail(templateType, firstName = 'Valued 
     
     let personalizedContent = content
       .replace(/\{\{firstName\}\}/g, firstName)
-      .replace(/\{\{strategicOpening\}\}/g, contextualContent.strategicOpening)
-      .replace(/\{\{strategicInsight\}\}/g, contextualContent.strategicInsight)
-      .replace(/\{\{contextualEducation\}\}/g, contextualContent.contextualEducation)
-      .replace(/\{\{prioritizedApproach\}\}/g, contextualContent.prioritizedApproach)
-      .replace(/\{\{strategicAdvice\}\}/g, contextualContent.strategicAdvice)
-      .replace(/\{\{nextSteps\}\}/g, contextualContent.nextSteps)
-      .replace(/\{\{ctaText\}\}/g, tailoredCTA.text)
-      .replace(/\{\{ctaUrl\}\}/g, tailoredCTA.url)
+      .replace(/\{\{strategicOpening\}\}/g, additionalData.strategicOpening || contextualContent.strategicOpening)
+      .replace(/\{\{strategicInsight\}\}/g, additionalData.strategicInsight || contextualContent.strategicInsight)
+      .replace(/\{\{contextualEducation\}\}/g, additionalData.contextualEducation || contextualContent.contextualEducation)
+      .replace(/\{\{prioritizedApproach\}\}/g, additionalData.prioritizedApproach || contextualContent.prioritizedApproach)
+      .replace(/\{\{strategicAdvice\}\}/g, additionalData.strategicAdvice || contextualContent.strategicAdvice)
+      .replace(/\{\{nextSteps\}\}/g, additionalData.nextSteps || contextualContent.nextSteps)
+      .replace(/\{\{ctaText\}\}/g, additionalData.ctaText || tailoredCTA.text)
+      .replace(/\{\{ctaUrl\}\}/g, additionalData.ctaUrl || tailoredCTA.url)
       .replace(/\{\{submissionType\}\}/g, additionalData.submissionType || 'legal matters')
       .replace(/\{\{practiceArea\}\}/g, getPracticeAreaName(additionalData.submissionType) || 'legal strategy')
       .replace(/\{\{topicArea\}\}/g, contextualContent.topicArea || getPracticeAreaName(additionalData.submissionType) || 'legal strategy');
       
-    return buildEmailHTML(personalizedContent);
+    // Apply nuclear formatting fix before building email
+    const forcedFormattingContent = forceReadableFormatting(personalizedContent);
+    return buildEmailHTML(forcedFormattingContent);
   }
   
   // Standard template processing for non-strategic templates
@@ -1441,7 +1478,9 @@ export function generateLegallyCompliantEmail(templateType, firstName = 'Valued 
     .replace(/\{\{submissionType\}\}/g, additionalData.submissionType || 'legal matters')
     .replace(/\{\{practiceArea\}\}/g, getPracticeAreaName(additionalData.submissionType) || 'legal strategy');
     
-  return buildEmailHTML(personalizedContent);
+  // Apply nuclear formatting fix before building email
+  const forcedFormattingContent = forceReadableFormatting(personalizedContent);
+  return buildEmailHTML(forcedFormattingContent);
 }
 
 // Build HTML email with consistent styling
@@ -1642,7 +1681,7 @@ function buildEmailHTML(personalizedContent) {
       ${personalizedContent}
       
       <div style="background-color: #ffffff !important; color: #000000 !important;"  class="disclaimer">
-        <h4>IMPORTANT LEGAL NOTICE</h4>
+        <h4 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 16px !important;">IMPORTANT LEGAL NOTICE</h4>
         <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >This communication is for informational purposes only and does not constitute legal advice.</strong> The information provided is general in nature and may not apply to your specific situation. No attorney-client relationship is created by this communication unless a written engagement agreement is executed. For legal advice regarding your specific situation, please consult with a qualified attorney.</p>
       </div>
     </div>

@@ -305,64 +305,121 @@ function generateContextualContent(templateType, clientProfile, practiceAreaNeed
 }
 
 export const legalEmailTemplates = {
-  // Strategic VIP Welcome - Dynamically Generated
+  // Strategic VIP Welcome - Elite Brand Colors Design
   vip_welcome: `
-    <div style="background-color: #ffffff !important; color: #000000 !important; padding: 20px !important;">
-      <h1 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 20px 0 !important; font-size: 24px !important;">{{firstName}}, Let's Build Something That Lasts</h1>
-      
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicOpening}}</p>
-      
-      <div style="background-color: #ffffff !important; color: #000000 !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
-        <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Framework</h3>
-        <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicInsight}}</p>
+    <div style="background: linear-gradient(135deg, #000000 0%, #0f1a2e 50%, #000000 100%) !important; color: #ffffff !important; padding: 0 !important; margin: 0 !important; font-family: 'Helvetica Neue', Arial, sans-serif !important;">
+      <!-- Header Section with Gradient -->
+      <div style="background: linear-gradient(45deg, #ff4d00 0%, #d43f00 50%, #ff4d00 100%) !important; padding: 40px 30px !important; text-align: center !important; border-radius: 0 0 20px 20px !important;">
+        <h1 style="color: #ffffff !important; font-weight: 700 !important; font-size: 32px !important; margin: 0 !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important; letter-spacing: -0.5px !important;">{{firstName}}, Let's Build Something That Lasts</h1>
+        <div style="width: 60px !important; height: 4px !important; background: #ffffff !important; margin: 20px auto 0 auto !important; border-radius: 2px !important;"></div>
       </div>
       
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Our strategic consultation will address:</strong></p>
-      <ul style="background-color: #ffffff !important; color: #000000 !important;">
-        <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Comprehensive Assessment</strong> - Understanding your unique position and strategic objectives</li>
-        <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Integrated Legal Strategy</strong> - Coordinating business, brand, and wealth protection priorities</li>
-        <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Implementation Framework</strong> - Developing actionable approaches tailored to your situation</li>
-      </ul>
-      
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="background-color: #ffffff !important; color: #000000 !important;">Here's what we'll accomplish in your consultation:</strong> We'll identify your biggest legal risks, create a strategic protection plan, and give you a clear roadmap for implementation.</p>
-      
-      <div style="text-align: center !important; margin: 30px 0 !important;">
-        <a href="{{ctaUrl}}" style="background-color: #ff4d00 !important; color: #ffffff !important; border: 3px solid #ff4d00 !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; font-size: 16px !important;">
-          {{ctaText}}
-        </a>
+      <!-- Main Content -->
+      <div style="padding: 40px 30px !important;">
+        <p style="color: #e0e0e0 !important; line-height: 1.8 !important; font-size: 18px !important; margin: 0 0 30px 0 !important; font-weight: 300 !important;">{{strategicOpening}}</p>
+        
+        <!-- Strategic Insight Card -->
+        <div style="background: linear-gradient(135deg, #0f1a2e 0%, #1e2a44 100%) !important; border: 1px solid #2a3a5c !important; border-radius: 12px !important; padding: 30px !important; margin: 30px 0 !important; box-shadow: 0 8px 25px rgba(0,0,0,0.4) !important;">
+          <div style="display: flex !important; align-items: center !important; margin-bottom: 15px !important;">
+            <div style="width: 4px !important; height: 30px !important; background: linear-gradient(to bottom, #ff4d00, #e6440a) !important; border-radius: 2px !important; margin-right: 15px !important;"></div>
+            <h3 style="color: #ffffff !important; font-weight: 600 !important; font-size: 22px !important; margin: 0 !important;">Strategic Legal Framework</h3>
+          </div>
+          <p style="color: #ffffff !important; line-height: 1.7 !important; font-size: 16px !important; margin: 0 !important; font-weight: 300 !important;">{{strategicInsight}}</p>
+        </div>
+        
+        <!-- Consultation Benefits -->
+        <div style="margin: 40px 0 !important;">
+          <h4 style="color: #ffffff !important; font-weight: 600 !important; font-size: 20px !important; margin: 0 0 25px 0 !important;">Our strategic consultation will address:</h4>
+          <div style="space-y: 15px !important;">
+            <div style="background: rgba(255, 77, 0, 0.1) !important; border-left: 4px solid #ff4d00 !important; padding: 20px !important; margin: 15px 0 !important; border-radius: 0 8px 8px 0 !important;">
+              <div style="color: #ff4d00 !important; font-weight: 600 !important; font-size: 16px !important; margin-bottom: 8px !important;">Comprehensive Assessment</div>
+              <div style="color: #ffffff !important; font-size: 15px !important; line-height: 1.6 !important;">Understanding your unique position and strategic objectives</div>
+            </div>
+            <div style="background: rgba(255, 77, 0, 0.1) !important; border-left: 4px solid #ff4d00 !important; padding: 20px !important; margin: 15px 0 !important; border-radius: 0 8px 8px 0 !important;">
+              <div style="color: #ff4d00 !important; font-weight: 600 !important; font-size: 16px !important; margin-bottom: 8px !important;">Integrated Legal Strategy</div>
+              <div style="color: #ffffff !important; font-size: 15px !important; line-height: 1.6 !important;">Coordinating business, brand, and wealth protection priorities</div>
+            </div>
+            <div style="background: rgba(255, 77, 0, 0.1) !important; border-left: 4px solid #ff4d00 !important; padding: 20px !important; margin: 15px 0 !important; border-radius: 0 8px 8px 0 !important;">
+              <div style="color: #ff4d00 !important; font-weight: 600 !important; font-size: 16px !important; margin-bottom: 8px !important;">Implementation Framework</div>
+              <div style="color: #ffffff !important; font-size: 15px !important; line-height: 1.6 !important;">Developing actionable approaches tailored to your situation</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Value Proposition -->
+        <div style="background: linear-gradient(135deg, #ff4d00 0%, #d43f00 100%) !important; padding: 25px !important; border-radius: 12px !important; margin: 40px 0 !important; text-align: center !important; box-shadow: 0 8px 25px rgba(255, 77, 0, 0.3) !important;">
+          <p style="color: #ffffff !important; font-weight: 500 !important; font-size: 18px !important; margin: 0 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.2) !important;">We'll identify your biggest legal risks, create a strategic protection plan, and give you a clear roadmap for implementation.</p>
+        </div>
+        
+        <!-- CTA Button -->
+        <div style="text-align: center !important; margin: 40px 0 !important;">
+          <a href="{{ctaUrl}}" style="background: linear-gradient(135deg, #ff4d00 0%, #d43f00 50%, #ff4d00 100%) !important; color: #ffffff !important; padding: 18px 40px !important; text-decoration: none !important; border-radius: 50px !important; font-weight: 600 !important; font-size: 16px !important; display: inline-block !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; box-shadow: 0 8px 25px rgba(255, 77, 0, 0.4) !important; border: none !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important;">
+            {{ctaText}}
+          </a>
+        </div>
+        
+        <p style="color: #ffffff !important; line-height: 1.6 !important; font-size: 16px !important; margin: 30px 0 0 0 !important; text-align: center !important;">Ready to get started? Book your consultation now and we'll have a strategic plan in place within 30 days.</p>
       </div>
       
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Ready to get started? Book your consultation now and we'll have a strategic plan in place within 30 days.</p>
-      
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Best regards,<br>
-      <strong style="background-color: #ffffff !important; color: #000000 !important;">Drew Jacobs, Esq.</strong><br>
-      Founder & Managing Attorney<br>
-      Jacobs Counsel LLC</p>
+      <!-- Footer -->
+      <div style="background: #000000 !important; padding: 30px !important; text-align: center !important; border-top: 1px solid #2a3a5c !important;">
+        <div style="color: #ffffff !important; line-height: 1.6 !important; font-size: 15px !important;">
+          <div style="color: #ffffff !important; font-weight: 600 !important; font-size: 18px !important; margin-bottom: 5px !important;">Drew Jacobs, Esq.</div>
+          <div style="color: #ff4d00 !important; font-weight: 500 !important;">Founder & Managing Attorney</div>
+          <div>Jacobs Counsel LLC</div>
+        </div>
+      </div>
     </div>
   `,
   
-  // Strategic Premium Welcome - Dynamically Generated
+  // Strategic Premium Welcome - Navy/Orange Brand Colors
   premium_welcome: `
-    <h1 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 20px 0 !important;">{{firstName}}, Time to Level Up Your Legal Game</h1>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicOpening}}</p>
-    
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
-      <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Counsel</h3>
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">{{strategicInsight}}</p>
+    <div style="background: linear-gradient(135deg, #0f1a2e 0%, #1e2a44 50%, #0f1a2e 100%) !important; color: #ffffff !important; padding: 0 !important; margin: 0 !important; font-family: 'Helvetica Neue', Arial, sans-serif !important;">
+      <!-- Header Section -->
+      <div style="background: linear-gradient(45deg, #ff4d00 0%, #e6440a 50%, #ff4d00 100%) !important; padding: 35px 30px !important; text-align: center !important; border-radius: 0 0 15px 15px !important;">
+        <h1 style="color: #ffffff !important; font-weight: 600 !important; font-size: 28px !important; margin: 0 !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important; letter-spacing: -0.3px !important;">{{firstName}}, Time to Level Up Your Legal Game</h1>
+        <div style="width: 50px !important; height: 3px !important; background: #ffffff !important; margin: 18px auto 0 auto !important; border-radius: 2px !important;"></div>
+      </div>
+      
+      <!-- Main Content -->
+      <div style="padding: 35px 30px !important;">
+        <p style="color: #ffffff !important; line-height: 1.7 !important; font-size: 17px !important; margin: 0 0 25px 0 !important; font-weight: 300 !important;">{{strategicOpening}}</p>
+        
+        <!-- Strategic Insight Card -->
+        <div style="background: linear-gradient(135deg, #1e2a44 0%, #2a3a5c 100%) !important; border: 1px solid #3a4d6b !important; border-radius: 10px !important; padding: 25px !important; margin: 25px 0 !important; box-shadow: 0 6px 20px rgba(0,0,0,0.4) !important;">
+          <div style="display: flex !important; align-items: center !important; margin-bottom: 12px !important;">
+            <div style="width: 3px !important; height: 25px !important; background: linear-gradient(to bottom, #ff4d00, #e6440a) !important; border-radius: 2px !important; margin-right: 12px !important;"></div>
+            <h3 style="color: #ffffff !important; font-weight: 500 !important; font-size: 20px !important; margin: 0 !important;">Strategic Legal Counsel</h3>
+          </div>
+          <p style="color: #ffffff !important; line-height: 1.6 !important; font-size: 15px !important; margin: 0 !important; font-weight: 300 !important;">{{strategicInsight}}</p>
+        </div>
+        
+        <!-- Educational Content -->
+        <div style="background: rgba(255, 77, 0, 0.1) !important; border-left: 3px solid #ff4d00 !important; padding: 20px !important; margin: 30px 0 !important; border-radius: 0 8px 8px 0 !important;">
+          <p style="color: #ffffff !important; line-height: 1.6 !important; font-size: 16px !important; margin: 0 !important;">Over the next few days, you'll receive targeted insights about your specific legal landscape that can help inform your strategic decision-making process. This educational content is designed to help you think strategically about opportunities and challenges ahead.</p>
+        </div>
+        
+        <!-- CTA Button -->
+        <div style="text-align: center !important; margin: 35px 0 !important;">
+          <a href="{{ctaUrl}}" style="background: linear-gradient(135deg, #ff4d00 0%, #e6440a 50%, #ff4d00 100%) !important; color: #ffffff !important; padding: 16px 35px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: 500 !important; font-size: 15px !important; display: inline-block !important; text-transform: none !important; letter-spacing: 0.3px !important; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3) !important; border: none !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.2) !important;">
+            {{ctaText}}
+          </a>
+        </div>
+        
+        <!-- Next Steps -->
+        <div style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important; padding: 20px !important; border-radius: 8px !important; margin: 25px 0 0 0 !important; border: 1px solid #3a4d6b !important;">
+          <p style="color: #ffffff !important; line-height: 1.6 !important; font-size: 15px !important; margin: 0 !important;"><span style="color: #ff4d00 !important; font-weight: 500 !important;">Next step:</span> Schedule your consultation and we'll create a custom legal strategy that protects your interests and accelerates your goals.</p>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background: #000000 !important; padding: 25px !important; text-align: center !important; border-top: 1px solid #3a4d6b !important;">
+        <div style="color: #ffffff !important; line-height: 1.5 !important; font-size: 14px !important;">
+          <div style="color: #ffffff !important; font-weight: 500 !important; font-size: 16px !important; margin-bottom: 3px !important;">Drew Jacobs, Esq.</div>
+          <div style="color: #ff4d00 !important; font-weight: 500 !important;">Jacobs Counsel LLC</div>
+        </div>
+      </div>
     </div>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Over the next few days, you'll receive targeted insights about your specific legal landscape that can help inform your strategic decision-making process. This educational content is designed to help you think strategically about opportunities and challenges ahead.</p>
-    
-    <a href="{{ctaUrl}}" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
-      {{ctaText}}
-    </a>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >Next step:</strong> Schedule your consultation and we'll create a custom legal strategy that protects your interests and accelerates your goals.</p>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Best regards,<br>
-    <strong style="color: #000000 !important;" >Drew Jacobs, Esq.</strong><br>
-    Jacobs Counsel LLC</p>
   `,
   
   // VIP Strategy Email - Focus on Process, Not Outcomes

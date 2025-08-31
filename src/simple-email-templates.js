@@ -218,6 +218,58 @@ export function generateResourceThankYouEmail(formData, downloadLink) {
   `;
 }
 
+export function generateNewsletterWelcomeEmail(formData) {
+  const clientName = formData.firstName || 'there';
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Welcome to Jacobs Counsel Newsletter</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
+    
+    <h1 style="color: #000000; margin-bottom: 20px; font-size: 24px;">
+      📧 Thanks for Subscribing!
+    </h1>
+    
+    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h2 style="color: #000000; margin-top: 0;">Hi ${clientName},</h2>
+      <p>Thank you for subscribing to the Jacobs Counsel newsletter!</p>
+      <p>You'll receive strategic legal insights every Thursday at 8 AM EST. Each email is designed to be read in 3 minutes and could help protect your business and wealth.</p>
+    </div>
+    
+    <div style="background-color: #e8f5e8; border-left: 4px solid #4caf50; padding: 20px; margin: 30px 0;">
+      <h3 style="color: #000000; margin-top: 0;">📋 What to Expect</h3>
+      <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+        <li>Weekly legal strategies for high-performers</li>
+        <li>Regulatory updates that affect your business</li>
+        <li>Case studies and practical insights</li>
+        <li>Proactive legal planning opportunities</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 40px 0;">
+      <a href="https://calendly.com/jacobscounsel/general-consultation" 
+         style="display: inline-block; background-color: #000000; color: white; padding: 15px 30px; 
+                text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+        📅 Schedule a Consultation
+      </a>
+    </div>
+    
+    <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align: center; color: #666;">
+      <p style="margin: 0;">Drew Jacobs, Esq. | Jacobs Counsel</p>
+      <p style="margin: 5px 0 0 0; font-size: 14px;">Strategic Legal Counsel for High-Performers</p>
+    </div>
+    
+  </div>
+</body>
+</html>
+  `;
+}
+
 export function generateClientEmail(formData, riskScore, submissionType) {
   const name = formData.name?.split(' ')[0] || 'there';
   const score = parseInt(formData.overallRiskScore) || 0;

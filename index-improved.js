@@ -38,7 +38,7 @@ import {
   withNormalizedType,
   processIntakeOperations
 } from './src/legacy/compatibility.js';
-import { generateInternalEmail, generateClientEmail, generateResourceThankYouEmail } from './src/simple-email-templates.js';
+import { generateInternalEmail, generateClientEmail, generateResourceThankYouEmail, generateNewsletterWelcomeEmail } from './src/simple-email-templates.js';
 import { getCalendlyLink } from './src/services/leadScoring.js';
 import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
 import { processCustomEmailAutomation } from './src/services/customEmailAutomation.js';
@@ -714,27 +714,17 @@ app.post('/newsletter-signup', async (req, res) => {
     const operations = [];
     
     if (formData.email) {
-      // Use new black text newsletter template
-      const { CustomEmailAutomation } = await import('./src/services/customEmailAutomation.js');
-      const automation = new CustomEmailAutomation();
-      const welcomeEmailHtml = automation.generateEmailHTML('newsletter_welcome', 'Newsletter welcome content', formData.firstName || 'there', {
-        strategicOpening: 'The same legal blind spots that destroy 90% of successful athletes, creators, and entrepreneurs? You just avoided them.',
-        strategicInsight: 'Every Thursday at 8 AM, I send 50,000+ high-performers a single legal strategy that takes 3 minutes to read and could protect millions in wealth. LeBron\'s business manager credits strategies like these for saving $50M+ in taxes. Last week: How MrBeast\'s IP structure protects his empire. This week: The entity setup that saves crypto millionaires from IRS disasters.',
-        ctaText: 'Get This Week\'s Legal Intel →',
-        ctaUrl: 'https://www.jacobscounsellaw.com/legal-strategy-builder'
-      });
+      const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
       
-      if (welcomeEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'You\'re in → This week: How crypto millionaires avoid IRS disasters',
-            html: welcomeEmailHtml
-          }).then(() => {
-            if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'welcome_email' });
-          }).catch(e => console.error('❌ Welcome email failed:', e.message))
-        );
-      }
+      operations.push(
+        sendEnhancedEmail({
+          to: [formData.email],
+          subject: 'Welcome to Jacobs Counsel Newsletter',
+          html: welcomeEmailHtml
+        }).then(() => {
+          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'welcome_email' });
+        }).catch(e => console.error('❌ Welcome email failed:', e.message))
+      );
       
       operations.push(
         sendEnhancedEmail({
@@ -1013,20 +1003,13 @@ app.post('/add-subscriber', async (req, res) => {
       submissionId
     );
 
-    // Send welcome email using new black text template
+    // Send welcome email using simple template
     if (formData.email) {
-      const { CustomEmailAutomation } = await import('./src/services/customEmailAutomation.js');
-      const automation = new CustomEmailAutomation();
-      const welcomeEmailHtml = automation.generateEmailHTML('newsletter_welcome', 'Newsletter welcome content', formData.firstName || 'there', {
-        strategicOpening: 'The same legal blind spots that destroy 90% of successful athletes, creators, and entrepreneurs? You just avoided them.',
-        strategicInsight: 'Every Thursday at 8 AM, I send 50,000+ high-performers a single legal strategy that takes 3 minutes to read and could protect millions in wealth. LeBron\'s business manager credits strategies like these for saving $50M+ in taxes. Last week: How MrBeast\'s IP structure protects his empire. This week: The entity setup that saves crypto millionaires from IRS disasters.',
-        ctaText: 'Get This Week\'s Legal Intel →',
-        ctaUrl: 'https://www.jacobscounsellaw.com/legal-strategy-builder'
-      });
+      const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
       
       await sendEnhancedEmail({
         to: [formData.email],
-        subject: 'You\'re in → This week: How crypto millionaires avoid IRS disasters',
+        subject: 'Welcome to Jacobs Counsel Newsletter',
         html: welcomeEmailHtml
       }).then(() => {
         if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'welcome_email' });

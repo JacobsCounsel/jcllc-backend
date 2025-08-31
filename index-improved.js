@@ -722,14 +722,36 @@ app.post('/legal-risk-assessment', async (req, res) => {
 
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
-    // Process the submission
-    const result = await processFormSubmission(formData, submissionType, submissionId);
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+    const operations = [];
+    const alertRecipients = [config.notifications.intakeNotifyTo];
     
-    if (result.success) {
-      res.json({ success: true, message: 'Risk assessment processed successfully', submissionId });
-    } else {
-      res.status(500).json({ success: false, message: 'Processing failed', error: result.error });
+    // Internal alert email
+    operations.push(
+      sendEnhancedEmail({
+        to: alertRecipients,
+        subject: `Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email})`,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: 'high'
+      }).catch(e => console.error('❌ Internal email failed:', e.message))
+    );
+    
+    // Client confirmation email
+    if (formData.email) {
+      operations.push(
+        sendEnhancedEmail({
+          to: [formData.email],
+          subject: `Your Legal Risk Assessment Results — ${formData.name || 'there'}`,
+          html: generateClientConfirmationEmail(formData, leadScore, submissionType, submissionId)
+        }).catch(e => console.error('❌ Client email failed:', e.message))
+      );
     }
+    
+    await Promise.all(operations);
+    
+    res.json({ success: true, message: 'Risk assessment processed successfully', submissionId });
   } catch (error) {
     console.error('❌ Legal risk assessment error:', error);
     res.status(500).json({ 

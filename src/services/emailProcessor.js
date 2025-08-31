@@ -42,7 +42,9 @@ class EmailProcessor {
   stop() {
     if (this.cronJob) {
       this.cronJob.stop();
-      this.cronJob.destroy();
+      if (typeof this.cronJob.destroy === 'function') {
+        this.cronJob.destroy();
+      }
       this.cronJob = null;
       log.info('📧 Email processor stopped');
     }

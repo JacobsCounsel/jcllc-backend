@@ -21,6 +21,10 @@ const db = {
     },
     get: (...params) => {
       log.info('Mock DB get:', { query, params });
+      // Handle count queries specially
+      if (query.includes('COUNT(*)')) {
+        return { count: stats.totalLeads };
+      }
       return null; // Return null for missing records
     },
     all: (...params) => {

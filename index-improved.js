@@ -631,6 +631,21 @@ app.post('/legal-risk-assessment', async (req, res) => {
       );
     }
     
+    // Clio CRM integration
+    operations.push(
+      createClioLead(formData, submissionType, leadScore)
+        .then(() => {
+          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
+        })
+        .catch(e => console.error('❌ Clio failed:', e.message))
+    );
+    
+    // Follow-up automation
+    operations.push(
+      scheduleSmartFollowUps(formData.email, submissionType, leadScore)
+        .catch(e => console.error('❌ Follow-up automation failed:', e.message))
+    );
+    
     await Promise.all(operations);
     
     res.json({ success: true, message: 'Risk assessment processed successfully', submissionId });
@@ -681,6 +696,21 @@ app.post('/legal-strategy-builder', async (req, res) => {
         }).catch(e => console.error('❌ Client email failed:', e.message))
       );
     }
+
+    // Clio CRM integration
+    operations.push(
+      createClioLead(formData, submissionType, leadScore)
+        .then(() => {
+          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
+        })
+        .catch(e => console.error('❌ Clio failed:', e.message))
+    );
+    
+    // Follow-up automation
+    operations.push(
+      scheduleSmartFollowUps(formData.email, submissionType, leadScore)
+        .catch(e => console.error('❌ Follow-up automation failed:', e.message))
+    );
 
     await Promise.all(operations);
 

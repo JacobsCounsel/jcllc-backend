@@ -38,7 +38,7 @@ import {
   withNormalizedType,
   processIntakeOperations
 } from './src/legacy/compatibility.js';
-import { generateInternalEmail, generateClientEmail } from './src/simple-email-templates.js';
+import { generateInternalEmail, generateClientEmail, generateResourceThankYouEmail } from './src/simple-email-templates.js';
 import { getCalendlyLink } from './src/services/leadScoring.js';
 import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
 import { processCustomEmailAutomation } from './src/services/customEmailAutomation.js';

@@ -145,6 +145,79 @@ export function generateInternalEmail(formData, riskScore, submissionType) {
   `;
 }
 
+export function generateResourceThankYouEmail(formData, downloadLink) {
+  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || 'there';
+  
+  // Determine guide type and custom messaging
+  let guideTitle = 'Legal Resource Guide';
+  let guideDescription = 'comprehensive legal resource guide';
+  let nextStepsMessage = 'This guide contains essential legal information to help protect your interests.';
+  
+  if (downloadLink.includes('Business-Formation')) {
+    guideTitle = 'Business Formation Blueprint';
+    guideDescription = 'VC-Ready Business Formation Blueprint';
+    nextStepsMessage = 'This guide will help you structure your business for success and future funding.';
+  } else if (downloadLink.includes('Brand-Protection')) {
+    guideTitle = 'Brand Protection Playbook';
+    guideDescription = 'Emergency Brand Protection Playbook';
+    nextStepsMessage = 'This guide contains critical steps to protect your brand and intellectual property.';
+  } else if (downloadLink.includes('Estate-Planning')) {
+    guideTitle = 'Estate Planning Guide';
+    guideDescription = 'Estate Planning for High Achievers';
+    nextStepsMessage = 'This guide outlines sophisticated strategies to protect and transfer your wealth.';
+  }
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Your ${guideTitle} - Jacobs Counsel</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
+    
+    <h1 style="color: #000000; margin-bottom: 20px; font-size: 24px;">
+      📚 Your ${guideTitle} is Ready!
+    </h1>
+    
+    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h2 style="color: #000000; margin-top: 0;">Hi ${clientName},</h2>
+      <p>Thank you for downloading our ${guideDescription}! ${nextStepsMessage}</p>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${downloadLink}" 
+         style="display: inline-block; background-color: #000000; color: white; padding: 15px 30px; 
+                text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+        📥 Download Your Guide Now
+      </a>
+    </div>
+    
+    <div style="background-color: #e8f5e8; border-left: 4px solid #4caf50; padding: 20px; margin: 30px 0;">
+      <h3 style="color: #000000; margin-top: 0;">💡 What's Next?</h3>
+      <p>Ready to take action? Schedule a consultation to discuss your specific legal needs and get personalized guidance.</p>
+    </div>
+    
+    <div style="text-align: center; margin: 40px 0;">
+      <a href="https://calendly.com/jacobscounsel/general-consultation" 
+         style="display: inline-block; background-color: #000000; color: white; padding: 15px 30px; 
+                text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+        📅 Schedule Free Consultation
+      </a>
+    </div>
+    
+    <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align: center; color: #666;">
+      <p style="margin: 0;">Drew Jacobs, Esq. | Jacobs Counsel</p>
+      <p style="margin: 5px 0 0 0; font-size: 14px;">Strategic Legal Counsel for High-Performers</p>
+    </div>
+    
+  </div>
+</body>
+</html>
+  `;
+}
+
 export function generateClientEmail(formData, riskScore, submissionType) {
   const name = formData.name?.split(' ')[0] || 'there';
   const score = parseInt(formData.overallRiskScore) || 0;

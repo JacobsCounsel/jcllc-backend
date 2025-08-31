@@ -34,10 +34,6 @@ import {
   getGraphToken,
   sendEnhancedEmail,
   createClioLead,
-  generateInternalAlert,
-  generateClientConfirmationEmail,
-  generateNewsletterWelcomeEmail,
-  generateResourceThankYouEmail,
   normalizeSubmissionType,
   withNormalizedType,
   processIntakeOperations
@@ -48,110 +44,7 @@ import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
 import { processCustomEmailAutomation } from './src/services/customEmailAutomation.js';
 import emailProcessor from './src/services/emailProcessor.js';
 
-// Fallback email generation function in case import fails
-function generateClientConfirmationEmailFallback(formData, price, submissionType, leadScore) {
-  const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';
-  const calendlyLink = config.calendlyLinks[submissionType] || config.calendlyLinks.general;
-  
-  // Elite service messaging based on submission type
-  let serviceTitle, serviceMessage, strategicFocus, expectedOutcome;
-  const priorityLevel = leadScore?.score >= 80 ? 'VIP' : 'Premium'; // Premium minimum service
-  const responseTime = leadScore?.score >= 80 ? '6 hours' : '12 hours'; // Premium minimum response
-  
-  switch (submissionType) {
-    case 'estate-intake':
-      serviceTitle = 'Elite Estate Planning Strategy Session Confirmed';
-      serviceMessage = `Your wealth protection consultation has been elevated to ${priorityLevel} status. Our estate planning strategists will contact you within ${responseTime} to schedule your comprehensive planning session.`;
-      strategicFocus = 'Multi-generational wealth preservation and tax optimization';
-      expectedOutcome = 'Sophisticated estate plan designed to protect and transfer your legacy efficiently.';
-      break;
-    case 'business-formation-intake':
-      serviceTitle = 'Strategic Business Formation Consultation Secured';
-      serviceMessage = `Your business formation request has been fast-tracked at ${priorityLevel} level. Our corporate strategy team will reach out within ${responseTime} to discuss your optimal entity structure.`;
-      strategicFocus = 'Investor-ready entity design with tax optimization';
-      expectedOutcome = 'Business structure positioned for growth, investment, and strategic exit opportunities.';
-      break;
-    case 'brand-protection-intake':
-      serviceTitle = 'Brand Protection Strategy Session Initiated';
-      serviceMessage = `Your intellectual property consultation has been prioritized at ${priorityLevel} level. Our brand protection specialists will contact you within ${responseTime} to assess your IP portfolio.`;
-      strategicFocus = 'Comprehensive IP strategy and enforcement planning';
-      expectedOutcome = 'Multi-layered brand protection framework with proactive enforcement strategy.';
-      break;
-    case 'outside-counsel':
-      serviceTitle = 'Elite General Counsel Partnership Discussion';
-      serviceMessage = `Your outside counsel inquiry has received ${priorityLevel} attention. Our senior legal strategists will reach out within ${responseTime} to discuss your ongoing legal needs.`;
-      strategicFocus = 'Strategic legal partnership and risk management';
-      expectedOutcome = 'Comprehensive legal support framework tailored to your business objectives.';
-      break;
-    default:
-      serviceTitle = 'Strategic Legal Consultation Confirmed';
-      serviceMessage = `Your consultation request has been prioritized at ${priorityLevel} level. Our legal strategy team will contact you within ${responseTime} to discuss your specific needs.`;
-      strategicFocus = 'Customized legal strategy development';
-      expectedOutcome = 'Tailored legal solutions designed to protect your interests and accelerate your goals.';
-  }
-  
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${serviceTitle} - Jacobs Counsel</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif;">
-  <!-- Elite Confirmation Email - Matching VIP Templates -->
-  <div style="background: linear-gradient(135deg, #000000 0%, #0f1a2e 100%); padding: 20px; min-height: 100vh;">
-    <div style="max-width: 600px; margin: 0 auto;">
-      
-      <!-- Header Section with Gradient -->
-      <div style="background: linear-gradient(45deg, #ff4d00 0%, #e6440a 50%, #ff4d00 100%); padding: 40px 30px; text-align: center; border-radius: 20px 20px 0 0; box-shadow: 0 8px 25px rgba(0,0,0,0.4);">
-        <h1 style="color: #ffffff; font-weight: 700; font-size: 28px; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); letter-spacing: -0.5px;">${serviceTitle}</h1>
-        <div style="width: 60px; height: 4px; background: #ffffff; margin: 20px auto 0 auto; border-radius: 2px;"></div>
-        <p style="color: #ffffff; margin: 15px 0 0; font-size: 16px; font-weight: 300;">${priorityLevel} Priority • Response within ${responseTime}</p>
-      </div>
-      
-      <!-- Main Content -->
-      <div style="background: linear-gradient(135deg, #0f1a2e 0%, #1e2a44 100%); padding: 40px 30px; border-radius: 0 0 20px 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.4);">
-        <p style="color: #ffffff; line-height: 1.8; font-size: 18px; margin: 0 0 30px 0; font-weight: 300;">Hello ${clientName},</p>
-        
-        <p style="color: #ffffff; line-height: 1.7; font-size: 16px; margin: 0 0 30px 0; font-weight: 300;">${serviceMessage}</p>
-        
-        <!-- Strategic Focus Card -->
-        <div style="background: linear-gradient(135deg, #1e2a44 0%, #2a3a5c 100%); border: 1px solid #3a4d6b; border-radius: 12px; padding: 25px; margin: 30px 0; box-shadow: 0 6px 20px rgba(0,0,0,0.4);">
-          <div style="display: flex; align-items: center; margin-bottom: 12px;">
-            <div style="width: 3px; height: 25px; background: linear-gradient(to bottom, #ff4d00, #e6440a); border-radius: 2px; margin-right: 12px;"></div>
-            <h3 style="color: #ffffff; font-weight: 500; font-size: 18px; margin: 0;">Strategic Focus</h3>
-          </div>
-          <p style="color: #ffffff; line-height: 1.6; font-size: 15px; margin: 0; font-weight: 300;">${strategicFocus}</p>
-        </div>
-        
-        <!-- Expected Outcome -->
-        <div style="background: linear-gradient(135deg, #ff4d00 0%, #e6440a 100%); padding: 20px; border-radius: 12px; margin: 30px 0; text-align: center; box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3);">
-          <p style="color: #ffffff; font-weight: 500; font-size: 16px; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">${expectedOutcome}</p>
-        </div>
-        
-        <!-- CTA Button -->
-        <div style="text-align: center; margin: 40px 0;">
-          <a href="${calendlyLink}" style="background: linear-gradient(135deg, #ff4d00 0%, #e6440a 50%, #ff4d00 100%); color: #ffffff; padding: 18px 35px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 8px 25px rgba(255, 77, 0, 0.4); text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
-            SECURE YOUR CONSULTATION
-          </a>
-          <p style="color: #cbd5e1; font-size: 14px; margin: 15px 0 0; font-weight: 300;">Priority scheduling available • ${responseTime} response guaranteed</p>
-        </div>
-      </div>
-      
-      <!-- Footer -->
-      <div style="background: #000000; padding: 30px; text-align: center; border-top: 1px solid #3a4d6b; margin-top: 20px; border-radius: 12px;">
-        <div style="color: #ffffff; line-height: 1.6; font-size: 15px;">
-          <div style="color: #ffffff; font-weight: 600; font-size: 18px; margin-bottom: 5px;">Drew Jacobs, Esq.</div>
-          <div style="color: #ff4d00; font-weight: 500;">Founder & Managing Attorney</div>
-          <div>Jacobs Counsel LLC</div>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-</body>
-</html>`;
-}
+// Clean email templates using simple-email-templates.js only
 
 // Kit v4 Automation System
 import { processKitV4Automation } from './src/services/kitV4Automation.js';
@@ -364,7 +257,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
       sendEnhancedEmail({
         to: alertRecipients,
         subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Estate Planning — ${formData.email} (Score: ${leadScore.score})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        html: generateInternalEmail(formData, leadScore, submissionType),
         priority: leadScore.score >= 70 ? 'high' : 'normal',
         attachments
       }).then(() => {
@@ -403,10 +296,10 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     if (formData.email) {
       let clientEmailHtml;
       try {
-        clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+        clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
       } catch (error) {
         console.warn('Using fallback email function:', error.message);
-        clientEmailHtml = generateClientConfirmationEmailFallback(formData, price, submissionType, leadScore);
+        clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
       }
       if (clientEmailHtml) {
         operations.push(
@@ -501,7 +394,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
       sendEnhancedEmail({
         to: alertRecipients,
         subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Business Formation — ${formData.founderName || formData.businessName || 'New Lead'} (Score: ${leadScore.score})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        html: generateInternalEmail(formData, leadScore, submissionType),
         priority: leadScore.score >= 70 ? 'high' : 'normal',
         attachments
       }).then(() => {
@@ -540,10 +433,10 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     if (formData.email) {
       let clientEmailHtml;
       try {
-        clientEmailHtml = generateClientConfirmationEmail(formData, price, submissionType, leadScore);
+        clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
       } catch (error) {
         console.warn('Using fallback email function:', error.message);
-        clientEmailHtml = generateClientConfirmationEmailFallback(formData, price, submissionType, leadScore);
+        clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
       }
       if (clientEmailHtml) {
         operations.push(
@@ -647,7 +540,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
       sendEnhancedEmail({
         to: alertRecipients,
         subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Brand Protection — ${formData.businessName || formData.fullName || 'New Lead'} (Score: ${leadScore.score})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        html: generateInternalEmail(formData, leadScore, submissionType),
         priority: leadScore.score >= 70 ? 'high' : 'normal',
         attachments
       }).then(() => {
@@ -684,7 +577,7 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, priceEstimate, submissionType, leadScore);
+      const clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -785,7 +678,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
       sendEnhancedEmail({
         to: alertRecipients,
         subject: `Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        html: generateInternalEmail(formData, leadScore, submissionType),
         priority: 'high'
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
@@ -947,7 +840,7 @@ app.post('/outside-counsel', async (req, res) => {
       sendEnhancedEmail({
         to: alertRecipients,
         subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Outside Counsel — ${formData.companyName || 'New Lead'} (Score: ${leadScore.score})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        html: generateInternalEmail(formData, leadScore, submissionType),
         priority: leadScore.score >= 70 ? 'high' : 'normal'
       }).then(() => {
         if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_alert' });
@@ -983,7 +876,7 @@ app.post('/outside-counsel', async (req, res) => {
     );
 
     if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
+      const clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({

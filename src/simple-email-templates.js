@@ -80,7 +80,7 @@ export function generateInternalEmail(formData, riskScore, submissionType) {
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
     
-    <h1 style="color: #d32f2f; margin-bottom: 20px; font-size: 24px;">
+    <h1 style="color: #000000; margin-bottom: 20px; font-size: 24px;">
       🚨 New Legal Risk Assessment
     </h1>
     
@@ -96,7 +96,7 @@ export function generateInternalEmail(formData, riskScore, submissionType) {
     
     ${businessAnalysis || personalAnalysis ? `
     <div style="background-color: #fff3cd; border-left: 4px solid #f0ad4e; padding: 15px; margin: 20px 0;">
-      <h3 style="color: #8a6d3b; margin-top: 0;">🎯 STRATEGIC ANALYSIS</h3>
+      <h3 style="color: #000000; margin-top: 0;">🎯 STRATEGIC ANALYSIS</h3>
       ${businessAnalysis ? `<p><strong>Business Risk:</strong> ${businessAnalysis}</p>` : ''}
       ${personalAnalysis ? `<p><strong>Personal Risk:</strong> ${personalAnalysis}</p>` : ''}
     </div>
@@ -104,7 +104,7 @@ export function generateInternalEmail(formData, riskScore, submissionType) {
     
     ${Object.keys(riskBreakdown).length > 0 ? `
     <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin: 20px 0; border-radius: 5px;">
-      <h3 style="color: #495057; margin-top: 0;">📊 RISK BREAKDOWN</h3>
+      <h3 style="color: #000000; margin-top: 0;">📊 RISK BREAKDOWN</h3>
       <ul style="margin: 0; padding-left: 20px;">
         ${Object.entries(riskBreakdown).map(([area, score]) => {
           const areaName = area.charAt(0).toUpperCase() + area.slice(1);
@@ -117,7 +117,7 @@ export function generateInternalEmail(formData, riskScore, submissionType) {
     
     ${highRiskAreas.length > 0 ? `
     <div style="background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 15px; margin: 20px 0;">
-      <h3 style="color: #d32f2f; margin-top: 0;">⚠️ HIGH RISK AREAS</h3>
+      <h3 style="color: #000000; margin-top: 0;">⚠️ HIGH RISK AREAS</h3>
       <ul style="margin: 0; padding-left: 20px;">
         ${highRiskAreas.map(area => `<li style="margin-bottom: 5px;">${area}</li>`).join('')}
       </ul>
@@ -133,7 +133,7 @@ export function generateInternalEmail(formData, riskScore, submissionType) {
     </div>
     ` : ''}
     
-    <div style="margin-top: 30px; padding: 20px; background-color: #1976d2; border-radius: 5px;">
+    <div style="margin-top: 30px; padding: 20px; background-color: #000000; border-radius: 5px;">
       <p style="color: #ffffff; margin: 0; text-align: center; font-size: 16px;">
         <strong>Action Required:</strong> Contact client within 24 hours
       </p>
@@ -216,7 +216,7 @@ export function generateClientEmail(formData, riskScore, submissionType) {
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
     
     <div style="text-align: center; margin-bottom: 30px;">
-      <h1 style="color: #1976d2; margin-bottom: 10px; font-size: 28px;">Legal Risk Assessment Results</h1>
+      <h1 style="color: #000000; margin-bottom: 10px; font-size: 28px;">Legal Risk Assessment Results</h1>
       <p style="color: #666; margin: 0;">Jacobs Counsel - Strategic Legal Guidance</p>
     </div>
     
@@ -229,7 +229,7 @@ export function generateClientEmail(formData, riskScore, submissionType) {
     
     ${specificInsights ? `
     <div style="background-color: #e3f2fd; border-left: 4px solid #1976d2; padding: 20px; margin: 30px 0;">
-      <h3 style="color: #1565c0; margin-top: 0;">💡 KEY INSIGHT FOR YOU</h3>
+      <h3 style="color: #000000; margin-top: 0;">💡 KEY INSIGHT FOR YOU</h3>
       <p style="font-size: 16px; line-height: 1.6; margin: 0;">${specificInsights}</p>
     </div>
     ` : ''}
@@ -243,7 +243,7 @@ export function generateClientEmail(formData, riskScore, submissionType) {
     
     ${highRiskAreas.length > 0 ? `
     <div style="background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 20px; margin: 30px 0;">
-      <h3 style="color: #d32f2f; margin-top: 0;">⚠️ Areas Requiring Immediate Attention</h3>
+      <h3 style="color: #000000; margin-top: 0;">⚠️ Areas Requiring Immediate Attention</h3>
       <ul style="margin: 10px 0 0 0; padding-left: 20px;">
         ${highRiskAreas.map(area => `<li style="margin-bottom: 8px; font-weight: 500;">${area}</li>`).join('')}
       </ul>
@@ -261,7 +261,7 @@ export function generateClientEmail(formData, riskScore, submissionType) {
     
     <div style="text-align: center; margin: 40px 0;">
       <a href="https://calendly.com/jacobscounsel/general-consultation" 
-         style="display: inline-block; background-color: #1976d2; color: white; padding: 15px 30px; 
+         style="display: inline-block; background-color: #000000; color: white; padding: 15px 30px; 
                 text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
         📅 Schedule Free Strategy Call
       </a>

@@ -1,5 +1,5 @@
 // index-improved.js - Enhanced backend with database analytics, SAME API contracts
-// Version: Production Ready
+// Version: Production Ready - Fixed Import Issues
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';

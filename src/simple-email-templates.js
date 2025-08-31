@@ -10,8 +10,22 @@ export function generateInternalEmail(formData, riskScore, submissionType) {
   if (score > 20) riskLevel = 'HIGH RISK';
   else if (score > 10) riskLevel = 'Medium Risk';
   
-  const highRiskAreas = formData.highRiskAreas ? JSON.parse(formData.highRiskAreas) : [];
-  const recommendations = formData.recommendations ? JSON.parse(formData.recommendations) : [];
+  let highRiskAreas = [];
+  let recommendations = [];
+  
+  try {
+    highRiskAreas = formData.highRiskAreas ? JSON.parse(formData.highRiskAreas) : [];
+  } catch (e) {
+    console.log('Error parsing highRiskAreas:', e);
+    highRiskAreas = [];
+  }
+  
+  try {
+    recommendations = formData.recommendations ? JSON.parse(formData.recommendations) : [];
+  } catch (e) {
+    console.log('Error parsing recommendations:', e);
+    recommendations = [];
+  }
   
   return `
 <!DOCTYPE html>
@@ -79,8 +93,22 @@ export function generateClientEmail(formData, riskScore, submissionType) {
     riskColor = '#ff9800';
   }
   
-  const highRiskAreas = formData.highRiskAreas ? JSON.parse(formData.highRiskAreas) : [];
-  const recommendations = formData.recommendations ? JSON.parse(formData.recommendations) : [];
+  let highRiskAreas = [];
+  let recommendations = [];
+  
+  try {
+    highRiskAreas = formData.highRiskAreas ? JSON.parse(formData.highRiskAreas) : [];
+  } catch (e) {
+    console.log('Error parsing highRiskAreas:', e);
+    highRiskAreas = [];
+  }
+  
+  try {
+    recommendations = formData.recommendations ? JSON.parse(formData.recommendations) : [];
+  } catch (e) {
+    console.log('Error parsing recommendations:', e);
+    recommendations = [];
+  }
   
   return `
 <!DOCTYPE html>

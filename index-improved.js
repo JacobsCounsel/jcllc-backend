@@ -54,8 +54,8 @@ function generateClientConfirmationEmailFallback(formData, price, submissionType
   
   // Elite service messaging based on submission type
   let serviceTitle, serviceMessage, strategicFocus, expectedOutcome;
-  const priorityLevel = leadScore?.score >= 80 ? 'VIP' : leadScore?.score >= 60 ? 'Premium' : 'Priority';
-  const responseTime = leadScore?.score >= 80 ? '6 hours' : leadScore?.score >= 60 ? '12 hours' : '24 hours';
+  const priorityLevel = leadScore?.score >= 80 ? 'VIP' : 'Premium'; // Premium minimum service
+  const responseTime = leadScore?.score >= 80 ? '6 hours' : '12 hours'; // Premium minimum response
   
   switch (submissionType) {
     case 'estate-intake':
@@ -413,8 +413,8 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     await processIntakeOperations(operations);
 
     // Premium response with enhanced messaging
-    const priorityLevel = leadScore.score >= 80 ? 'VIP' : leadScore.score >= 60 ? 'Premium' : 'Standard';
-    const responseTime = leadScore.score >= 80 ? '6 hours' : leadScore.score >= 60 ? '12 hours' : '24 hours';
+    const priorityLevel = leadScore.score >= 80 ? 'VIP' : 'Premium'; // Premium minimum service
+    const responseTime = leadScore.score >= 80 ? '6 hours' : '12 hours'; // Premium minimum response
     
     res.json({
       success: true,
@@ -550,7 +550,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     await processIntakeOperations(operations);
 
     // Premium business formation response
-    const priorityLevel = leadScore.score >= 80 ? 'VIP' : leadScore.score >= 60 ? 'Premium' : 'Standard';
+    const priorityLevel = leadScore.score >= 80 ? 'VIP' : 'Premium'; // Premium minimum service
     const responseTime = leadScore.score >= 80 ? '4 hours' : leadScore.score >= 60 ? '8 hours' : '24 hours';
     
     res.json({

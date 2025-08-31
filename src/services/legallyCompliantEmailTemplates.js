@@ -477,37 +477,7 @@ export const legalEmailTemplates = {
     Jacobs Counsel LLC</p>
   `,
 
-  // Standard Welcome Email
-  standard_welcome: `
-    <h1 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 20px 0 !important;">{{firstName}}, Let's Get Your Legal Foundation Right</h1>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Great timing on your {{practiceArea}} inquiry. Most people wait too long to get their legal structure in place, then scramble when they need it most.</p>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">We specialize in {{practiceArea}} for people who are building something important - whether that's a business, protecting wealth, or creating a legacy. The legal work should support your goals, not slow them down.</p>
-    
-    <div style="background-color: #ffffff !important; color: #000000 !important;"  style="background-color: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">
-      <h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important;">Strategic Legal Consultation</h3>
-      <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;"><strong style="color: #000000 !important;" >Here's the deal:</strong> We'll analyze your {{practiceArea}} situation, identify the gaps that could cost you later, and build a plan that actually works for how you operate.</p>
-    </div>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">During a consultation, we can:</p>
-    <ul>
-      <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;">Discuss your legal needs and objectives</li>
-      <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;">Explain our services and approach</li>
-      <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;">Provide information about our fee structure</li>
-      <li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;">Determine if we're a good fit for your needs</li>
-    </ul>
-    
-    <a href="https://calendly.com/jacobscounsel/priority-consultation" class="cta-button" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;" style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;">
-      Schedule Your Consultation →
-    </a>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Thank you for considering Jacobs Counsel for your legal needs.</p>
-    
-    <p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">Sincerely,<br>
-    <strong style="color: #000000 !important;" >Drew Jacobs, Esq.</strong><br>
-    Jacobs Counsel LLC</p>
-  `,
+  // REMOVED: standard_welcome template - Premium/VIP only service
 
   // ATHLETE-SPECIFIC EMAIL SEQUENCES
   athlete_email_2: `
@@ -1447,13 +1417,13 @@ export const legalEmailTemplates = {
 
 // Enhanced email wrapper with proper legal disclaimers
 export function generateLegallyCompliantEmail(templateType, firstName = 'Valued Client', additionalData = {}) {
-  const content = legalEmailTemplates[templateType] || legalEmailTemplates.standard_welcome;
+  const content = legalEmailTemplates[templateType] || legalEmailTemplates.premium_welcome;
   
   // Clean template processing - no legacy formatting overrides needed
   
   // Strategic personalization for ALL templates
   const strategicTemplates = [
-    'vip_welcome', 'premium_welcome', 'standard_welcome', 'vip_strategy',
+    'vip_welcome', 'premium_welcome', 'vip_strategy',
     'estate_planning_education', 'business_formation_education', 'brand_protection_education',
     'legal_strategy_builder_welcome', 'legal_strategy_builder_followup',
     'newsletter_welcome', 'resource_guide_confirmation', 'guide_download_education',

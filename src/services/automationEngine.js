@@ -134,23 +134,7 @@ class AutomationEngine {
         ]
       },
 
-      // Standard Newsletter Sequence (<40 score)
-      {
-        name: 'Standard Newsletter Journey',
-        description: 'Educational sequence for newsletter subscribers',
-        trigger_type: 'form_submission',
-        client_profile: 'all',
-        max_lead_score: 39,
-        emails: [
-          { template_key: 'standard_welcome', delay_hours: 0, subject: 'Welcome to Jacobs Counsel' },
-          { template_key: 'newsletter_educational', delay_hours: 168, subject: 'Weekly Legal Insights' },
-          { template_key: 'resource_guide_confirmation', delay_hours: 336, subject: 'Your Strategic Legal Resources' },
-          { template_key: 'newsletter_followup', delay_hours: 504, subject: 'Important Legal Updates' }
-        ],
-        exit_triggers: [
-          { trigger_type: 'lead_score_increased', trigger_value: '40', action: 'move_to_premium' }
-        ]
-      },
+      // REMOVED: Standard newsletter sequence - Premium minimum service only
 
       // Post-Consultation Sequence
       {

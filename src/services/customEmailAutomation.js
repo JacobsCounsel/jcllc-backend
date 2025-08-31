@@ -173,7 +173,7 @@ export class CustomEmailAutomation {
           },
           {
             delay: 24 * 60 * 60 * 1000, // 1 day
-            subject: 'Understanding Legal Strategy Basics',
+            subject: 'Advanced Legal Strategy Insights',
             template: 'legal_education_general'
           },
           {
@@ -189,27 +189,7 @@ export class CustomEmailAutomation {
         ]
       },
       
-      'trigger-standard-nurture': {
-        name: 'General Legal Education Series',
-        trigger: 'trigger-standard-nurture',
-        emails: [
-          {
-            delay: 0,
-            subject: 'Thank You for Your Interest - {{firstName}}',
-            template: 'standard_welcome'
-          },
-          {
-            delay: 2 * 24 * 60 * 60 * 1000, // 2 days
-            subject: 'Understanding Legal Strategy Basics',
-            template: 'legal_education_general'
-          },
-          {
-            delay: 7 * 24 * 60 * 60 * 1000, // 7 days
-            subject: 'Schedule Your Consultation - {{firstName}}',
-            template: 'consultation_reminder'
-          }
-        ]
-      },
+      // REMOVED: Standard nurture pathway - Premium/VIP service only
       
       // SERVICE-SPECIFIC EDUCATIONAL JOURNEYS
       'intake-estate-intake': {
@@ -447,7 +427,7 @@ export class CustomEmailAutomation {
           {
             delay: 0,
             subject: 'Welcome to Jacobs Counsel - {{firstName}}',
-            template: 'standard_welcome'
+            template: 'premium_welcome'
           },
           {
             delay: 2 * 24 * 60 * 60 * 1000, // 2 days
@@ -742,13 +722,13 @@ export class CustomEmailAutomation {
       return this.pathways['trigger-premium-nurture'];
     }
     
-    // Service-specific pathways
+    // Service-specific pathways (elevated to Premium minimum)
     if (submissionType && this.pathways[`intake-${submissionType}`]) {
       return this.pathways[`intake-${submissionType}`];
     }
     
-    // Default to standard nurture
-    return this.pathways['trigger-standard-nurture'];
+    // PREMIUM MINIMUM: No standard tier - all clients receive Premium service
+    return this.pathways['trigger-premium-nurture'];
   }
 
   // Create automation record in database

@@ -345,17 +345,12 @@ export class KitV4Automation {
         tags: ['trigger-premium-nurture', `intake-${submissionType}`, 'JC-Premium-Lead'],
         sequences: ['JC Premium Legal Protection Path']
       },
-      standard: {
-        name: 'Standard Legal Excellence Series',
-        tags: ['trigger-standard-nurture', `intake-${submissionType}`, 'JC-Standard-Lead'],
-        sequences: ['JC Standard Legal Excellence Series']
-      }
+      // REMOVED: Standard tier eliminated - Premium minimum service only
     };
     
-    // Route based on lead score
+    // Premium minimum service - no standard tier
     if (score >= 70) return paths.vip;
-    if (score >= 50) return paths.premium;
-    return paths.standard;
+    return paths.premium; // All clients receive Premium minimum
   }
 
   // Initialize complete system

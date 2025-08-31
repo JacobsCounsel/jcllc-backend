@@ -57,11 +57,11 @@ export function scheduleSmartFollowUps(leadId, leadScore, submissionType, formDa
       });
       
     } else {
-      // Standard leads: Three day follow-up only
+      // PREMIUM MINIMUM: All clients receive enhanced follow-up service
       followUps.push({
-        type: 'three_day',
-        delay: 48, // 2 days
-        message: `📧 Standard follow-up - Send personal email or add to nurture sequence`
+        type: 'premium_three_day',
+        delay: 36, // 1.5 days - enhanced response time
+        message: `📧 Premium follow-up - Priority personal outreach required`
       });
     }
     

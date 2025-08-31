@@ -764,22 +764,14 @@ app.post('/newsletter-signup', async (req, res) => {
     
     await processIntakeOperations(operations);
     
-    // Elite newsletter subscription response
+    // Simple newsletter subscription response
     res.json({
       success: true,
       submissionId,
-      status: 'premium_subscriber_activated',
-      message: 'Welcome to the elite legal intelligence network.',
-      nextDelivery: 'Your first strategic legal briefing arrives Thursday at 8 AM EST.',
-      exclusiveAccess: [
-        'Weekly legal strategy insights used by Fortune 500 executives',
-        'Case studies from $100M+ wealth protection strategies',
-        'Early access to legal trend analysis and regulatory updates'
-      ],
-      communitySize: '50,000+ high-performing professionals',
-      expectedValue: 'Legal strategies that could protect millions in wealth and prevent costly mistakes.',
-      unsubscribeNote: 'You can adjust preferences or unsubscribe at any time from any email.',
-      welcomeBonus: 'Access to our Emergency Legal Playbook for subscribers sent within 24 hours.'
+      status: 'subscribed',
+      message: 'Thanks for subscribing to the Jacobs Counsel newsletter.',
+      nextDelivery: 'You\'ll receive legal insights every Thursday at 8 AM EST.',
+      unsubscribeNote: 'You can unsubscribe at any time from any email.'
     });
   } catch (error) {
     console.error('💥 Newsletter error:', error);

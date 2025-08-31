@@ -740,6 +740,13 @@ app.post('/legal-risk-assessment', async (req, res) => {
   }
 });
 
+// Handle both old and new legal assessment endpoints
+app.post('/legal-strategy-builder', async (req, res) => {
+  // Redirect old submissions to new handler
+  req.url = '/legal-risk-assessment';
+  req.body.submissionType = 'legal-risk-assessment';
+  return app._router.handle(req, res);
+});
 
 // Newsletter signup (enhanced)
 app.post('/newsletter-signup', async (req, res) => {
@@ -1519,7 +1526,7 @@ app.get('/', (req, res) => {
       '/business-formation-intake', 
       '/brand-protection-intake',
       '/outside-counsel',
-      '/legal-strategy-builder',
+      '/legal-risk-assessment',
       '/newsletter-signup',
       '/resource-guide-download',
       '/business-guide-download',

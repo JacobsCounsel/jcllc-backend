@@ -42,7 +42,7 @@ import {
   withNormalizedType,
   processIntakeOperations
 } from './src/legacy/compatibility.js';
-import { generateEnhancedClientEmail } from './src/enhanced-email-templates.js';
+import { generateInternalEmail, generateClientEmail } from './src/simple-email-templates.js';
 import { getCalendlyLink } from './src/services/leadScoring.js';
 import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
 import { processCustomEmailAutomation } from './src/services/customEmailAutomation.js';
@@ -733,8 +733,8 @@ app.post('/legal-risk-assessment', async (req, res) => {
     operations.push(
       sendEnhancedEmail({
         to: alertRecipients,
-        subject: `Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        subject: `🚨 Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email})`,
+        html: generateInternalEmail(formData, leadScore, submissionType),
         priority: 'high'
       }).catch(e => console.error('❌ Internal email failed:', e.message))
     );
@@ -744,8 +744,8 @@ app.post('/legal-risk-assessment', async (req, res) => {
       operations.push(
         sendEnhancedEmail({
           to: [formData.email],
-          subject: `Your Legal Risk Assessment Results — ${formData.name || 'there'}`,
-          html: generateClientConfirmationEmail(formData, leadScore, submissionType, submissionId)
+          subject: `Your Legal Risk Assessment Results — ${formData.name?.split(' ')[0] || 'there'}`,
+          html: generateClientEmail(formData, leadScore, submissionType)
         }).catch(e => console.error('❌ Client email failed:', e.message))
       );
     }
@@ -795,8 +795,8 @@ app.post('/legal-strategy-builder', async (req, res) => {
       operations.push(
         sendEnhancedEmail({
           to: [formData.email],
-          subject: 'Your Legal Risk Assessment Results — Jacobs Counsel',
-          html: generateEnhancedClientEmail(formData, null, submissionType, leadScore)
+          subject: `Your Legal Risk Assessment Results — ${formData.name?.split(' ')[0] || 'there'}`,
+          html: generateClientEmail(formData, leadScore, submissionType)
         }).catch(e => console.error('❌ Client email failed:', e.message))
       );
     }

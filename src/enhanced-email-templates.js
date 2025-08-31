@@ -17,6 +17,7 @@ function getCalendlyLink(submissionType, leadScore) {
     'brand-protection': 'brand-protection',
     'outside-counsel': 'outside-counsel',
     'legal-strategy-builder': 'general',
+    'legal-risk-assessment': 'general',
     'newsletter': 'general',
     'resource-guide': 'general'
   };
@@ -128,6 +129,60 @@ export function generateEnhancedClientEmail(formData, price, submissionType, lea
             <li>Consider your preferred communication style and frequency</li>
             <li>Think about budget parameters for ongoing legal support</li>
           </ul>
+        </div>
+      `;
+      break;
+      
+    case 'legal-risk-assessment':
+      serviceTitle = 'Legal Risk Assessment Results';
+      
+      // Parse the detailed assessment data
+      const riskScore = formData.overallRiskScore || 'Not calculated';
+      const riskBreakdown = formData.riskBreakdown ? JSON.parse(formData.riskBreakdown) : {};
+      const recommendations = formData.recommendations ? JSON.parse(formData.recommendations) : [];
+      const highRiskAreas = formData.highRiskAreas ? JSON.parse(formData.highRiskAreas) : [];
+      
+      let riskLevel = 'Low Risk';
+      let riskColor = '#10b981';
+      if (riskScore > 20) {
+        riskLevel = 'High Risk';
+        riskColor = '#dc2626';
+      } else if (riskScore > 10) {
+        riskLevel = 'Medium Risk';
+        riskColor = '#f59e0b';
+      }
+      
+      serviceMessage = `Your comprehensive legal risk assessment is complete. Your overall risk level is <strong style="color: ${riskColor};">${riskLevel}</strong> (Score: ${riskScore}/30).`;
+      
+      if (highRiskAreas.length > 0) {
+        serviceMessage += ` We've identified <strong>${highRiskAreas.length}</strong> area${highRiskAreas.length > 1 ? 's' : ''} requiring immediate attention: <em>${highRiskAreas.join(', ')}</em>.`;
+      } else {
+        serviceMessage += ` Your legal protections are well-structured with opportunities for optimization.`;
+      }
+      
+      nextSteps = `
+        <li><strong>Risk Review:</strong> Detailed analysis of your assessment results</li>
+        <li><strong>Priority Planning:</strong> Address highest-risk areas first</li>
+        <li><strong>Protection Strategy:</strong> Develop comprehensive legal protection plan</li>
+        <li><strong>Implementation:</strong> Execute recommendations with professional guidance</li>
+      `;
+      
+      timelineMessage = 'Risk assessment consultations are available within 24 hours for priority cases.';
+      actionableSteps = `
+        <div style="background: #f8fafc; border-left: 4px solid #ff4d00; padding: 20px; margin: 20px 0; border-radius: 8px;">
+          <h3 style="color: #1f2937; margin-bottom: 15px; font-size: 18px; font-weight: 700;">📋 Your Priority Action Items</h3>
+          ${highRiskAreas.length > 0 ? 
+            `<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 15px; margin-bottom: 15px;">
+              <p style="color: #dc2626; font-weight: 600; margin: 0 0 8px 0;">⚠️ Immediate Attention Required:</p>
+              <ul style="color: #7f1d1d; margin: 0 0 0 20px; padding: 0; list-style-type: disc;">
+                ${highRiskAreas.map(area => `<li style="margin-bottom: 5px; line-height: 1.4;">${area}</li>`).join('')}
+              </ul>
+            </div>` : ''
+          }
+          <p style="color: #374151; margin-bottom: 10px; font-weight: 600;">Recommended next steps based on your assessment:</p>
+          <ol style="color: #4b5563; margin: 0 0 0 20px; padding: 0; list-style-type: decimal;">
+            ${recommendations.slice(0, 3).map(rec => `<li style="margin-bottom: 8px; line-height: 1.5;">${rec.includes(':') ? rec.split(':')[1]?.trim() : rec}</li>`).join('')}
+          </ol>
         </div>
       `;
       break;
@@ -359,6 +414,45 @@ export function generateEnhancedInternalEmail(formData, leadScore, submissionTyp
         immediateActions.push('Send business formation consultation link');
         immediateActions.push('Prepare entity structure recommendations');
       }
+      break;
+      
+    case 'legal-risk-assessment':
+      // Parse assessment data for internal analysis
+      const assessmentRiskScore = formData.overallRiskScore || 0;
+      const assessmentHighRiskAreas = formData.highRiskAreas ? JSON.parse(formData.highRiskAreas) : [];
+      const assessmentRecommendations = formData.recommendations ? JSON.parse(formData.recommendations) : [];
+      
+      if (assessmentRiskScore > 20) {
+        urgencyLevel = 'HIGH RISK - IMMEDIATE ACTION REQUIRED';
+        priorityEmoji = '🚨';
+        actionColor = '#dc2626';
+        immediateActions.push('Call within 2 hours - multiple high-risk areas identified');
+        immediateActions.push('Prepare comprehensive protection strategy');
+      } else if (assessmentRiskScore > 12) {
+        urgencyLevel = 'MEDIUM RISK - PRIORITY CONSULTATION';
+        priorityEmoji = '⚠️';
+        actionColor = '#f59e0b';
+        immediateActions.push('Schedule consultation within 24 hours');
+      } else {
+        immediateActions.push('Send optimization consultation link');
+        immediateActions.push('Prepare enhancement recommendations');
+      }
+      
+      keyInsights.push(`Overall Risk Score: ${assessmentRiskScore}/30`);
+      if (assessmentHighRiskAreas.length > 0) {
+        keyInsights.push(`High-Risk Areas: ${assessmentHighRiskAreas.join(', ')}`);
+      }
+      keyInsights.push(`Assessment Categories: Entity Structure, Contracts, IP, Employment, Regulatory, Estate Planning, Insurance`);
+      
+      // Add specific assessment details
+      if (formData.entity) keyInsights.push(`Entity Structure: ${formData.entity}`);
+      if (formData.contracts) keyInsights.push(`Contracts: ${formData.contracts}`);
+      if (formData.ip) keyInsights.push(`IP Protection: ${formData.ip}`);
+      if (formData.employment) keyInsights.push(`Employment: ${formData.employment}`);
+      if (formData.regulatory) keyInsights.push(`Regulatory: ${formData.regulatory}`);
+      if (formData.estate) keyInsights.push(`Estate Planning: ${formData.estate}`);
+      if (formData.insurance) keyInsights.push(`Insurance: ${formData.insurance}`);
+      
       break;
       
     case 'brand-protection-intake':

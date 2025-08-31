@@ -181,6 +181,16 @@ app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static HTML files for preview
+app.use(express.static('.', { 
+  extensions: ['html'],
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html');
+    }
+  }
+}));
+
 // Enhanced rate limiting
 app.use('/api/', apiRateLimit);
 app.use('/estate-intake', intakeRateLimit);
@@ -702,108 +712,34 @@ app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, 
   }
 });
 
-// Legal Strategy Builder (enhanced)
-app.post('/legal-strategy-builder', async (req, res) => {
+// Legal Risk Assessment (new)
+app.post('/legal-risk-assessment', async (req, res) => {
   try {
     let formData = sanitizeInput(req.body || {});
-    const submissionId = formData.submissionId || `strategy-${Date.now()}`;
-    formData = withNormalizedType(formData, 'legal-strategy-builder');
+    const submissionId = formData.submissionId || `risk-${Date.now()}`;
+    formData = withNormalizedType(formData, 'legal-risk-assessment');
     const submissionType = formData._normalizedType;
 
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 
-    const leadScore = calculateLeadScore(formData, submissionType);
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-
-    if (mixpanel) {
-      mixpanel.track('Legal Strategy Builder Submitted', {
-        distinct_id: formData.email,
-        service: submissionType,
-        score: leadScore.score,
-        q1: formData.q1,
-        q2: formData.q2,
-        q3: formData.q3,
-        q4: formData.q4,
-        q5: formData.q5,
-        q6: formData.q6,
-        q7: formData.q7,
-        q8: formData.q8
-      });
+    // Process the submission
+    const result = await processFormSubmission(formData, submissionType, submissionId);
+    
+    if (result.success) {
+      res.json({ success: true, message: 'Risk assessment processed successfully', submissionId });
+    } else {
+      res.status(500).json({ success: false, message: 'Processing failed', error: result.error });
     }
-
-    const operations = [];
-    const alertRecipients = leadScore.score >= 70
-      ? [config.notifications.intakeNotifyTo, config.notifications.highValueNotifyTo]
-      : [config.notifications.intakeNotifyTo];
-
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Legal Strategy Builder — ${formData.email} (Score: ${leadScore.score})`,
-        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
-        priority: leadScore.score >= 70 ? 'high' : 'normal'
-      }).then(() => {
-        if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_alert' });
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-
-    // Custom Email Automation + Kit Newsletter
-    operations.push(
-      processCustomEmailAutomation(formData, leadScore, submissionType)
-        .then((result) => {
-          if (leadId && result.success) {
-            leadDb.logInteraction(leadId, 'custom_automation_started', {
-              automation_id: result.automation_id,
-              pathway: result.pathway,
-              emails_scheduled: result.emails_scheduled
-            });
-          }
-          log.info('✅ Custom email automation started', { 
-            email: formData.email, 
-            pathway: result.pathway,
-            emails_scheduled: result.emails_scheduled 
-          });
-        })
-        .catch(e => console.error('❌ Custom email automation failed:', e.message))
-    );
-
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-
-    if (formData.email) {
-      const clientEmailHtml = generateClientConfirmationEmail(formData, null, submissionType, leadScore);
-      if (clientEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'Your Legal Strategy Results & Next Steps — Jacobs Counsel',
-            html: clientEmailHtml
-          }).then(() => {
-            if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'client_confirmation' });
-          }).catch(e => console.error('❌ Client email failed:', e.message))
-        );
-      }
-    }
-
-    await processIntakeOperations(operations);
-
-    res.json({
-      ok: true,
-      submissionId,
-      leadScore: leadScore.score,
-      aiAnalysisAvailable: !!aiAnalysis?.analysis
-    });
   } catch (error) {
-    console.error('💥 Legal strategy builder error:', error);
-    res.status(500).json({ ok: false, error: error.message });
+    console.error('❌ Legal risk assessment error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error',
+      submissionId: `error-${Date.now()}` 
+    });
   }
 });
+
 
 // Newsletter signup (enhanced)
 app.post('/newsletter-signup', async (req, res) => {

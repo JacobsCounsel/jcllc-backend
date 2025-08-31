@@ -660,20 +660,19 @@ app.post('/legal-risk-assessment', async (req, res) => {
   }
 });
 
-// Legal Strategy Builder - WORKING VERSION
+// Legal Strategy Builder - DEPRECATED: Redirects to Legal Risk Assessment
 app.post('/legal-strategy-builder', async (req, res) => {
   try {
+    console.log('📥 Legal Strategy Builder (DEPRECATED) - redirecting to Legal Risk Assessment');
+    
+    // Process through the new Legal Risk Assessment endpoint
     let formData = sanitizeInput(req.body || {});
     const submissionId = formData.submissionId || `risk-${Date.now()}`;
     formData = withNormalizedType(formData, 'legal-risk-assessment');
     const submissionType = formData._normalizedType;
 
-    console.log(`📥 New ${submissionType} submission:`, formData.email);
-
     const leadScore = calculateLeadScore(formData, submissionType);
     const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-
     const operations = [];
     const alertRecipients = [config.notifications.intakeNotifyTo];
 
@@ -681,7 +680,7 @@ app.post('/legal-strategy-builder', async (req, res) => {
     operations.push(
       sendEnhancedEmail({
         to: alertRecipients,
-        subject: `Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email})`,
+        subject: `Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email}) [via deprecated endpoint]`,
         html: generateInternalEmail(formData, leadScore, submissionType),
         priority: 'high'
       }).catch(e => console.error('❌ Internal email failed:', e.message))
@@ -716,9 +715,13 @@ app.post('/legal-strategy-builder', async (req, res) => {
 
     await Promise.all(operations);
 
-    res.json({ success: true, submissionId });
+    res.json({ 
+      success: true, 
+      submissionId,
+      message: 'Processed via Legal Risk Assessment (Legal Strategy Builder is deprecated)'
+    });
   } catch (error) {
-    console.error('❌ Legal assessment error:', error);
+    console.error('❌ Legal strategy builder (deprecated) error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

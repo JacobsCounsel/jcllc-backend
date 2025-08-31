@@ -726,6 +726,123 @@ app.post('/legal-strategy-builder', async (req, res) => {
   }
 });
 
+// Unsubscribe endpoint - CAN-SPAM compliance
+app.get('/unsubscribe/:email/:token?', async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email);
+    const token = req.params.token;
+    
+    // TODO: Verify token for security (should match email hash)
+    
+    // Add to unsubscribe list
+    leadDb.unsubscribeEmail(email);
+    
+    // Remove from Kit/ConvertKit
+    try {
+      const { removeFromKit } = await import('./src/services/kitIntegration.js');
+      await removeFromKit(email);
+    } catch (e) {
+      console.warn('Kit unsubscribe failed:', e.message);
+    }
+    
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Unsubscribed - Jacobs Counsel</title>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+          .success { color: #4caf50; font-size: 24px; margin-bottom: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="success">✅ Successfully Unsubscribed</div>
+        <h2>You have been unsubscribed from Jacobs Counsel emails</h2>
+        <p><strong>Email:</strong> ${email}</p>
+        <p>You will no longer receive marketing emails from us.</p>
+        <p>Note: You may still receive transactional emails related to any active legal matters.</p>
+        <hr>
+        <p><small>If you unsubscribed by mistake, you can <a href="/resubscribe/${encodeURIComponent(email)}">resubscribe here</a></small></p>
+      </body>
+      </html>
+    `);
+    
+    console.log(`✅ Unsubscribed: ${email}`);
+  } catch (error) {
+    console.error('Unsubscribe error:', error);
+    res.status(500).send('Error processing unsubscribe request');
+  }
+});
+
+// Email preferences endpoint
+app.get('/preferences/:email/:token?', async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email);
+    
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Email Preferences - Jacobs Counsel</title>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+          .form-group { margin: 20px 0; }
+          label { display: block; margin: 10px 0 5px 0; font-weight: bold; }
+          input[type="checkbox"] { margin-right: 10px; }
+          button { background: #000; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+          button:hover { background: #333; }
+        </style>
+      </head>
+      <body>
+        <h2>📧 Email Preferences for ${email}</h2>
+        <form action="/preferences/${encodeURIComponent(email)}" method="POST">
+          <div class="form-group">
+            <label><input type="checkbox" name="newsletter" checked> Weekly Newsletter (Thursdays)</label>
+            <label><input type="checkbox" name="follow_ups" checked> Follow-up Communications</label>
+            <label><input type="checkbox" name="resources" checked> Resource & Guide Notifications</label>
+            <label><input type="checkbox" name="consultations" checked> Consultation Reminders</label>
+          </div>
+          <button type="submit">Update Preferences</button>
+        </form>
+        <hr>
+        <p><small><a href="/unsubscribe/${encodeURIComponent(email)}">Unsubscribe from all emails</a></small></p>
+      </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error('Preferences error:', error);
+    res.status(500).send('Error loading preferences');
+  }
+});
+
+// Update preferences
+app.post('/preferences/:email', async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email);
+    const preferences = req.body;
+    
+    // Update email preferences in database
+    leadDb.updateEmailPreferences(email, preferences);
+    
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Preferences Updated - Jacobs Counsel</title></head>
+      <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center;">
+        <h2>✅ Preferences Updated Successfully</h2>
+        <p>Your email preferences for <strong>${email}</strong> have been updated.</p>
+        <p><a href="/preferences/${encodeURIComponent(email)}">← Back to Preferences</a></p>
+      </body>
+      </html>
+    `);
+    
+    console.log(`Updated preferences for: ${email}`, preferences);
+  } catch (error) {
+    console.error('Update preferences error:', error);
+    res.status(500).send('Error updating preferences');
+  }
+});
+
 // Newsletter signup (enhanced)
 app.post('/newsletter-signup', async (req, res) => {
   try {

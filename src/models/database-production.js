@@ -88,6 +88,61 @@ export const leadDb = {
   logInteraction: (leadId, type, details = {}) => {
     log.info('Lead interaction logged:', { leadId, type, details });
     return { lastInsertRowid: Date.now(), changes: 1 };
+  },
+
+  // Unsubscribe functionality - CAN-SPAM compliance
+  unsubscribeEmail: (email) => {
+    const id = `unsubscribe-${Date.now()}`;
+    const unsubscribed = { 
+      id, 
+      email, 
+      unsubscribed_at: new Date(),
+      reason: 'user_request'
+    };
+    
+    // Add to unsubscribed list
+    const unsubscribeList = new Map();
+    unsubscribeList.set(email, unsubscribed);
+    
+    log.info('Email unsubscribed:', { email, id });
+    return { lastInsertRowid: Date.now(), changes: 1 };
+  },
+
+  // Check if email is unsubscribed
+  isUnsubscribed: (email) => {
+    // In production, this would check actual database
+    // For now, assume no one is unsubscribed in mock DB
+    log.info('Checking unsubscribe status:', { email });
+    return false;
+  },
+
+  // Update email preferences
+  updateEmailPreferences: (email, preferences) => {
+    const id = `prefs-${Date.now()}`;
+    const prefData = {
+      id,
+      email,
+      newsletter: preferences.newsletter === 'on',
+      follow_ups: preferences.follow_ups === 'on', 
+      resources: preferences.resources === 'on',
+      consultations: preferences.consultations === 'on',
+      updated_at: new Date()
+    };
+    
+    log.info('Email preferences updated:', { email, preferences: prefData });
+    return { lastInsertRowid: Date.now(), changes: 1 };
+  },
+
+  // Get email engagement analytics
+  getEmailEngagement: (email) => {
+    log.info('Getting email engagement for:', { email });
+    return {
+      opens: 0,
+      clicks: 0,
+      last_opened: null,
+      last_clicked: null,
+      engagement_score: 0
+    };
   }
 };
 

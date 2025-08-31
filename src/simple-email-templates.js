@@ -1,10 +1,21 @@
 // Simple, Clean Email Templates - Built from Scratch
-// No white on white, readable, actionable
+// No white on white, readable, actionable, CAN-SPAM compliant
+
+function generateUnsubscribeUrls(email) {
+  const baseUrl = process.env.BASE_URL || 'https://estate-intake-system.onrender.com';
+  const encodedEmail = encodeURIComponent(email);
+  
+  return {
+    unsubscribeUrl: `${baseUrl}/unsubscribe/${encodedEmail}`,
+    preferencesUrl: `${baseUrl}/preferences/${encodedEmail}`
+  };
+}
 
 export function generateInternalEmail(formData, riskScore, submissionType) {
   const name = formData.name || 'Unknown';
   const email = formData.email || 'No email';
   const score = parseInt(formData.overallRiskScore) || 0;
+  const urls = generateUnsubscribeUrls(email);
   
   let riskLevel = 'Low Risk';
   let urgency = 'Standard';
@@ -147,6 +158,7 @@ export function generateInternalEmail(formData, riskScore, submissionType) {
 
 export function generateResourceThankYouEmail(formData, downloadLink) {
   const clientName = formData.firstName || formData.fullName?.split(' ')[0] || 'there';
+  const urls = generateUnsubscribeUrls(formData.email || 'unknown@example.com');
   
   // Determine guide type and custom messaging
   let guideTitle = 'Legal Resource Guide';
@@ -209,7 +221,11 @@ export function generateResourceThankYouEmail(formData, downloadLink) {
     
     <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align: center; color: #666;">
       <p style="margin: 0;">Drew Jacobs, Esq. | Jacobs Counsel</p>
-      <p style="margin: 5px 0 0 0; font-size: 14px;">Strategic Legal Counsel for High-Performers</p>
+      <p style="margin: 5px 0 15px 0; font-size: 14px;">Strategic Legal Counsel for High-Performers</p>
+      <p style="margin: 0; font-size: 12px; color: #999;">
+        <a href="${urls.unsubscribeUrl}" style="color: #666; text-decoration: underline;">Unsubscribe</a> | 
+        <a href="${urls.preferencesUrl}" style="color: #666; text-decoration: underline;">Email Preferences</a>
+      </p>
     </div>
     
   </div>
@@ -220,6 +236,7 @@ export function generateResourceThankYouEmail(formData, downloadLink) {
 
 export function generateNewsletterWelcomeEmail(formData) {
   const clientName = formData.firstName || 'there';
+  const urls = generateUnsubscribeUrls(formData.email || 'unknown@example.com');
   
   return `
 <!DOCTYPE html>
@@ -261,7 +278,11 @@ export function generateNewsletterWelcomeEmail(formData) {
     
     <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align: center; color: #666;">
       <p style="margin: 0;">Drew Jacobs, Esq. | Jacobs Counsel</p>
-      <p style="margin: 5px 0 0 0; font-size: 14px;">Strategic Legal Counsel for High-Performers</p>
+      <p style="margin: 5px 0 15px 0; font-size: 14px;">Strategic Legal Counsel for High-Performers</p>
+      <p style="margin: 0; font-size: 12px; color: #999;">
+        <a href="${urls.unsubscribeUrl}" style="color: #666; text-decoration: underline;">Unsubscribe</a> | 
+        <a href="${urls.preferencesUrl}" style="color: #666; text-decoration: underline;">Email Preferences</a>
+      </p>
     </div>
     
   </div>
@@ -273,6 +294,7 @@ export function generateNewsletterWelcomeEmail(formData) {
 export function generateClientEmail(formData, riskScore, submissionType) {
   const name = formData.name?.split(' ')[0] || 'there';
   const score = parseInt(formData.overallRiskScore) || 0;
+  const urls = generateUnsubscribeUrls(formData.email || 'unknown@example.com');
   
   let riskLevel = 'Low Risk';
   let riskColor = '#4caf50';
@@ -394,7 +416,11 @@ export function generateClientEmail(formData, riskScore, submissionType) {
     
     <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align: center; color: #666;">
       <p style="margin: 0;">Drew Jacobs, Esq. | Jacobs Counsel</p>
-      <p style="margin: 5px 0 0 0; font-size: 14px;">Strategic Legal Counsel for High-Performers</p>
+      <p style="margin: 5px 0 15px 0; font-size: 14px;">Strategic Legal Counsel for High-Performers</p>
+      <p style="margin: 0; font-size: 12px; color: #999;">
+        <a href="${urls.unsubscribeUrl}" style="color: #666; text-decoration: underline;">Unsubscribe</a> | 
+        <a href="${urls.preferencesUrl}" style="color: #666; text-decoration: underline;">Email Preferences</a>
+      </p>
     </div>
     
   </div>

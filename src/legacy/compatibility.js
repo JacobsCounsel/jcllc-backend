@@ -722,7 +722,9 @@ function getCalendlyLink(submissionType, leadScore) {
   return config.calendlyLinks[typeMap[submissionType]] || config.calendlyLinks['general'];
 }
 
-export function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
+// DEPRECATED: Use generateClientEmail from simple-email-templates.js instead
+// export function generateClientConfirmationEmail(formData, price, submissionType, leadScore) {
+function generateClientConfirmationEmail_DEPRECATED(formData, price, submissionType, leadScore) {
   const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
   
@@ -974,7 +976,9 @@ export function generateClientConfirmationEmail(formData, price, submissionType,
 </html>`;
 }
 
-export function generateClientConfirmationEmailOld(formData, price, submissionType, leadScore) {
+// DEPRECATED: Use generateClientEmail from simple-email-templates.js instead  
+// export function generateClientConfirmationEmailOld(formData, price, submissionType, leadScore) {
+function generateClientConfirmationEmailOld_DEPRECATED(formData, price, submissionType, leadScore) {
   const clientName = formData.firstName || formData.fullName?.split(' ')[0] || formData.contactName?.split(' ')[0] || 'there';
   const calendlyLink = getCalendlyLink(submissionType, leadScore);
   const personalizedResources = getPersonalizedResources(formData, submissionType, leadScore);
@@ -1650,7 +1654,9 @@ export function generateNewsletterWelcomeEmail(formData) {
 </html>`;
 }
 
-export function generateResourceThankYouEmail(formData, downloadLink) {
+// DEPRECATED: Use generateResourceThankYouEmail from simple-email-templates.js instead
+// export function generateResourceThankYouEmail(formData, downloadLink) {
+function generateResourceThankYouEmail_DEPRECATED(formData, downloadLink) {
   const clientName = formData.firstName || formData.fullName?.split(' ')[0] || 'there';
   
   // Determine guide type and custom messaging

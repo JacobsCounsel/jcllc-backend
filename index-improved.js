@@ -641,10 +641,11 @@ app.post('/legal-risk-assessment', async (req, res) => {
     );
     
     // Follow-up automation
-    operations.push(
-      scheduleSmartFollowUps(formData.email, submissionType, leadScore)
-        .catch(e => console.error('❌ Follow-up automation failed:', e.message))
-    );
+    try {
+      scheduleSmartFollowUps(leadId, leadScore, submissionType, formData);
+    } catch (e) {
+      console.error('❌ Follow-up automation failed:', e.message);
+    }
     
     await Promise.all(operations);
     
@@ -707,10 +708,11 @@ app.post('/legal-strategy-builder', async (req, res) => {
     );
     
     // Follow-up automation
-    operations.push(
-      scheduleSmartFollowUps(formData.email, submissionType, leadScore)
-        .catch(e => console.error('❌ Follow-up automation failed:', e.message))
-    );
+    try {
+      scheduleSmartFollowUps(leadId, leadScore, submissionType, formData);
+    } catch (e) {
+      console.error('❌ Follow-up automation failed:', e.message);
+    }
 
     await Promise.all(operations);
 

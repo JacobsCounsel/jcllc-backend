@@ -1,0 +1,444 @@
+<!-- SQUARESPACE BRAND STORY INJECTION - Paste in Code Block -->
+<style>
+  .jc-story * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  .jc-story {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #0f172a;
+  }
+  
+  /* Hero Section */
+  .jc-story .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 35px 0 25px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .jc-story .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff4d00' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  }
+  
+  .jc-story .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .jc-story .hero-badge {
+    display: inline-block;
+    background: rgba(255, 77, 0, 0.1);
+    border: 2px solid #ff4d00;
+    color: #ff4d00;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+  
+  .jc-story .hero-headline {
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    font-weight: 800;
+    margin-bottom: 30px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-align: center;
+    color: white;
+  }
+  
+  .jc-story .hero-subhead {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    color: #94a3b8;
+    margin-bottom: 40px;
+    font-weight: 400;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Story Sections */
+  .jc-story .story-section {
+    padding: 25px 0 20px;
+  }
+  
+  .jc-story .story-section:nth-child(even) {
+    background: #f8fafc;
+  }
+  
+  .jc-story .story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  
+  .jc-story .story-content h2 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  
+  .jc-story .story-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ff4d00;
+    margin-bottom: 15px;
+  }
+  
+  .jc-story .story-content p {
+    font-size: 16px;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  
+  .jc-story .story-highlight {
+    background: rgba(255, 77, 0, 0.05);
+    border-left: 4px solid #ff4d00;
+    padding: 20px 24px;
+    border-radius: 8px;
+    margin: 28px 0;
+  }
+  
+  .jc-story .story-highlight p {
+    color: #0f172a;
+    font-weight: 600;
+    margin: 0;
+    font-style: italic;
+    font-size: 20px;
+  }
+  
+  .jc-story .story-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    border-radius: 20px;
+    height: 400px;
+    color: white;
+    font-size: 120px;
+    box-shadow: 0 20px 60px rgba(255, 77, 0, 0.3);
+  }
+  
+  /* Values Section */
+  .jc-story .values-section {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 25px 0 20px;
+  }
+  
+  .jc-story .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    margin-top: 35px;
+  }
+  
+  .jc-story .value-card {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  
+  .jc-story .value-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+  }
+  
+  .jc-story .value-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: white;
+  }
+  
+  .jc-story .value-desc {
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+  
+  /* CTA Section */
+  .jc-story .cta-section {
+    background: linear-gradient(135deg, #ff4d00 0%, #e63900 100%);
+    color: white;
+    padding: 25px 0 20px;
+    text-align: center;
+  }
+  
+  .jc-story .cta-content h2 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+    color: white;
+  }
+  
+  .jc-story .cta-content p {
+    font-size: 20px;
+    opacity: 0.9;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .jc-story .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 18px 36px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .jc-story .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .jc-story .hero { padding: 70px 0 50px; }
+    .jc-story .story-section { padding: 50px 0; }
+    .jc-story .values-section { padding: 70px 0; }
+    .jc-story .cta-section { padding: 50px 0; }
+    
+    .jc-story .story-grid {
+      grid-template-columns: 1fr;
+      gap: 35px;
+    }
+    
+    .jc-story .story-image {
+      height: 300px;
+      font-size: 80px;
+    }
+    
+    .jc-story .values-grid {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+  }
+</style>
+
+<div class="jc-story">
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">The Jacobs Counsel Story</div>
+    <h1 class="hero-headline">Every Great Company Starts<br>With a Problem That Needs Solving</h1>
+    <p class="hero-subhead">
+      Ours was personal. Here's how an athlete's frustration with slow, expensive legal work became the blueprint for a different kind of law firm.
+    </p>
+  </div>
+</section>
+
+<!-- Origin Story -->
+<section class="story-section">
+  <div class="container">
+    <div class="story-grid">
+      <div class="story-content">
+        <h2>The Athlete Years</h2>
+        <p>
+          As a Division I basketball player, I learned what excellence demands: speed, precision, and relentless execution. Every timeout mattered. Every possession counted. Success came from preparation meeting opportunity.
+        </p>
+        <div class="story-highlight">
+          <p>"I lost a game-changing partnership because my lawyer took weeks to review a standard agreement. The other side signed with someone else."</p>
+        </div>
+        <p>
+          When I entered the business world, I discovered that law firms operated nothing like high-performance environments. Endless delays. Surprise invoices for basic contracts. Partners who never returned calls. I watched deals die and opportunities vanish while lawyers billed by the hour.
+        </p>
+        <p>
+          That's when I decided: I'll become the lawyer I desperately needed.
+        </p>
+      </div>
+      <div class="story-image">🎯</div>
+    </div>
+  </div>
+</section>
+
+<!-- Philosophy Section -->
+<section class="story-section">
+  <div class="container">
+    <div class="story-grid">
+      <div class="story-image">⚡</div>
+      <div class="story-content">
+        <h3>A Different Kind of Law Firm</h3>
+        <h2>Speed Is Our Priority</h2>
+        <p>
+          Jacobs Counsel was born from a simple belief: legal should accelerate success, not slow it down. We rebuilt legal services from first principles—combining athletic discipline with startup urgency.
+        </p>
+        <div class="story-highlight">
+          <p>"That athlete mentality means we match your urgency. Your opportunity won't wait, and neither should your legal support."</p>
+        </div>
+        <p>
+          We built our practice around speed, precision, and relentless execution. Every structure we design, every document we draft, every strategy we recommend is built to give you competitive advantage while you're still competing.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Who We Serve -->
+<section class="story-section">
+  <div class="container">
+    <div class="story-grid">
+      <div class="story-content">
+        <h3>Why This Approach Works</h3>
+        <h2>We've Lived Your Journey</h2>
+        <p>
+          From competing at elite levels to building businesses, we understand the pressure you're under because we've been there. We work with founders, athletes, creators, and entrepreneurs who defy the status quo.
+        </p>
+        <p>
+          What they all have in common: <strong>they don't accept "good enough" in anything they do.</strong> They demand excellence from their teams, their tools, and their strategies.
+        </p>
+        <div class="story-highlight">
+          <p>"We don't just provide legal services—we're invested in your outcomes. Your wins drive our practice forward."</p>
+        </div>
+        <p>
+          Drew built Jacobs Counsel the same way his clients build: from scratch, with guts—and by ignoring the script.
+        </p>
+      </div>
+      <div class="story-image">🚀</div>
+    </div>
+  </div>
+</section>
+
+<!-- AI-Native Vision Section -->
+<section class="story-section">
+  <div class="container">
+    <div class="story-grid">
+      <div class="story-image">🤖</div>
+      <div class="story-content">
+        <h3>The Future of Legal</h3>
+        <h2>Building the First AI-Native Law Firm</h2>
+        <p>
+          Our vision is ambitious: we're building the first AI-native law firm where backend processes are streamlined by the latest technology. This isn't about replacing lawyers—it's about making them unstoppable.
+        </p>
+        <div class="story-highlight">
+          <p>"A law firm that moves as fast as you do, with pricing that makes sense and communication that never leaves you guessing."</p>
+        </div>
+        <p>
+          This enables better pricing with flat fees where possible, constant clear communication, and transparent processes. The result? Legal counsel that accelerates your success instead of slowing it down.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values Section -->
+<section class="values-section">
+  <div class="container">
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h2 style="font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; margin-bottom: 15px; letter-spacing: -0.02em; color: white;">
+        How We Operate
+      </h2>
+      <p style="font-size: 18px; color: #94a3b8; max-width: 500px; margin: 0 auto;">
+        These aren't just values we put on our website. They're the principles that guide every 
+        decision we make for our clients.
+      </p>
+    </div>
+    
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">🧠</div>
+        <h4 class="value-title">Business-First Thinking</h4>
+        <p class="value-desc">
+          Every legal strategy starts with your business goals. We build legal solutions that 
+          accelerate your success, not slow it down.
+        </p>
+      </div>
+      
+      <div class="value-card">
+        <div class="value-icon">⚡</div>
+        <h4 class="value-title">Speed + Precision</h4>
+        <p class="value-desc">
+          Fast execution without cutting corners. We move at the pace of business while 
+          maintaining the highest standards of quality.
+        </p>
+      </div>
+      
+      <div class="value-card">
+        <div class="value-icon">🎯</div>
+        <h4 class="value-title">Results-Driven</h4>
+        <p class="value-desc">
+          We measure success by your success. Every strategy, structure, and solution is 
+          designed to create measurable competitive advantage.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-content">
+      <h2>Ready to Experience the Difference?</h2>
+      <p>
+        Stop settling for legal strategies that hold you back. Get the competitive advantage 
+        you deserve with counsel built for high-performers.
+      </p>
+      <a href="https://calendly.com/jacobscounsel/general-consultation" class="btn-primary">
+        📅 Book Your Strategy Session
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<script>
+// Add scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Apply animation to sections
+document.querySelectorAll('.jc-story .story-content, .jc-story .value-card').forEach((element, index) => {
+    element.style.opacity = '0';
+    element.style.transform = 'translateY(30px)';
+    element.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+    observer.observe(element);
+});
+
+console.log('Jacobs Counsel brand story loaded');
+</script>

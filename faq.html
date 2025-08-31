@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ | Frequently Asked Questions | Jacobs Counsel</title>
+<style>
+:root{
+  --jc-orange:#ff4d00; --jc-ink:#0b1f1e;
+  --bg:#ffffff; --ink:#0f172a; --ink2:#64748b; --line:#e2e8f0;
+  --ok:#059669; --err:#dc2626; --card:#ffffff; --muted:#f8fafc;
+  --shadow-sm:0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md:0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg:0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+body {
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.faq-wrap{
+  max-width:1100px; margin:30px auto; padding:0 20px;
+  color:var(--ink); line-height:1.5; font-size:19px;
+}
+
+.faq-wrap *{box-sizing:border-box}
+
+/* Header */
+.faq-header{
+  text-align:center; margin:0 0 35px;
+}
+
+.faq-title{
+  font-size:clamp(2.75rem, 5vw, 3.5rem); font-weight:800; line-height:1.05; 
+  margin:0 0 12px; color:var(--ink); letter-spacing:-0.02em;
+}
+
+.faq-subtitle{
+  font-size:1.375rem; color:var(--ink2); margin:0;
+}
+
+/* Category Navigation */
+.faq-nav{
+  display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+  margin:0 0 30px; padding:18px; background:var(--muted);
+  border-radius:12px;
+}
+
+.faq-nav-btn{
+  padding:9px 18px; border-radius:6px; background:var(--bg);
+  border:2px solid var(--line); color:var(--ink); font-weight:600;
+  cursor:pointer; transition:all .2s; font-size:1rem;
+}
+
+.faq-nav-btn:hover{
+  border-color:var(--jc-orange); transform:translateY(-1px);
+}
+
+.faq-nav-btn.active{
+  background:var(--jc-orange); color:white; border-color:var(--jc-orange);
+}
+
+/* FAQ Categories */
+.faq-category{
+  display:none; animation:fadeIn .3s;
+}
+
+.faq-category.active{display:block}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(8px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+.category-title{
+  font-size:2.25rem; font-weight:700; margin:0 0 22px;
+  color:var(--jc-ink); border-bottom:3px solid var(--jc-orange);
+  padding-bottom:10px;
+}
+
+/* FAQ Items */
+.faq-item{
+  background:var(--bg); border:2px solid var(--line);
+  border-radius:10px; margin:0 0 14px; overflow:hidden;
+  transition:all .2s;
+}
+
+.faq-item:hover{
+  border-color:var(--jc-orange);
+}
+
+.faq-question{
+  padding:18px 20px; cursor:pointer; display:flex;
+  justify-content:space-between; align-items:center;
+  font-weight:600; font-size:1.25rem; color:var(--ink);
+  transition:all .2s;
+}
+
+.faq-question:hover{
+  background:linear-gradient(90deg, rgba(255,77,0,0.03), transparent);
+}
+
+.faq-icon{
+  font-size:1.5rem; color:var(--jc-orange); transition:transform .2s;
+  flex-shrink:0; margin-left:14px;
+}
+
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+
+.faq-answer{
+  max-height:0; overflow:hidden; transition:max-height .4s ease;
+  padding:0 20px; color:var(--ink2); font-size:1.125rem;
+}
+
+.faq-item.open .faq-answer{
+  max-height:1000px; padding:0 20px 20px;
+}
+
+.faq-answer p{margin:0 0 14px; line-height:1.5}
+.faq-answer p:last-child{margin:0}
+
+.faq-answer ul{
+  margin:10px 0; padding-left:22px;
+}
+
+.faq-answer li{
+  margin:6px 0; line-height:1.5;
+}
+
+.faq-answer strong{
+  color:var(--ink); font-weight:600;
+}
+
+.faq-answer a{
+  color:var(--jc-orange); text-decoration:none; font-weight:500;
+  transition:all .2s;
+}
+
+.faq-answer a:hover{
+  text-decoration:underline;
+}
+
+/* Price highlights */
+.price-tag{
+  display:inline-block; padding:3px 10px; background:linear-gradient(135deg, rgba(255,77,0,0.1), rgba(255,77,0,0.05));
+  border-radius:5px; font-weight:700; color:var(--jc-orange);
+  margin:0 4px; font-size:1.05rem;
+}
+
+/* CTA Section */
+.faq-cta{
+  text-align:center; margin:45px 0 0; padding:35px;
+  background:linear-gradient(135deg, var(--jc-ink), var(--jc-orange));
+  border-radius:12px; color:white;
+}
+
+.faq-cta h3{
+  font-size:2.25rem; font-weight:700; margin:0 0 12px;
+  color:white;
+}
+
+.faq-cta p{
+  font-size:1.25rem; color:rgba(255,255,255,0.95); margin:0 0 20px;
+}
+
+.faq-cta-buttons{
+  display:flex; gap:14px; justify-content:center; flex-wrap:wrap;
+}
+
+.btn{
+  padding:12px 28px; border-radius:6px; font-weight:600;
+  text-decoration:none; transition:all .2s; display:inline-block;
+  font-size:1.0625rem;
+}
+
+.btn-primary{
+  background:white; color:var(--jc-ink);
+}
+
+.btn-primary:hover{
+  transform:translateY(-2px); box-shadow:var(--shadow-lg);
+}
+
+.btn-secondary{
+  background:transparent; color:white; border:2px solid rgba(255,255,255,0.3);
+}
+
+.btn-secondary:hover{
+  background:rgba(255,255,255,0.1); border-color:white;
+}
+
+/* Mobile */
+@media(max-width:768px){
+  .faq-wrap{font-size:17px}
+  .faq-title{font-size:2.25rem}
+  .faq-subtitle{font-size:1.125rem}
+  .category-title{font-size:1.75rem}
+  .faq-question{font-size:1.125rem; padding:14px 16px}
+  .faq-answer{font-size:1.0625rem}
+  .faq-nav{padding:14px; gap:8px}
+  .faq-nav-btn{font-size:0.9375rem; padding:8px 14px}
+}
+</style>
+</head>
+<body>
+
+<div class="faq-wrap">
+<div class="faq-header">
+  <h1 class="faq-title">Frequently Asked Questions</h1>
+  <p class="faq-subtitle">Quick answers to help you move forward</p>
+</div>
+
+<div class="faq-nav">
+  <button class="faq-nav-btn active" onclick="showCategory('general')">General</button>
+  <button class="faq-nav-btn" onclick="showCategory('estate')">Estate Planning</button>
+  <button class="faq-nav-btn" onclick="showCategory('business')">Business</button>
+  <button class="faq-nav-btn" onclick="showCategory('brand')">Trademarks</button>
+  <button class="faq-nav-btn" onclick="showCategory('pricing')">Pricing</button>
+  <button class="faq-nav-btn" onclick="showCategory('start')">Getting Started</button>
+</div>
+
+<!-- General Services -->
+<div class="faq-category active" id="general">
+  <h2 class="category-title">General Questions</h2>
+  
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      Why should I choose Jacobs Counsel?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>We deliver legal work in days, not weeks. Everything is flat-fee priced upfront. No hourly billing, no surprise invoices. We use technology to move fast while maintaining quality.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      Where can you practice law?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>We're licensed in <strong>Florida</strong>. For business formations and federal trademarks, we can help clients nationwide.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      Who are your typical clients?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>We work with entrepreneurs, founders, athletes, and creators who need legal protection but don't have time for traditional law firm delays. If you move fast and expect your lawyer to keep up, we're a good fit.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      How quickly can you help?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Most matters start within 48 hours. Documents are typically ready in 5-7 business days. Urgent situations get priority response within 24 hours.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Estate Planning -->
+<div class="faq-category" id="estate">
+  <h2 class="category-title">Estate Planning</h2>
+  
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      What estate planning packages do you offer?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Three straightforward options:</p>
+      <ul>
+        <li><strong>Essential Will Package</strong> <span class="price-tag">$2,500-3,500</span> Complete will with all supporting documents</li>
+        <li><strong>Premium Will Package</strong> <span class="price-tag">$3,500-4,500</span> Additional protections and planning strategies</li>
+        <li><strong>Trust Package</strong> <span class="price-tag">$4,500-6,500</span> Revocable living trust with comprehensive estate plan</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      Will or Trust - which do I need?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Generally, consider a trust if you have: assets over $1M, real estate in multiple states, minor children, or want to avoid probate. Our intake form helps you decide based on your specific situation.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      Can I update my documents later?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Yes. All plans include amendment provisions. We also offer annual review services to keep everything current.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Business Formation -->
+<div class="faq-category" id="business">
+  <h2 class="category-title">Business Formation</h2>
+  
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      LLC or Corporation - how do I choose?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>LLCs work best for most small businesses - simpler taxes, flexible management. C-Corps are better for raising venture capital or going public. Our intake form analyzes your goals and recommends the best structure.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      What's included in business formation?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Packages from <span class="price-tag">$3,500-8,500</span> include:</p>
+      <ul>
+        <li>State formation filing</li>
+        <li>Operating agreement or bylaws</li>
+        <li>EIN registration</li>
+        <li>Founder equity documentation</li>
+        <li>Initial board resolutions</li>
+        <li>Compliance calendar</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      Do you handle venture-backed startups?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Yes. Our premium package <span class="price-tag">$8,500</span> includes Delaware C-Corp formation with all investor-ready documentation, SAFE templates, and board governance.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Brand Protection -->
+<div class="faq-category" id="brand">
+  <h2 class="category-title">Trademark & Brand Protection</h2>
+  
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      What trademark services do you offer?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Complete brand protection:</p>
+      <ul>
+        <li><strong>Trademark Clearance Search</strong> <span class="price-tag">$750</span> Know if your name is available</li>
+        <li><strong>Single Trademark Registration</strong> <span class="price-tag">$2,995</span> Federal registration with monitoring</li>
+        <li><strong>Multi-Mark Package</strong> <span class="price-tag">$5,495</span> Up to 3 related marks</li>
+        <li><strong>Portfolio Management</strong> <span class="price-tag">$7,500+</span> Ongoing protection strategy</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      How long does trademark registration take?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>USPTO process takes 8-12 months total. But we can file within 48 hours to secure your priority date immediately.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Pricing -->
+<div class="faq-category" id="pricing">
+  <h2 class="category-title">Pricing & Payment</h2>
+  
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      Do you charge by the hour?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Never. Everything is flat-fee priced. You know exactly what you'll pay before we start. No timesheets, no surprise invoices.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      What payment methods do you accept?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Credit cards, ACH, wire transfers. Payment plans available for packages over $5,000.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      Do you offer ongoing support?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Yes. Outside Counsel retainers from <span class="price-tag">$4,500/month</span> for ongoing legal support. Perfect for growing companies that need regular legal help.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Getting Started -->
+<div class="faq-category" id="start">
+  <h2 class="category-title">Getting Started</h2>
+  
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      How do I know what I need?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Start with our <a href="/legal-strategy-builder">Legal Strategy Builder</a>. Answer 6 questions, get personalized recommendations with exact next steps and pricing.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      What happens after I submit a form?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>You get an immediate confirmation email with next steps. We review your information and reach out within 48 hours to schedule your consultation or start work.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question" onclick="toggleFAQ(this)">
+      What if I need help in multiple areas?
+      <span class="faq-icon">+</span>
+    </div>
+    <div class="faq-answer">
+      <p>Many clients do. We offer bundled packages - like Startup (formation + trademark + contracts) or Athlete (NIL structure + brand protection + estate planning). Better pricing when you handle everything together.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CTA Section -->
+<div class="faq-cta">
+  <h3>Still Have Questions?</h3>
+  <p>Get specific answers for your situation.</p>
+  <div class="faq-cta-buttons">
+    <a href="https://calendly.com/jacobscounsel/general-consultation" class="btn btn-primary">Book Consultation</a>
+    <a href="/legal-strategy-builder" class="btn btn-secondary">Start Legal Strategy</a>
+  </div>
+</div>
+</div>
+
+<script>
+function showCategory(category) {
+document.querySelectorAll('.faq-category').forEach(el => {
+  el.classList.remove('active');
+});
+
+document.querySelectorAll('.faq-nav-btn').forEach(el => {
+  el.classList.remove('active');
+});
+
+document.getElementById(category).classList.add('active');
+event.target.classList.add('active');
+
+document.querySelector('.faq-wrap').scrollIntoView({ 
+  behavior: 'smooth', 
+  block: 'start' 
+});
+}
+
+function toggleFAQ(element) {
+const item = element.parentElement;
+const wasOpen = item.classList.contains('open');
+
+const category = item.parentElement;
+category.querySelectorAll('.faq-item').forEach(el => {
+  el.classList.remove('open');
+});
+
+if (!wasOpen) {
+  item.classList.add('open');
+}
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+const hash = window.location.hash.replace('#', '');
+if (hash && document.getElementById(hash)) {
+  document.querySelectorAll('.faq-nav-btn').forEach(btn => {
+    if (btn.getAttribute('onclick').includes(hash)) {
+      btn.click();
+    }
+  });
+}
+});
+
+console.log('FAQ page loaded');
+</script>
+
+</body>
+</html>

@@ -112,51 +112,9 @@ export class CompleteKitArchitecture {
             }
           ]
         },
+        // REMOVED: Standard tier - Premium minimum service only
         {
           id: 3,
-          name: 'JC Standard Legal Excellence Series',
-          trigger: 'trigger-standard-nurture',
-          description: 'Standard nurture sequence for developing prospects (<50 score) with educational content',
-          emails: [
-            {
-              subject: '⚖️ Welcome to Legal Excellence, {{first_name}}',
-              delay_hours: 0,
-              type: 'standard_welcome'
-            },
-            {
-              subject: '🎯 Why High-Performers Choose Offensive Legal Strategy',
-              delay_days: 2,
-              type: 'standard_strategy'
-            },
-            {
-              subject: '📋 Free Resource: Complete Legal Protection Checklist',
-              delay_days: 4,
-              type: 'standard_resource'
-            },
-            {
-              subject: '⭐ Client Spotlight: From Startup to $10M Exit',
-              delay_days: 7,
-              type: 'standard_spotlight'
-            },
-            {
-              subject: '📅 Book Your Strategy Session (Complimentary)',
-              delay_days: 10,
-              type: 'standard_booking'
-            },
-            {
-              subject: '💡 Legal Myths That Cost High-Performers Money',
-              delay_days: 14,
-              type: 'standard_myths'
-            },
-            {
-              subject: '🎯 Final Invitation: Free Legal Consultation',
-              delay_days: 21,
-              type: 'standard_final'
-            }
-          ]
-        },
-        {
-          id: 4,
           name: 'JC Legal Intelligence Weekly Welcome',
           trigger: 'trigger-newsletter-sequence',
           description: 'Newsletter welcome series for subscribers with weekly legal intelligence',
@@ -179,7 +137,7 @@ export class CompleteKitArchitecture {
           ]
         },
         {
-          id: 5,
+          id: 4,
           name: 'JC Resource Guide Follow-Up',
           trigger: 'trigger-guide-sequence',
           description: 'Follow-up sequence for resource guide downloads with implementation support',

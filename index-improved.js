@@ -740,12 +740,51 @@ app.post('/legal-risk-assessment', async (req, res) => {
   }
 });
 
-// Handle both old and new legal assessment endpoints
+// Legal Strategy Builder - WORKING VERSION
 app.post('/legal-strategy-builder', async (req, res) => {
-  // Redirect old submissions to new handler
-  req.url = '/legal-risk-assessment';
-  req.body.submissionType = 'legal-risk-assessment';
-  return app._router.handle(req, res);
+  try {
+    let formData = sanitizeInput(req.body || {});
+    const submissionId = formData.submissionId || `risk-${Date.now()}`;
+    formData = withNormalizedType(formData, 'legal-risk-assessment');
+    const submissionType = formData._normalizedType;
+
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
+    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
+
+    const operations = [];
+    const alertRecipients = [config.notifications.intakeNotifyTo];
+
+    // Internal alert email
+    operations.push(
+      sendEnhancedEmail({
+        to: alertRecipients,
+        subject: `Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email})`,
+        html: generateInternalAlert(formData, leadScore, submissionType, aiAnalysis, submissionId),
+        priority: 'high'
+      }).catch(e => console.error('❌ Internal email failed:', e.message))
+    );
+
+    // Client confirmation email
+    if (formData.email) {
+      operations.push(
+        sendEnhancedEmail({
+          to: [formData.email],
+          subject: 'Your Legal Risk Assessment Results — Jacobs Counsel',
+          html: generateEnhancedClientEmail(formData, null, submissionType, leadScore)
+        }).catch(e => console.error('❌ Client email failed:', e.message))
+      );
+    }
+
+    await Promise.all(operations);
+
+    res.json({ success: true, submissionId });
+  } catch (error) {
+    console.error('❌ Legal assessment error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // Newsletter signup (enhanced)

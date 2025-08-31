@@ -42,10 +42,9 @@ async function main() {
     
     console.log('🎯 COMPLETE SYSTEM OVERVIEW:');
     console.log('');
-    console.log('📋 LEAD NURTURE JOURNEYS (5):');
+    console.log('📋 LEAD NURTURE JOURNEYS (4):');
     console.log('   • VIP Experience Journey (trigger-vip-sequence)');
     console.log('   • Premium Legal Protection Path (trigger-premium-nurture)');
-    console.log('   • Standard Legal Excellence Series (trigger-standard-nurture)');
     console.log('   • Newsletter Welcome Series (trigger-newsletter-sequence)');
     console.log('   • Resource Guide Follow-Up (trigger-guide-sequence)');
     console.log('');

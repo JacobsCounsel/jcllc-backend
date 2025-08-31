@@ -372,8 +372,9 @@ function generateSmartTags(formData, leadScore, submissionType) {
     tags.push('medium-priority');
     tags.push('trigger-premium-nurture');
   } else {
-    tags.push('standard-priority');
-    tags.push('trigger-standard-nurture');
+    // PREMIUM MINIMUM: No standard tier - elevate to premium
+    tags.push('premium-priority');
+    tags.push('trigger-premium-nurture');
   }
 
   // Service-specific tags (exact copy)

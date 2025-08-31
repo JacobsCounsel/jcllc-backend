@@ -100,8 +100,7 @@ Every form submission now automatically:
 1. **Calculates lead score** (0-100) based on your sophisticated algorithm
 2. **Applies smart tags** based on service type and behavior:
    - `trigger-vip-sequence` (Score 70+)
-   - `trigger-premium-nurture` (Score 50-69) 
-   - `trigger-standard-nurture` (Score <50)
+   - `trigger-premium-nurture` (Premium minimum - Score <70)
    - `sequence-estate-tax` (Estate planning)
    - `sequence-vc-startup` (Business formation)
    - `sequence-asset-protection` (Brand protection)

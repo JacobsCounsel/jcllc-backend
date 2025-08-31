@@ -42,7 +42,7 @@
   /* Header */
   .strategy-hero {
     background: linear-gradient(135deg, var(--muted) 0%, var(--bg) 100%);
-    padding: 40px 20px 24px;
+    padding: 25px 20px 15px;
     text-align: center;
   }
   .hero-badge {
@@ -84,8 +84,8 @@
     background: linear-gradient(135deg, rgba(255,77,0,0.04), rgba(255,77,0,0.01));
     border: 2px solid var(--jc-orange);
     border-radius: 12px;
-    padding: 24px;
-    margin: 0 20px 20px;
+    padding: 18px;
+    margin: 0 20px 15px;
     text-align: left;
   }
   
@@ -138,7 +138,7 @@
 
   /* Section Headers */
   .form-section {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
   }
   .form-section:last-child {
     margin-bottom: 0;
@@ -158,7 +158,7 @@
 
   /* Field Groups */
   .field-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
   }
   .field-group:last-child {
     margin-bottom: 0;
@@ -242,6 +242,71 @@
     color: var(--ink2);
     margin-bottom: 8px;
     line-height: 1.4;
+  }
+
+  /* Strategic Insights */
+  .strategic-insight {
+    background: linear-gradient(135deg, rgba(255, 77, 0, 0.04), rgba(255, 77, 0, 0.01));
+    border: 2px solid var(--jc-orange);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0;
+    display: none;
+    animation: slideIn 0.5s ease;
+  }
+
+  .strategic-insight.show {
+    display: block;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .insight-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .insight-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--jc-orange);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+  }
+
+  .insight-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .insight-content {
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .insight-recommendation {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--ink);
+    border-left: 3px solid var(--jc-orange);
+  }
+
+  .insight-recommendation strong {
+    color: var(--jc-orange);
   }
 
   /* Form Inputs */
@@ -596,27 +661,27 @@
 
   <!-- What Box -->
   <div class="what-box">
-    <h2>This Free Assessment Will Tell You:</h2>
+    <h2>Strategic Legal Analysis In Real-Time:</h2>
     <div class="what-list">
       <div class="what-item">
-        <span class="what-icon">✓</span>
-        <span class="what-text">Your biggest legal vulnerabilities right now</span>
+        <span class="what-icon">⚡</span>
+        <span class="what-text">Immediate strategic insights as you complete each section</span>
       </div>
       <div class="what-item">
-        <span class="what-icon">✓</span>
-        <span class="what-text">Which legal protections you need first (and which can wait)</span>
+        <span class="what-icon">🎯</span>
+        <span class="what-text">Risk assessment and opportunity identification for your specific situation</span>
       </div>
       <div class="what-item">
-        <span class="what-icon">✓</span>
-        <span class="what-text">Your Legal Foundation Score™ from 0-100</span>
+        <span class="what-icon">📊</span>
+        <span class="what-text">Your Legal Foundation Score™ with detailed competitive analysis</span>
       </div>
       <div class="what-item">
-        <span class="what-icon">✓</span>
-        <span class="what-text">A prioritized roadmap specific to your role and goals</span>
+        <span class="what-icon">🚀</span>
+        <span class="what-text">Priority action plan ranked by impact and urgency</span>
       </div>
       <div class="what-item">
-        <span class="what-icon">✓</span>
-        <span class="what-text">Next steps to protect your business and assets</span>
+        <span class="what-icon">💡</span>
+        <span class="what-text">Strategic recommendations to accelerate your business goals</span>
       </div>
     </div>
   </div>
@@ -702,6 +767,20 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Strategic Insight: Role Analysis -->
+        <div class="strategic-insight" id="roleAnalysisInsight">
+          <div class="insight-header">
+            <div class="insight-icon">🎯</div>
+            <div class="insight-title">Strategic Profile: Legal Risk Assessment</div>
+          </div>
+          <div class="insight-content" id="roleInsightContent">
+            Based on your role, we're analyzing your unique legal vulnerability patterns and protection priorities.
+          </div>
+          <div class="insight-recommendation" id="roleRecommendation">
+            <strong>Initial Assessment:</strong> Your role profile indicates specific legal priorities that we'll customize in the following sections.
           </div>
         </div>
 
@@ -953,19 +1032,20 @@
           <div class="disclaimer-box">
             <h4 class="disclaimer-title">⚖️ CRITICAL LEGAL NOTICE</h4>
             <p class="disclaimer-text">
-              <strong>NO ATTORNEY-CLIENT PRIVILEGE EXISTS.</strong> This intake form does NOT create an attorney-client relationship. 
+              <strong>NO ATTORNEY-CLIENT RELATIONSHIP EXISTS.</strong> This assessment does NOT create an attorney-client relationship. 
               Any information you provide is NOT protected by attorney-client privilege until you have executed a formal 
               engagement letter with Jacobs Counsel LLC. Do not include confidential or sensitive information until a signed 
-              engagement agreement is in place.
+              engagement agreement is in place. All insights and recommendations are for informational purposes only.
             </p>
           </div>
           
           <div class="disclaimer-box informational">
-            <h4 class="disclaimer-title">📄 Information Notice</h4>
+            <h4 class="disclaimer-title">📄 INFORMATIONAL PURPOSES ONLY</h4>
             <p class="disclaimer-text">
-              This consultation and any resulting communication is for <strong>INFORMATIONAL PURPOSES ONLY</strong> and does not 
-              constitute legal advice. The information provided is general in nature and may not apply to your specific situation. 
-              Legal advice can only be given after establishing a formal attorney-client relationship through a signed engagement agreement.
+              This strategic assessment and any resulting insights are for <strong>INFORMATIONAL AND EDUCATIONAL PURPOSES ONLY</strong> 
+              and do NOT constitute legal advice. The information provided is general in nature and may not apply to your specific 
+              situation. Legal advice can ONLY be provided after establishing a formal attorney-client relationship through a 
+              signed engagement agreement. Drew Jacobs and Jacobs Counsel LLC disclaim any liability for actions taken based on this information.
             </p>
           </div>
         </div>
@@ -977,7 +1057,7 @@
           <label class="consent-checkbox">
             <input type="checkbox" name="consentAcknowledged" required>
             <span class="checkmark"></span>
-            <span class="consent-text">I acknowledge that I have read and understand the legal disclaimers above and that no attorney-client relationship is created by submitting this form.</span>
+            <span class="consent-text">I acknowledge that I have read and understand the legal disclaimers above, that this assessment is for informational purposes only, that no attorney-client relationship is created by submitting this form, and that no legal advice is being provided.</span>
           </label>
           
           <button type="submit" class="btn-submit">Get My Legal Foundation Score →</button>
@@ -1031,6 +1111,53 @@ function selectChoice(element, fieldName, value) {
   formData[fieldName] = value;
   
   console.log('Selected:', fieldName, value);
+  
+  // Trigger strategic insights based on selections
+  if (fieldName === 'role') {
+    showRoleInsight(value);
+  }
+}
+
+// Show strategic insights for role selection
+function showRoleInsight(role) {
+  const insight = document.getElementById('roleAnalysisInsight');
+  const content = document.getElementById('roleInsightContent');
+  const recommendation = document.getElementById('roleRecommendation');
+  
+  let insightText = '';
+  let recommendationText = '';
+  
+  switch (role) {
+    case 'founder':
+      insightText = 'Founders face unique legal challenges: entity structure decisions, equity distribution, IP protection, and regulatory compliance. Your legal foundation directly impacts fundability and growth potential.';
+      recommendationText = '<strong>Key Priorities:</strong> Entity optimization for investors, IP protection strategy, and founder-friendly equity structures will be critical for your success.';
+      break;
+    case 'business-owner':
+      insightText = 'Established business owners need liability protection, tax optimization, and operational legal frameworks. Your focus should be on protecting existing assets while enabling continued growth.';
+      recommendationText = '<strong>Strategic Focus:</strong> Asset protection planning, tax-efficient structures, and bulletproof contracts will maximize your competitive advantages.';
+      break;
+    case 'professional':
+      insightText = 'High-earning professionals require personal asset protection, estate planning, and tax optimization strategies. Your income level creates both opportunities and vulnerabilities.';
+      recommendationText = '<strong>Protection Priorities:</strong> Liability shielding, wealth transfer planning, and tax minimization strategies will preserve and grow your wealth.';
+      break;
+    case 'creator':
+      insightText = 'Content creators need IP protection, business structure optimization, and brand protection strategies. Your intellectual property is your most valuable asset.';
+      recommendationText = '<strong>Brand Protection:</strong> Trademark registration, content licensing frameworks, and business entity setup will monetize and protect your brand.';
+      break;
+    case 'investor':
+      insightText = 'Real estate investors and portfolio managers require sophisticated asset protection, tax planning, and entity structuring. Multiple income streams demand complex legal strategies.';
+      recommendationText = '<strong>Advanced Planning:</strong> Multi-entity structures, 1031 exchanges, and comprehensive asset protection will optimize your investment returns.';
+      break;
+  }
+  
+  content.textContent = insightText;
+  recommendation.innerHTML = recommendationText;
+  insight.classList.add('show');
+  
+  // Smooth scroll to show the insight
+  setTimeout(() => {
+    insight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
 }
 
 // Handle multiple choice selection

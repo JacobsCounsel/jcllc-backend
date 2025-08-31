@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meet the Team | Jacobs Counsel Legal Experts</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #0f172a;
+  }
+  
+  /* Hero Section */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 60px 0 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff4d00' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255, 77, 0, 0.1);
+    border: 2px solid #ff4d00;
+    color: #ff4d00;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+  
+  .hero-headline {
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  
+  .hero-subhead {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    color: #94a3b8;
+    margin-bottom: 20px;
+    font-weight: 400;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Leader Section */
+  .leader-section {
+    padding: 60px 0 50px;
+    background: white;
+  }
+  
+  .leader-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  
+  .leader-image {
+    position: relative;
+  }
+  
+  .leader-photo {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 4/5;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 120px;
+    box-shadow: 0 20px 60px rgba(255, 77, 0, 0.2);
+    margin: 0 auto;
+  }
+  
+  .leader-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #ff4d00;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  
+  .leader-content h2 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  
+  .leader-title {
+    font-size: 24px;
+    color: #ff4d00;
+    font-weight: 600;
+    margin-bottom: 30px;
+  }
+  
+  .leader-content p {
+    font-size: 17px;
+    color: #64748b;
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+  
+  .leader-highlights {
+    display: grid;
+    gap: 16px;
+    margin: 32px 0;
+  }
+  
+  .highlight-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #ff4d00;
+  }
+  
+  .highlight-icon {
+    font-size: 24px;
+  }
+  
+  .highlight-text {
+    color: #0f172a;
+    font-weight: 600;
+  }
+  
+  .contact-cta {
+    margin-top: 40px;
+  }
+  
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(255, 77, 0, 0.3);
+  }
+  
+  /* Expertise Section */
+  .expertise-section {
+    padding: 50px 0 45px;
+    background: #f8fafc;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  
+  .section-badge {
+    display: inline-block;
+    background: rgba(255, 77, 0, 0.1);
+    color: #ff4d00;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  
+  .section-title {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  
+  .section-desc {
+    font-size: 20px;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .expertise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+  }
+  
+  .expertise-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 16px;
+    text-align: center;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+  
+  .expertise-card:hover {
+    border-color: #ff4d00;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  }
+  
+  .expertise-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: white;
+    margin: 0 auto 24px;
+  }
+  
+  .expertise-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 16px;
+  }
+  
+  .expertise-desc {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  
+  .expertise-features {
+    list-style: none;
+    text-align: left;
+  }
+  
+  .expertise-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+  }
+  
+  .expertise-features li::before {
+    content: '✓';
+    color: #059669;
+    font-weight: bold;
+    width: 16px;
+    height: 16px;
+    background: rgba(5, 150, 105, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  
+  /* Values Section */
+  .values-section {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 50px 0 45px;
+  }
+  
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-top: 50px;
+  }
+  
+  .value-card {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  
+  .value-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+  }
+  
+  .value-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: white;
+  }
+  
+  .value-desc {
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+  
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, #ff4d00 0%, #e63900 100%);
+    color: white;
+    padding: 50px 0 45px;
+    text-align: center;
+  }
+  
+  .cta-content h2 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  
+  .cta-content p {
+    font-size: 20px;
+    opacity: 0.9;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 18px 36px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .hero { padding: 70px 0; }
+    .leader-section { padding: 70px 0; }
+    .expertise-section { padding: 70px 0; }
+    .values-section { padding: 70px 0; }
+    .cta-section { padding: 50px 0; }
+    
+    .leader-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      text-align: center;
+    }
+    
+    .leader-photo {
+      font-size: 80px;
+    }
+    
+    .expertise-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .values-grid {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Meet the Team</div>
+    <h1 class="hero-headline">Former Athlete Turned Attorney<br>Built for Winners</h1>
+    <p class="hero-subhead">
+      Bringing a "play to win" mentality to every matter. We built our careers by ignoring the script—just like our clients.
+    </p>
+  </div>
+</section>
+
+<!-- Leader Section -->
+<section class="leader-section">
+  <div class="container">
+    <div class="leader-grid">
+      <div class="leader-image">
+        <div class="leader-photo">⚖️</div>
+        <div class="leader-badge">Founder</div>
+      </div>
+      
+      <div class="leader-content">
+        <h2>Drew Jacobs, Esq.</h2>
+        <div class="leader-title">Founder & Managing Attorney</div>
+        
+        <p>
+          Drew Jacobs is the founder of Jacobs Counsel LLC — a modern law firm built for founders, athletes, creators, and entrepreneurs who defy the status quo. Licensed in New York, New Jersey, and Ohio, Drew provides strategic counsel across business law, estate planning, and emerging sectors like sports and gaming law.
+        </p>
+        
+        <p>
+          Known for his bold, unconventional approach, Drew helps high-performing individuals and companies scale smartly while protecting their assets. He serves as outside general counsel to businesses across technology, EV infrastructure, and behavioral health, while directing estate practices for established firms. His clients include professional athletes, entrepreneurs, and ultra-high-net-worth individuals.
+        </p>
+        
+        <div class="leader-highlights">
+          <div class="highlight-item">
+            <span class="highlight-icon">🎓</span>
+            <span class="highlight-text">Seton Hall Law School – J.D., Symposium Editor</span>
+          </div>
+          
+          <div class="highlight-item">
+            <span class="highlight-icon">🏀</span>
+            <span class="highlight-text">Division I ACC Basketball Player (Boston College)</span>
+          </div>
+          
+          <div class="highlight-item">
+            <span class="highlight-icon">⚖️</span>
+            <span class="highlight-text">Licensed in New York, New Jersey, and Ohio</span>
+          </div>
+          
+          <div class="highlight-item">
+            <span class="highlight-icon">🏛️</span>
+            <span class="highlight-text">Director, Sports & Gaming Law Initiatives (Seton Hall)</span>
+          </div>
+        </div>
+        
+        <div class="contact-cta">
+          <a href="https://calendly.com/jacobscounsel/general-consultation" class="btn-primary">
+            📅 Book a Consultation with Drew
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Expertise Section -->
+<section class="expertise-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">Core Expertise</div>
+      <h2 class="section-title">Specialized Legal Mastery</h2>
+      <p class="section-desc">
+        Deep expertise in the legal areas that matter most to ambitious entrepreneurs, 
+        creators, and high-net-worth individuals.
+      </p>
+    </div>
+    
+    <div class="expertise-grid">
+      <!-- Business & Commercial Law -->
+      <div class="expertise-card">
+        <div class="expertise-icon">🚀</div>
+        <h3 class="expertise-title">Business & Commercial Law</h3>
+        <p class="expertise-desc">
+          Outside general counsel services and commercial transactions for high-growth companies.
+        </p>
+        <ul class="expertise-features">
+          <li>Outside general counsel services</li>
+          <li>Commercial contract negotiation</li>
+          <li>Data privacy compliance</li>
+          <li>Technology & emerging sectors</li>
+          <li>Strategic business planning</li>
+        </ul>
+      </div>
+
+      <!-- Estate Planning & Administration -->
+      <div class="expertise-card">
+        <div class="expertise-icon">🛡️</div>
+        <h3 class="expertise-title">Estate Planning & Administration</h3>
+        <p class="expertise-desc">
+          Comprehensive estate planning and sophisticated probate administration for high-net-worth clients.
+        </p>
+        <ul class="expertise-features">
+          <li>Multi-million dollar estate administration</li>
+          <li>Strategic wealth planning</li>
+          <li>Trust management & fiduciary services</li>
+          <li>Probate litigation</li>
+          <li>Asset protection strategies</li>
+        </ul>
+      </div>
+
+      <!-- Sports & Entertainment Law -->
+      <div class="expertise-card">
+        <div class="expertise-icon">🏛️</div>
+        <h3 class="expertise-title">Sports & Entertainment Law</h3>
+        <p class="expertise-desc">
+          Specialized legal services for professional athletes, content creators, and entertainment industry professionals.
+        </p>
+        <ul class="expertise-features">
+          <li>Professional athlete representation</li>
+          <li>Gaming & esports law</li>
+          <li>Entertainment contracts</li>
+          <li>Brand protection & licensing</li>
+          <li>Industry-specific tax strategies</li>
+        </ul>
+      </div>
+
+      <!-- Strategic Legal Counsel -->
+      <div class="expertise-card">
+        <div class="expertise-icon">💡</div>
+        <h3 class="expertise-title">Strategic Legal Counsel</h3>
+        <p class="expertise-desc">
+          Comprehensive legal guidance combining business strategy with legal precision for high-performers.
+        </p>
+        <ul class="expertise-features">
+          <li>Integrated business & legal planning</li>
+          <li>Risk assessment & mitigation</li>
+          <li>Regulatory compliance strategies</li>
+          <li>Cross-jurisdictional legal solutions</li>
+          <li>Performance-driven legal outcomes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values Section -->
+<section class="values-section">
+  <div class="container">
+    <div style="text-align: center; margin-bottom: 60px;">
+      <h2 style="font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 800; margin-bottom: 20px; letter-spacing: -0.02em;">
+        Our Operating Principles
+      </h2>
+      <p style="font-size: 20px; color: #94a3b8; max-width: 600px; margin: 0 auto;">
+        The values that guide every client interaction and strategic decision we make.
+      </p>
+    </div>
+    
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">🧠</div>
+        <h4 class="value-title">Business-First Thinking</h4>
+        <p class="value-desc">
+          Every legal strategy starts with your business goals. We build solutions that 
+          accelerate your success, not slow it down.
+        </p>
+      </div>
+      
+      <div class="value-card">
+        <div class="value-icon">⚡</div>
+        <h4 class="value-title">Speed + Precision</h4>
+        <p class="value-desc">
+          Fast execution without compromising quality. We move at the pace of business 
+          while maintaining the highest standards.
+        </p>
+      </div>
+      
+      <div class="value-card">
+        <div class="value-icon">🎯</div>
+        <h4 class="value-title">Results-Driven</h4>
+        <p class="value-desc">
+          We measure success by your success. Every strategy is designed to create 
+          measurable competitive advantage.
+        </p>
+      </div>
+      
+      <div class="value-card">
+        <div class="value-icon">🤝</div>
+        <h4 class="value-title">True Partnership</h4>
+        <p class="value-desc">
+          We don't just serve clients, we partner with ambitious people building 
+          something significant.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-content">
+      <h2>Ready to Work Together?</h2>
+      <p>
+        Experience the difference of legal counsel built specifically for high-performers 
+        who refuse to settle for "good enough."
+      </p>
+      <a href="https://calendly.com/jacobscounsel/general-consultation" class="btn-secondary">
+        📅 Schedule Your Strategy Session
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Add scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Apply animation to cards and sections
+document.querySelectorAll('.expertise-card, .value-card, .highlight-item').forEach((element, index) => {
+    element.style.opacity = '0';
+    element.style.transform = 'translateY(30px)';
+    element.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+    observer.observe(element);
+});
+
+console.log('Team page loaded');
+</script>
+
+</body>
+</html>

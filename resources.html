@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Legal Resources | Jacobs Counsel Strategic Guides</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #0f172a;
+  }
+  
+  /* Hero Section */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%);
+    color: white;
+    padding: 100px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff4d00' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255, 77, 0, 0.1);
+    border: 2px solid #ff4d00;
+    color: #ff4d00;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+  
+  .hero-headline {
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    font-weight: 800;
+    margin-bottom: 30px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-align: center;
+  }
+  
+  .hero-subhead {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    color: #94a3b8;
+    margin-bottom: 40px;
+    font-weight: 400;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Resource Categories */
+  .categories-section {
+    padding: 100px 0;
+    background: #f8fafc;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  
+  .section-badge {
+    display: inline-block;
+    background: rgba(255, 77, 0, 0.1);
+    color: #ff4d00;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  
+  .section-title {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  
+  .section-desc {
+    font-size: 20px;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+  }
+  
+  .category-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 16px;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff4d00, #e63900);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .category-card:hover::before {
+    transform: scaleX(1);
+  }
+  
+  .category-card:hover {
+    border-color: #ff4d00;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  }
+  
+  .category-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+    margin-bottom: 24px;
+  }
+  
+  .category-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 16px;
+  }
+  
+  .category-desc {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  
+  .resource-list {
+    list-style: none;
+    margin-bottom: 30px;
+  }
+  
+  .resource-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #374151;
+    font-size: 15px;
+  }
+  
+  .resource-list li::before {
+    content: '📄';
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  
+  .category-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #ff4d00;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .category-cta:hover {
+    transform: translateX(4px);
+  }
+  
+  /* Featured Resources */
+  .featured-section {
+    padding: 100px 0;
+    background: white;
+  }
+  
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 40px;
+  }
+  
+  .featured-resource {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    border-radius: 20px;
+    padding: 50px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid #e2e8f0;
+    transition: all 0.4s ease;
+  }
+  
+  .featured-resource:hover {
+    border-color: #ff4d00;
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(255, 77, 0, 0.15);
+  }
+  
+  .featured-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: white;
+    margin: 0 auto 30px;
+    box-shadow: 0 10px 30px rgba(255, 77, 0, 0.3);
+  }
+  
+  .featured-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 20px;
+  }
+  
+  .featured-desc {
+    font-size: 18px;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+  
+  .featured-benefits {
+    background: rgba(255, 77, 0, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0;
+    text-align: left;
+  }
+  
+  .featured-benefits h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+  }
+  
+  .benefits-list {
+    list-style: none;
+  }
+  
+  .benefits-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+  }
+  
+  .benefits-list li::before {
+    content: '✓';
+    color: #059669;
+    font-weight: bold;
+    font-size: 12px;
+  }
+  
+  .featured-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.3s ease;
+  }
+  
+  .featured-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(255, 77, 0, 0.3);
+  }
+  
+  /* Newsletter Section */
+  .newsletter-section {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 80px 0;
+  }
+  
+  .newsletter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  
+  .newsletter-content h2 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  
+  .newsletter-content p {
+    font-size: 18px;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  
+  .newsletter-features {
+    list-style: none;
+  }
+  
+  .newsletter-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #94a3b8;
+  }
+  
+  .newsletter-features li::before {
+    content: '📧';
+    font-size: 18px;
+  }
+  
+  .newsletter-form {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+  }
+  
+  .newsletter-form h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: white;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: #ff4d00;
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  }
+  
+  .form-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .newsletter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ff4d00, #e63900);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .newsletter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(255, 77, 0, 0.3);
+  }
+  
+  .form-note {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 12px;
+    line-height: 1.4;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .hero { padding: 80px 0 60px; }
+    .categories-section { padding: 80px 0; }
+    .featured-section { padding: 80px 0; }
+    .newsletter-section { padding: 60px 0; }
+    
+    .categories-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .featured-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .newsletter-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    
+    .featured-resource {
+      padding: 40px 30px;
+    }
+    
+    .newsletter-form {
+      padding: 30px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Free Legal Resources</div>
+    <h1 class="hero-headline">Strategic Legal Intelligence<br>at Your Fingertips</h1>
+    <p class="hero-subhead">
+      Actionable legal strategies, templates, and insights designed for high-performers who want to 
+      understand their legal landscape before making critical decisions.
+    </p>
+  </div>
+</section>
+
+<!-- Resource Categories -->
+<section class="categories-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">Resource Library</div>
+      <h2 class="section-title">Choose Your Area of Focus</h2>
+      <p class="section-desc">
+        Comprehensive guides and templates organized by the legal challenges that matter most 
+        to ambitious entrepreneurs and high-net-worth individuals.
+      </p>
+    </div>
+    
+    <div class="categories-grid">
+      <!-- Business Formation -->
+      <div class="category-card">
+        <div class="category-icon">🚀</div>
+        <h3 class="category-title">Business Formation</h3>
+        <p class="category-desc">
+          Strategic guides for choosing entity structures, optimizing equity, and preparing for investment.
+        </p>
+        <ul class="resource-list">
+          <li>LLC vs C-Corp Decision Framework</li>
+          <li>Delaware vs Florida Entity Formation Guide</li>
+          <li>Equity Structure Planning Template</li>
+          <li>Founder Agreement Template</li>
+          <li>Board Resolution Templates</li>
+        </ul>
+        <a href="#business-formation" class="category-cta">
+          View Business Resources →
+        </a>
+      </div>
+
+      <!-- Asset Protection -->
+      <div class="category-card">
+        <div class="category-icon">🛡️</div>
+        <h3 class="category-title">Asset Protection</h3>
+        <p class="category-desc">
+          Advanced strategies for shielding wealth from creditors, lawsuits, and business risks.
+        </p>
+        <ul class="resource-list">
+          <li>Personal Asset Protection Checklist</li>
+          <li>LLC Liability Shield Setup Guide</li>
+          <li>Trust Structure Comparison Chart</li>
+          <li>Professional Liability Protection Strategies</li>
+          <li>Multi-Entity Protection Framework</li>
+        </ul>
+        <a href="#asset-protection" class="category-cta">
+          View Protection Resources →
+        </a>
+      </div>
+
+      <!-- Estate Planning -->
+      <div class="category-card">
+        <div class="category-icon">🏛️</div>
+        <h3 class="category-title">Estate Planning</h3>
+        <p class="category-desc">
+          Tax-efficient wealth transfer strategies and legacy planning for high-net-worth individuals.
+        </p>
+        <ul class="resource-list">
+          <li>Estate Tax Minimization Strategies</li>
+          <li>Trust vs Will Decision Guide</li>
+          <li>Generation-Skipping Planning Template</li>
+          <li>Business Succession Planning Framework</li>
+          <li>Charitable Giving Tax Strategies</li>
+        </ul>
+        <a href="#estate-planning" class="category-cta">
+          View Estate Resources →
+        </a>
+      </div>
+
+      <!-- Brand Protection -->
+      <div class="category-card">
+        <div class="category-icon">🏷️</div>
+        <h3 class="category-title">Brand Protection</h3>
+        <p class="category-desc">
+          Intellectual property strategies for securing competitive advantage and preventing disputes.
+        </p>
+        <ul class="resource-list">
+          <li>Trademark Registration Strategy Guide</li>
+          <li>Brand Protection Checklist</li>
+          <li>Copyright vs Trademark Comparison</li>
+          <li>Domain Protection Strategies</li>
+          <li>IP Enforcement Action Templates</li>
+        </ul>
+        <a href="#brand-protection" class="category-cta">
+          View Brand Resources →
+        </a>
+      </div>
+
+      <!-- Contract Strategy -->
+      <div class="category-card">
+        <div class="category-icon">📝</div>
+        <h3 class="category-title">Contract Strategy</h3>
+        <p class="category-desc">
+          Professional templates and negotiation strategies for common business agreements.
+        </p>
+        <ul class="resource-list">
+          <li>Service Agreement Template Library</li>
+          <li>NDA and Confidentiality Templates</li>
+          <li>Employment Contract Essentials</li>
+          <li>Partnership Agreement Framework</li>
+          <li>Contract Negotiation Playbook</li>
+        </ul>
+        <a href="#contracts" class="category-cta">
+          View Contract Resources →
+        </a>
+      </div>
+
+      <!-- Tax Strategy -->
+      <div class="category-card">
+        <div class="category-icon">💰</div>
+        <h3 class="category-title">Tax Optimization</h3>
+        <p class="category-desc">
+          Legal strategies for minimizing tax burden while maintaining compliance and flexibility.
+        </p>
+        <ul class="resource-list">
+          <li>Business Entity Tax Comparison</li>
+          <li>Personal Tax Optimization Strategies</li>
+          <li>Multi-State Tax Planning Guide</li>
+          <li>Investment Structure Tax Guide</li>
+          <li>Tax-Efficient Exit Planning</li>
+        </ul>
+        <a href="#tax-strategy" class="category-cta">
+          View Tax Resources →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Resources -->
+<section class="featured-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">Featured Resources</div>
+      <h2 class="section-title">Most Popular Downloads</h2>
+      <p class="section-desc">
+        The strategic guides and templates that high-performers download most often.
+      </p>
+    </div>
+    
+    <div class="featured-grid">
+      <!-- Legal Foundation Assessment -->
+      <div class="featured-resource">
+        <div class="featured-icon">🎯</div>
+        <h3 class="featured-title">Legal Foundation Score™ Assessment</h3>
+        <p class="featured-desc">
+          Interactive assessment that analyzes your legal vulnerabilities and provides a prioritized 
+          roadmap for strengthening your legal position.
+        </p>
+        <div class="featured-benefits">
+          <h4>What You'll Get:</h4>
+          <ul class="benefits-list">
+            <li>Personalized vulnerability analysis</li>
+            <li>Legal Foundation Score (0-100)</li>
+            <li>Prioritized action plan</li>
+            <li>Strategic recommendations by business stage</li>
+          </ul>
+        </div>
+        <a href="/legal-strategy-builder" class="featured-cta">
+          Take Free Assessment →
+        </a>
+      </div>
+
+      <!-- Ultimate Business Formation Guide -->
+      <div class="featured-resource">
+        <div class="featured-icon">🏗️</div>
+        <h3 class="featured-title">Ultimate Business Formation Guide</h3>
+        <p class="featured-desc">
+          Comprehensive 50-page guide covering entity selection, equity structures, tax strategies, 
+          and investor preparation for ambitious entrepreneurs.
+        </p>
+        <div class="featured-benefits">
+          <h4>What's Inside:</h4>
+          <ul class="benefits-list">
+            <li>Entity structure decision framework</li>
+            <li>Equity planning templates</li>
+            <li>Tax optimization strategies</li>
+            <li>Investor-ready checklists</li>
+          </ul>
+        </div>
+        <a href="#download-formation-guide" class="featured-cta">
+          Download Free Guide →
+        </a>
+      </div>
+
+      <!-- High-Performer's Asset Protection Playbook -->
+      <div class="featured-resource">
+        <div class="featured-icon">🛡️</div>
+        <h3 class="featured-title">Asset Protection Playbook</h3>
+        <p class="featured-desc">
+          Advanced strategies for protecting wealth from creditors, lawsuits, and business risks. 
+          Written specifically for high-net-worth individuals and entrepreneurs.
+        </p>
+        <div class="featured-benefits">
+          <h4>Protection Strategies:</h4>
+          <ul class="benefits-list">
+            <li>LLC liability shield setup</li>
+            <li>Trust structure recommendations</li>
+            <li>Multi-entity protection frameworks</li>
+            <li>Professional liability strategies</li>
+          </ul>
+        </div>
+        <a href="#download-protection-guide" class="featured-cta">
+          Get Protection Playbook →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+  <div class="container">
+    <div class="newsletter-grid">
+      <div class="newsletter-content">
+        <h2>Weekly Legal Intelligence</h2>
+        <p>
+          Get strategic legal insights, asset protection tips, and business formation guidance 
+          delivered to your inbox every week.
+        </p>
+        
+        <ul class="newsletter-features">
+          <li>Weekly legal strategy insights</li>
+          <li>Case studies from real clients</li>
+          <li>Tax and compliance updates</li>
+          <li>New resource notifications</li>
+          <li>Exclusive templates and guides</li>
+        </ul>
+      </div>
+      
+      <div class="newsletter-form">
+        <h3>Join 2,500+ High-Performers</h3>
+        
+        <form id="newsletter-signup-form">
+          <div class="form-group">
+            <input type="email" name="email" class="form-input" placeholder="your@email.com" required>
+          </div>
+          
+          <button type="submit" class="newsletter-btn">
+            📧 Get Weekly Legal Intelligence
+          </button>
+          
+          <p class="form-note">
+            Free insights on legal strategy, asset protection, and business optimization. 
+            Unsubscribe anytime with one click.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Newsletter signup handling
+document.getElementById('newsletter-signup-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const form = e.target;
+  const email = form.querySelector('input[name="email"]').value;
+  const button = form.querySelector('button');
+  
+  // Store original button text
+  const originalText = button.textContent;
+  
+  // Show loading state
+  button.disabled = true;
+  button.textContent = '📧 Subscribing...';
+  
+  try {
+    // Create form data
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('source', 'resources-newsletter');
+    formData.append('subscriptionType', 'weekly-legal-intelligence');
+    formData.append('timestamp', new Date().toISOString());
+    
+    // Submit to newsletter endpoint
+    const response = await fetch('https://estate-intake-system.onrender.com/newsletter-signup', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (response.ok) {
+      // Success state
+      button.textContent = '✅ Subscribed! Check your email';
+      button.style.background = '#059669';
+      form.querySelector('input').value = '';
+      
+      // Reset after 5 seconds
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = originalText;
+        button.style.background = 'linear-gradient(135deg, #ff4d00, #e63900)';
+      }, 5000);
+    } else {
+      throw new Error('Subscription failed');
+    }
+    
+  } catch (error) {
+    console.error('Newsletter signup error:', error);
+    
+    // Error state
+    button.textContent = '❌ Try Again';
+    button.style.background = '#dc2626';
+    
+    // Reset after 3 seconds
+    setTimeout(() => {
+      button.disabled = false;
+      button.textContent = originalText;
+      button.style.background = 'linear-gradient(135deg, #ff4d00, #e63900)';
+    }, 3000);
+  }
+});
+
+// Add scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Apply animation to cards
+document.querySelectorAll('.category-card, .featured-resource').forEach((element, index) => {
+    element.style.opacity = '0';
+    element.style.transform = 'translateY(30px)';
+    element.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+    observer.observe(element);
+});
+
+console.log('Resources page loaded');
+</script>
+
+</body>
+</html>

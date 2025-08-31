@@ -1449,40 +1449,7 @@ export const legalEmailTemplates = {
 export function generateLegallyCompliantEmail(templateType, firstName = 'Valued Client', additionalData = {}) {
   const content = legalEmailTemplates[templateType] || legalEmailTemplates.standard_welcome;
   
-  // NUCLEAR OPTION: Force perfect formatting on EVERY element
-  const forceReadableFormatting = (html) => {
-    return html
-      // Force ALL headers to be black text on white background
-      .replace(/<h1([^>]*)>/g, '<h1 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 20px 0 !important; font-size: 24px !important;">')
-      .replace(/<h2([^>]*)>/g, '<h2 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 15px 0 !important; font-size: 20px !important;">')
-      .replace(/<h3([^>]*)>/g, '<h3 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 18px !important;">')
-      .replace(/<h4([^>]*)>/g, '<h4 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 16px !important;">')
-      .replace(/<h5([^>]*)>/g, '<h5 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 14px !important;">')
-      .replace(/<h6([^>]*)>/g, '<h6 style="background-color: #ffffff !important; color: #000000 !important; font-weight: bold !important; margin: 10px 0 !important; font-size: 12px !important;">')
-      // Force ALL links/buttons to be bright orange
-      .replace(/<a([^>]*href[^>]*)style="[^"]*"/g, '<a$1style="background-color: #ff4d00 !important; color: #ffffff !important; padding: 16px 32px !important; text-decoration: none !important; border-radius: 8px !important; font-weight: bold !important; display: inline-block !important; margin: 20px 0 !important; text-align: center !important; min-width: 200px !important; border: 2px solid #ff4d00 !important;"')
-      // Force ALL text to be black on white
-      .replace(/<p([^>]*)>/g, '<p style="background-color: #ffffff !important; color: #000000 !important; line-height: 1.6 !important; margin: 10px 0 !important;">')
-      .replace(/<li([^>]*)>/g, '<li style="background-color: #ffffff !important; color: #000000 !important; margin: 5px 0 !important;">')
-      .replace(/<strong([^>]*)>/g, '<strong style="background-color: #ffffff !important; color: #000000 !important;">')
-      .replace(/<div([^>]*style="[^"]*")>/g, (match, attrs) => {
-        if (match.includes('text-align: center')) {
-          return '<div style="text-align: center !important; margin: 30px 0 !important; background-color: #ffffff !important;">';
-        }
-        return '<div style="background-color: #ffffff !important; color: #000000 !important; border: 2px solid #000000 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important;">';
-      })
-      // NUCLEAR OPTION: Remove ANY white text on white background disasters
-      .replace(/color:\s*#ffffff/g, 'color: #000000')
-      .replace(/color:\s*white/g, 'color: #000000')
-      .replace(/style="([^"]*?)color:\s*#ffffff([^"]*?)"/g, 'style="$1color: #000000$2"')
-      // Force black text on ALL remaining elements
-      .replace(/<([^>]*?)style="([^"]*?)"([^>]*?)>/g, (match, before, style, after) => {
-        if (!style.includes('color:') && !before.includes('header') && !after.includes('href')) {
-          return `<${before}style="${style}; color: #000000 !important;"${after}>`;
-        }
-        return match;
-      });
-  };
+  // Clean template processing - no legacy formatting overrides needed
   
   // Strategic personalization for ALL templates
   const strategicTemplates = [
@@ -1524,9 +1491,8 @@ export function generateLegallyCompliantEmail(templateType, firstName = 'Valued 
       .replace(/\{\{practiceArea\}\}/g, getPracticeAreaName(additionalData.submissionType) || 'legal strategy')
       .replace(/\{\{topicArea\}\}/g, contextualContent.topicArea || getPracticeAreaName(additionalData.submissionType) || 'legal strategy');
       
-    // Apply nuclear formatting fix before building email
-    const forcedFormattingContent = forceReadableFormatting(personalizedContent);
-    return buildEmailHTML(forcedFormattingContent);
+    // Clean email generation without legacy formatting
+    return buildEmailHTML(personalizedContent);
   }
   
   // Standard template processing for non-strategic templates
@@ -1535,9 +1501,8 @@ export function generateLegallyCompliantEmail(templateType, firstName = 'Valued 
     .replace(/\{\{submissionType\}\}/g, additionalData.submissionType || 'legal matters')
     .replace(/\{\{practiceArea\}\}/g, getPracticeAreaName(additionalData.submissionType) || 'legal strategy');
     
-  // Apply nuclear formatting fix before building email
-  const forcedFormattingContent = forceReadableFormatting(personalizedContent);
-  return buildEmailHTML(forcedFormattingContent);
+  // Clean template processing without legacy overrides
+  return buildEmailHTML(personalizedContent);
 }
 
 // Build HTML email with consistent styling

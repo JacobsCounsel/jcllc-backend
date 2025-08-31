@@ -642,21 +642,19 @@ export class CustomEmailAutomation {
   // Generate legally compliant email HTML template
   generateEmailHTML(templateType, content, firstName = 'Valued Client', additionalData = {}) {
     // FORCE black text and white backgrounds - bypass all old templates
-    log.info('Generating email with forced black text styling', { templateType, firstName });
+    log.info('Generating email with luxury brand styling', { templateType, firstName });
     
-    // Use the legally compliant email generator with all text forced to black
+    // Use the legally compliant email generator with sophisticated styling
     return generateLegallyCompliantEmail(templateType, firstName, {
-      ...additionalData,
-      forceBlackText: true,
-      forceWhiteBackground: true
+      ...additionalData
     });
   }
 
 
   // Get legally compliant email content for template  
   getEmailContent(templateType, firstName = 'Valued Client') {
-    // FORCE use of legally compliant templates - bypass old system entirely
-    log.info('Getting email content with forced legal compliance', { templateType });
+    // Use luxury email templates with sophisticated styling
+    log.info('Getting email content with luxury branding', { templateType });
     
     // Always use the legal compliant template system
     return legalEmailTemplates[templateType] || legalEmailTemplates.vip_welcome;

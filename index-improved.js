@@ -42,6 +42,7 @@ import {
   withNormalizedType,
   processIntakeOperations
 } from './src/legacy/compatibility.js';
+import { generateEnhancedClientEmail } from './src/enhanced-email-templates.js';
 import { getCalendlyLink } from './src/services/leadScoring.js';
 import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
 import { processCustomEmailAutomation } from './src/services/customEmailAutomation.js';

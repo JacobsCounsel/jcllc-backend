@@ -294,13 +294,7 @@ app.post('/estate-intake', upload.array('document'), async (req, res) => {
     );
 
     if (formData.email) {
-      let clientEmailHtml;
-      try {
-        clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
-      } catch (error) {
-        console.warn('Using fallback email function:', error.message);
-        clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
-      }
+      const clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({
@@ -431,13 +425,7 @@ app.post('/business-formation-intake', upload.array('documents'), async (req, re
     );
 
     if (formData.email) {
-      let clientEmailHtml;
-      try {
-        clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
-      } catch (error) {
-        console.warn('Using fallback email function:', error.message);
-        clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
-      }
+      const clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
       if (clientEmailHtml) {
         operations.push(
           sendEnhancedEmail({

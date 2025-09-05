@@ -34,12 +34,6 @@ export const config = {
   // Development flag
   isDevelopment: process.env.NODE_ENV !== 'production',
   
-  // Mailchimp
-  mailchimp: {
-    apiKey: process.env.MAILCHIMP_API_KEY || '',
-    server: process.env.MAILCHIMP_SERVER || 'us21',
-    audienceId: process.env.MAILCHIMP_AUDIENCE_ID || ''
-  },
   
   // Kit (ConvertKit)
   kit: {
@@ -92,11 +86,11 @@ export function validateEnvironment() {
                        config.microsoft.tenantId && 
                        config.microsoft.sender;
   
-  const requiredMailchimp = config.mailchimp.apiKey && config.mailchimp.audienceId;
+  const requiredKit = config.kit.apiKey && config.kit.apiSecret;
   
   const status = {
     email: requiredEmail ? '✅ Configured' : '⚠️ Not configured (emails disabled)',
-    mailchimp: requiredMailchimp ? '✅ Configured' : '⚠️ Not configured (nurture disabled)',
+    kit: requiredKit ? '✅ Configured' : '⚠️ Not configured (email automation disabled)',
     openai: config.openai.apiKey ? '✅ Configured' : '⚠️ Not configured (AI disabled)',
     clio: config.clio.inboxToken ? '✅ Configured' : '⚠️ Not configured (CRM disabled)',
     mixpanel: config.mixpanel.token ? '✅ Configured' : '⚠️ Not configured (analytics disabled)'
@@ -109,7 +103,7 @@ export function validateEnvironment() {
   
   return {
     hasEmail: requiredEmail,
-    hasMailchimp: requiredMailchimp,
+    hasKit: requiredKit,
     hasOpenAI: !!config.openai.apiKey,
     hasClio: !!config.clio.inboxToken,
     hasMixpanel: !!config.mixpanel.token,

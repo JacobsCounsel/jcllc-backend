@@ -41,7 +41,7 @@ const initTables = () => {
     CREATE TABLE IF NOT EXISTS lead_interactions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       lead_id INTEGER NOT NULL,
-      interaction_type TEXT NOT NULL, -- 'email_sent', 'calendly_booked', 'calendly_canceled', 'mailchimp_tagged', 'follow_up_scheduled'
+      interaction_type TEXT NOT NULL, -- 'email_sent', 'calendly_booked', 'calendly_canceled', 'kit_tagged', 'kit_sequenced', 'follow_up_scheduled'
       details TEXT, -- JSON string with specifics
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (lead_id) REFERENCES leads (id)

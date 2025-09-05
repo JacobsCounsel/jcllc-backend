@@ -74,15 +74,21 @@ export const leadDb = {
   },
 
   insertEmailAutomation: (automationData) => {
-    const id = `automation-${Date.now()}`;
-    emailAutomations.set(id, { ...automationData, id, created_at: new Date() });
-    stats.emailsSent++;
-    log.info('Email automation stored:', { id, email: automationData.email });
-    return { lastInsertRowid: Date.now(), changes: 1 };
+    // Email automation system DISABLED - using Kit/ConvertKit for follow-ups
+    log.info('Email automation DISABLED - delegating to Kit/ConvertKit:', { email: automationData.email });
+    return { lastInsertRowid: Date.now(), changes: 0 };
   },
 
   getActiveAutomations: (email) => {
-    return Array.from(emailAutomations.values()).filter(a => a.email === email && a.status === 'active');
+    // No active automations - system disabled
+    return [];
+  },
+
+  // Clear all scheduled follow-up emails 
+  clearAllScheduledEmails: () => {
+    emailAutomations.clear();
+    log.info('All scheduled follow-up emails cleared - system using Kit/ConvertKit');
+    return { success: true, cleared: true };
   },
 
   logInteraction: (leadId, type, details = {}) => {
@@ -148,7 +154,10 @@ export const leadDb = {
 
 // Initialize mock database
 const initTables = () => {
+  // Clear any existing email automations - system now uses Kit/ConvertKit
+  emailAutomations.clear();
   log.info('🎭 Mock database initialized for production (no SQLite)');
+  log.info('📧 Email automations cleared - delegating to Kit/ConvertKit');
   return true;
 };
 

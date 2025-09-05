@@ -53,7 +53,7 @@ class CommunicationHub {
                 timestamp: new Date().toISOString(),
                 services: {
                     openai: this.checkOpenAI(),
-                    mailchimp: this.checkMailchimp(),
+                    kit: this.checkKit(),
                     clio: this.checkClio(),
                     motion: this.checkMotion(),
                     email: this.checkEmail()
@@ -134,8 +134,8 @@ class CommunicationHub {
         return !!process.env.OPENAI_API_KEY ? 'active' : 'not configured';
     }
     
-    checkMailchimp() {
-        return !!process.env.MAILCHIMP_API_KEY ? 'active' : 'not configured';
+    checkKit() {
+        return !!process.env.KIT_API_KEY ? 'active' : 'not configured';
     }
     
     checkClio() {

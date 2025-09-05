@@ -712,7 +712,8 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Jacobs Counsel Clean System running on port ${PORT}`);
   console.log(`📧 3-Part Email Flow: Active`);
-  console.log(`🏷️ Kit Intelligent Tagging: Active`); 
+  console.log(`🏷️ Kit Intelligent Tagging: Active`);
+  console.log(`🎮 Gaming Legal Endpoint: ACTIVE`); 
   console.log(`📊 Clio Grow Integration: Active`);
   console.log(`✅ All endpoints cleaned and operational`);
 });

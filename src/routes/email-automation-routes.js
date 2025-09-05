@@ -892,7 +892,8 @@ router.get('/preview-template/:templateType', (req, res) => {
     
     const emailHTML = generateLegallyCompliantEmail(templateType, firstName, { 
       submissionType: submissionType,
-      formData: formData
+      formData: formData,
+      email: 'preview@example.com'
     });
     
     res.setHeader('Content-Type', 'text/html');

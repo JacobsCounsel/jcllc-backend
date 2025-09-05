@@ -1,1652 +1,718 @@
-// index-improved.js - Enhanced backend with database analytics, SAME API contracts
-// Version: Production Ready - Fixed Import Issues
+// Jacobs Counsel Clean Backend - All Endpoints with 3-Part Email Flow
+// Client Email + Internal Email + Clio Grow + Kit Intelligent Tagging
+
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import multer from 'multer';
-import { Buffer } from 'buffer';
-import Mixpanel from 'mixpanel';
-import NodeCache from 'node-cache';
-
-// Import enhanced modules (backwards compatible)
-import { config, validateEnvironment } from './src/config/environment.js';
-import { log, console } from './src/utils/logger.js';
-import { 
-  intakeRateLimit, 
-  apiRateLimit, 
-  securityHeaders, 
-  requestLogger,
-  validateContentType 
-} from './src/middleware/security.js';
-import { calculateLeadScore } from './src/services/leadScoring.js';
-// Use production-safe database 
+import { config } from './src/config/environment.js';
 import { leadDb } from './src/models/database-production.js';
-import db from './src/models/database-production.js';
-import analyticsRouter from './src/routes/analytics.js';
-import emailAutomationRouter from './src/routes/email-automation-routes.js';
-import automationDashboardRouter from './src/routes/automation-dashboard.js';
-
-// Import all existing functions to maintain compatibility
-import {
-  sanitizeInput,
-  escapeHtml,
-  analyzeIntakeWithAI,
-  addToKitWithAutomation,
-  getGraphToken,
+import { calculateLeadScore } from './src/services/leadScoring.js';
+import { 
   sendEnhancedEmail,
   createClioLead,
-  normalizeSubmissionType,
-  withNormalizedType,
-  processIntakeOperations
-} from './src/legacy/compatibility.js';
-import { generateInternalEmail, generateClientEmail, generateResourceThankYouEmail, generateNewsletterWelcomeEmail } from './src/simple-email-templates.js';
-import { getCalendlyLink } from './src/services/leadScoring.js';
-import { scheduleSmartFollowUps } from './src/services/followUpScheduler.js';
-import { processCustomEmailAutomation } from './src/services/customEmailAutomation.js';
-import emailProcessor from './src/services/emailProcessor.js';
+  addToKitWithIntelligentTagging,
+  sanitizeInput,
+  escapeHtml
+} from './src/services/coreServices.js';
+import { 
+  generateClientEmail, 
+  generateInternalEmail, 
+  generateResourceThankYouEmail, 
+  generateNewsletterWelcomeEmail 
+} from './src/simple-email-templates.js';
+import { log } from './src/utils/logger.js';
 
-// Clean email templates using simple-email-templates.js only
-
-// Kit v4 Automation System
-import { processKitV4Automation } from './src/services/kitV4Automation.js';
-
-async function addToKitIfConfigured(formData, leadScore, submissionType, leadId = null) {
-  try {
-    return await processKitV4Automation(formData, leadScore, submissionType);
-  } catch (error) {
-    console.error('Kit v4 automation failed:', error.message);
-    return { success: false, error: error.message };
-  }
-}
-
-// Initialize services (same as before)
-const mixpanel = config.mixpanel.token ? Mixpanel.init(config.mixpanel.token) : null;
-const cache = new NodeCache({ stdTTL: 600 });
-
-// ==================== EXPRESS SETUP (Enhanced but Compatible) ====================
 const app = express();
+const upload = multer({ storage: multer.memoryStorage() });
 
-// Enhanced security (backwards compatible)
-app.set('trust proxy', 1);
-app.use(securityHeaders);
-app.use(requestLogger);
-app.use(cors());
-// Apply content validation only to form endpoints
-// app.use(validateContentType);
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Security and middleware
+app.use(helmet());
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static HTML files for preview
-app.use(express.static('.', { 
-  extensions: ['html'],
-  setHeaders: (res, path) => {
-    if (path.endsWith('.html')) {
-      res.setHeader('Content-Type', 'text/html');
-    }
-  }
-}));
-
-// Enhanced rate limiting
-app.use('/api/', apiRateLimit);
-app.use('/estate-intake', intakeRateLimit);
-app.use('/business-formation-intake', intakeRateLimit);
-app.use('/brand-protection-intake', intakeRateLimit);
-app.use('/outside-counsel', intakeRateLimit);
-
-// Analytics routes (NEW - but doesn't break existing)
-app.use('/api/analytics', analyticsRouter);
-
-// Email Automation Dashboard routes
-app.use('/api/email-automations', emailAutomationRouter);
-
-// Admin Dashboard routes
-import adminDashboardRouter from './src/routes/admin-dashboard.js';
-app.use('/admin', adminDashboardRouter);
-// Automations dashboard - no content validation needed
-app.use('/automations', (req, res, next) => {
-  // Skip content type validation for automation routes
-  req.skipContentValidation = true;
-  next();
-}, automationDashboardRouter);
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 15 * 1024 * 1024, files: 15 }
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
 });
-
-// ==================== ENHANCED INTAKE PROCESSING ====================
-
-// Enhanced processing function that adds database logging
-async function processIntakeWithDatabase(formData, submissionType, leadScore, submissionId) {
-  // Insert into database for analytics (NEW)
-  try {
-    const leadId = leadDb.insertLead({
-      submissionId,
-      email: formData.email,
-      firstName: formData.firstName || formData.fullName?.split(' ')[0],
-      lastName: formData.lastName || formData.fullName?.split(' ').slice(1).join(' '),
-      phone: formData.phone,
-      businessName: formData.businessName || formData.companyName,
-      submissionType,
-      leadScore: leadScore.score,
-      priority: leadScore.priority,
-      source: formData.source,
-      calendlyLink: getCalendlyLink(submissionType, leadScore),
-      formData
-    });
-
-    // Log initial submission interaction
-    leadDb.logInteraction(leadId, 'form_submitted', {
-      submissionType,
-      score: leadScore.score,
-      priority: leadScore.priority
-    });
-
-    // Schedule smart follow-up reminders based on lead score and submission type
-    try {
-      const followUpCount = scheduleSmartFollowUps(leadId, leadScore, submissionType, formData);
-      log.info('Smart follow-ups scheduled', { 
-        leadId, 
-        email: formData.email, 
-        followUpCount,
-        score: leadScore.score 
-      });
-    } catch (followUpError) {
-      log.error('Failed to schedule follow-ups', { 
-        error: followUpError.message, 
-        leadId, 
-        email: formData.email 
-      });
-    }
-    
-    // Add to Kit automation system for advanced email sequences
-    try {
-      await addToKitIfConfigured(formData, leadScore, submissionType, leadId);
-      log.info('Kit automation triggered', { leadId, email: formData.email });
-    } catch (kitError) {
-      log.error('Kit automation failed', { 
-        error: kitError.message, 
-        leadId, 
-        email: formData.email 
-      });
-    }
-
-    log.info('Lead tracked in database', { leadId, email: formData.email, score: leadScore.score });
-    return leadId;
-  } catch (error) {
-    log.error('Database insert failed, continuing without tracking', { error: error.message });
-    return null; // Don't break the flow if DB fails
-  }
-}
-
-// ==================== EXISTING ENDPOINTS (SAME API, ENHANCED INTERNALLY) ====================
-
-// Analytics endpoint (UNCHANGED API)
-app.post('/api/analytics/form-event', async (req, res) => {
-  try {
-    const payload = sanitizeInput(req.body || {});
-    const event = (payload.event || 'form_event').slice(0, 64);
-    const formType = (payload.formType || 'unknown').slice(0, 64);
-    const data = payload.data || {};
-
-    if (mixpanel) {
-      mixpanel.track(event, {
-        distinct_id: data.email || data.userId || 'anon',
-        formType,
-        ...data
-      });
-    }
-
-    res.json({ ok: true }); // SAME response format
-  } catch (e) {
-    console.error('Analytics error:', e);
-    res.json({ ok: true, note: 'analytics soft-failed' }); // SAME response format
-  }
-});
-
-// Estate Intake (SAME API, enhanced processing)
-app.post('/estate-intake', upload.array('document'), async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    const files = req.files || [];
-    const submissionId = formData.submissionId || `estate-${Date.now()}`;
-    formData = withNormalizedType(formData, 'estate-intake');
-    const submissionType = formData._normalizedType;
-
-    console.log(`📥 New ${submissionType} submission:`, formData.email);
-
-    const leadScore = calculateLeadScore(formData, submissionType);
-    console.log(`📊 Lead score: ${leadScore.score}/100`);
-
-    // NEW: Database tracking
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-
-    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-
-    const attachments = files
-      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
-      .slice(0, 10)
-      .map(f => ({
-        filename: f.originalname,
-        contentType: f.mimetype,
-        content: f.buffer
-      }));
-
-    // Calculate pricing (same logic)
-    const marital = (formData.maritalStatus || '').toLowerCase();
-    const pkg = (formData.packagePreference || '').toLowerCase();
-    const married = marital === 'married';
-    let price = null;
-    if (pkg.includes('trust')) price = married ? 3650 : 2900;
-    else if (pkg.includes('will')) price = married ? 1900 : 1500;
-
-    if (mixpanel) {
-      mixpanel.track('Intake Submitted', {
-        distinct_id: formData.email,
-        service: submissionType,
-        score: leadScore.score,
-        value: price || 0
-      });
-    }
-
-    const operations = [];
-    const alertRecipients = leadScore.score >= 70
-      ? [config.notifications.intakeNotifyTo, config.notifications.highValueNotifyTo]
-      : [config.notifications.intakeNotifyTo];
-
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Estate Planning — ${formData.email} (Score: ${leadScore.score})`,
-        html: generateInternalEmail(formData, leadScore, submissionType),
-        priority: leadScore.score >= 70 ? 'high' : 'normal',
-        attachments
-      }).then(() => {
-        if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_alert' });
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-
-    // Custom Email Automation + Kit Newsletter
-    operations.push(
-      processCustomEmailAutomation(formData, leadScore, submissionType)
-        .then((result) => {
-          if (leadId && result.success) {
-            leadDb.logInteraction(leadId, 'custom_automation_started', {
-              automation_id: result.automation_id,
-              pathway: result.pathway,
-              emails_scheduled: result.emails_scheduled
-            });
-          }
-          log.info('✅ Custom email automation started', { 
-            email: formData.email, 
-            pathway: result.pathway,
-            emails_scheduled: result.emails_scheduled 
-          });
-        })
-        .catch(e => console.error('❌ Custom email automation failed:', e.message))
-    );
-
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio Grow failed:', e.message))
-    );
-
-    if (formData.email) {
-      const clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
-      if (clientEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'Jacobs Counsel — Your Estate Planning Intake & Next Steps',
-            html: clientEmailHtml
-          }).then(() => {
-            if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'client_confirmation' });
-          }).catch(e => console.error('❌ Client email failed:', e.message))
-        );
-      }
-    }
-
-    await processIntakeOperations(operations);
-
-    // Premium response with enhanced messaging
-    const priorityLevel = leadScore.score >= 80 ? 'VIP' : 'Premium'; // Premium minimum service
-    const responseTime = leadScore.score >= 80 ? '6 hours' : '12 hours'; // Premium minimum response
-    
-    res.json({
-      success: true,
-      submissionId,
-      leadScore: leadScore.score,
-      priorityLevel,
-      status: 'consultation_scheduled',
-      message: `Your estate planning consultation request has been received and prioritized at ${priorityLevel} level.`,
-      nextSteps: `Our team will review your information and contact you within ${responseTime} to schedule your strategic consultation.`,
-      expectedOutcome: 'Comprehensive estate plan designed to protect and optimize your wealth transfer strategy.',
-      price,
-      aiAnalysisAvailable: !!aiAnalysis?.analysis,
-      consultationPrep: 'You will receive a pre-consultation preparation guide to maximize the value of your session.',
-      timeline: {
-        initial_contact: responseTime,
-        consultation: '2-5 business days',
-        plan_delivery: '7-14 business days'
-      }
-    });
-  } catch (error) {
-    console.error('💥 Estate intake error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-// Business Formation Intake (enhanced)
-app.post('/business-formation-intake', upload.array('documents'), async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    const files = req.files || [];
-    const submissionId = formData.submissionId || `business-${Date.now()}`;
-    formData = withNormalizedType(formData, 'business-formation');
-    const submissionType = formData._normalizedType;
-
-    console.log(`📥 New ${submissionType} submission:`, formData.email);
-
-    const leadScore = calculateLeadScore(formData, submissionType);
-    console.log(`📊 Lead score: ${leadScore.score}/100`);
-
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-
-    const attachments = files
-      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
-      .slice(0, 10)
-      .map(f => ({
-        filename: f.originalname,
-        contentType: f.mimetype,
-        content: f.buffer
-      }));
-
-    let price = null;
-    const packageType = (formData.selectedPackage || '').toLowerCase();
-    if (packageType.includes('bronze')) price = 2995;
-    else if (packageType.includes('silver')) price = 4995;
-    else if (packageType.includes('gold')) price = 7995;
-
-    if (mixpanel) {
-      mixpanel.track('Intake Submitted', {
-        distinct_id: formData.email,
-        service: submissionType,
-        score: leadScore.score,
-        value: price || 0
-      });
-    }
-
-    const operations = [];
-    const alertRecipients = leadScore.score >= 70
-      ? [config.notifications.intakeNotifyTo, config.notifications.highValueNotifyTo]
-      : [config.notifications.intakeNotifyTo];
-
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Business Formation — ${formData.founderName || formData.businessName || 'New Lead'} (Score: ${leadScore.score})`,
-        html: generateInternalEmail(formData, leadScore, submissionType),
-        priority: leadScore.score >= 70 ? 'high' : 'normal',
-        attachments
-      }).then(() => {
-        if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_alert' });
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-
-    // Custom Email Automation + Kit Newsletter
-    operations.push(
-      processCustomEmailAutomation(formData, leadScore, submissionType)
-        .then((result) => {
-          if (leadId && result.success) {
-            leadDb.logInteraction(leadId, 'custom_automation_started', {
-              automation_id: result.automation_id,
-              pathway: result.pathway,
-              emails_scheduled: result.emails_scheduled
-            });
-          }
-          log.info('✅ Custom email automation started', { 
-            email: formData.email, 
-            pathway: result.pathway,
-            emails_scheduled: result.emails_scheduled 
-          });
-        })
-        .catch(e => console.error('❌ Custom email automation failed:', e.message))
-    );
-
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-
-    if (formData.email) {
-      const clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
-      if (clientEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'Jacobs Counsel — Your Business Formation Intake & Next Steps',
-            html: clientEmailHtml
-          }).then(() => {
-            if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'client_confirmation' });
-          }).catch(e => console.error('❌ Client email failed:', e.message))
-        );
-      }
-    }
-
-    await processIntakeOperations(operations);
-
-    // Premium business formation response
-    const priorityLevel = leadScore.score >= 80 ? 'VIP' : 'Premium'; // Premium minimum service
-    const responseTime = leadScore.score >= 80 ? '4 hours' : leadScore.score >= 60 ? '8 hours' : '24 hours';
-    
-    res.json({
-      success: true,
-      submissionId,
-      leadScore: leadScore.score,
-      priorityLevel,
-      status: 'formation_review_initiated',
-      message: `Your business formation request has been received and fast-tracked at ${priorityLevel} level.`,
-      nextSteps: `Our corporate strategy team will analyze your requirements and contact you within ${responseTime} to discuss your optimal business structure.`,
-      expectedOutcome: 'Investor-ready business entity with optimized tax structure and growth framework.',
-      price,
-      aiAnalysisAvailable: !!aiAnalysis?.analysis,
-      strategicFocus: 'Entity selection, tax optimization, and scalability planning tailored to your growth objectives.',
-      deliverables: [
-        'Comprehensive entity structure recommendation',
-        'Tax optimization strategy',
-        'Investor readiness assessment',
-        'Growth framework design'
-      ],
-      timeline: {
-        structure_recommendation: responseTime,
-        formation_completion: '5-7 business days',
-        compliance_setup: '7-10 business days'
-      }
-    });
-  } catch (error) {
-    console.error('💥 Business formation error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-// Brand Protection Intake (enhanced)
-app.post('/brand-protection-intake', upload.array('brandDocument'), async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    const files = req.files || [];
-    const submissionId = formData.submissionId || `brand-${Date.now()}`;
-    formData = withNormalizedType(formData, 'brand-protection');
-    const submissionType = formData._normalizedType;
-
-    console.log(`📥 New ${submissionType} submission:`, formData.email);
-
-    const leadScore = calculateLeadScore(formData, submissionType);
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-
-    const attachments = files
-      .filter(f => f?.buffer && f.size <= 5 * 1024 * 1024)
-      .slice(0, 10)
-      .map(f => ({
-        filename: f.originalname,
-        contentType: f.mimetype,
-        content: f.buffer
-      }));
-
-    let priceEstimate = 'Custom Quote';
-    const service = (formData.servicePreference || '').toLowerCase();
-    if (service.includes('clearance') || service.includes('1495')) {
-      priceEstimate = '$1,495';
-    } else if (service.includes('single trademark') || service.includes('2495')) {
-      priceEstimate = '$2,495';
-    } else if (service.includes('multiple') || service.includes('4995')) {
-      priceEstimate = '$4,995+';
-    } else if (service.includes('portfolio') || service.includes('7500')) {
-      priceEstimate = '$7,500+';
-    }
-
-    if (mixpanel) {
-      mixpanel.track('Intake Submitted', {
-        distinct_id: formData.email,
-        service: submissionType,
-        score: leadScore.score
-      });
-    }
-
-    const operations = [];
-    const alertRecipients = leadScore.score >= 70
-      ? [config.notifications.intakeNotifyTo, config.notifications.highValueNotifyTo]
-      : [config.notifications.intakeNotifyTo];
-
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Brand Protection — ${formData.businessName || formData.fullName || 'New Lead'} (Score: ${leadScore.score})`,
-        html: generateInternalEmail(formData, leadScore, submissionType),
-        priority: leadScore.score >= 70 ? 'high' : 'normal',
-        attachments
-      }).then(() => {
-        if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_alert' });
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-
-    // Custom Email Automation + Kit Newsletter
-    operations.push(
-      processCustomEmailAutomation(formData, leadScore, submissionType)
-        .then((result) => {
-          if (leadId && result.success) {
-            leadDb.logInteraction(leadId, 'custom_automation_started', {
-              automation_id: result.automation_id,
-              pathway: result.pathway,
-              emails_scheduled: result.emails_scheduled
-            });
-          }
-          log.info('✅ Custom email automation started', { 
-            email: formData.email, 
-            pathway: result.pathway,
-            emails_scheduled: result.emails_scheduled 
-          });
-        })
-        .catch(e => console.error('❌ Custom email automation failed:', e.message))
-    );
-
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-
-    if (formData.email) {
-      const clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
-      if (clientEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'Jacobs Counsel — Your Brand Protection Intake & Next Steps',
-            html: clientEmailHtml
-          }).then(() => {
-            if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'client_confirmation' });
-          }).catch(e => console.error('❌ Client email failed:', e.message))
-        );
-      }
-    }
-
-    await processIntakeOperations(operations);
-
-    res.json({
-      ok: true,
-      submissionId,
-      leadScore: leadScore.score,
-      priceEstimate,
-      aiAnalysisAvailable: !!aiAnalysis?.analysis
-    });
-  } catch (error) {
-    console.error('💥 Brand protection error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-// Legal Risk Assessment (new)
-app.post('/legal-risk-assessment', async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    const submissionId = formData.submissionId || `risk-${Date.now()}`;
-    formData = withNormalizedType(formData, 'legal-risk-assessment');
-    const submissionType = formData._normalizedType;
-
-    console.log(`📥 New ${submissionType} submission:`, formData.email);
-
-    const leadScore = calculateLeadScore(formData, submissionType);
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-    const operations = [];
-    const alertRecipients = [config.notifications.intakeNotifyTo];
-    
-    // Internal alert email
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `🚨 Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email})`,
-        html: generateInternalEmail(formData, leadScore, submissionType),
-        priority: 'high'
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-    
-    // Client confirmation email
-    if (formData.email) {
-      operations.push(
-        sendEnhancedEmail({
-          to: [formData.email],
-          subject: `Your Legal Risk Assessment Results — ${formData.name?.split(' ')[0] || 'there'}`,
-          html: generateClientEmail(formData, leadScore, submissionType)
-        }).catch(e => console.error('❌ Client email failed:', e.message))
-      );
-    }
-    
-    // Clio CRM integration
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-    
-    // Follow-up automation
-    try {
-      scheduleSmartFollowUps(leadId, leadScore, submissionType, formData);
-    } catch (e) {
-      console.error('❌ Follow-up automation failed:', e.message);
-    }
-    
-    await Promise.all(operations);
-    
-    res.json({ success: true, message: 'Risk assessment processed successfully', submissionId });
-  } catch (error) {
-    console.error('❌ Legal risk assessment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error',
-      submissionId: `error-${Date.now()}` 
-    });
-  }
-});
-
-// Legal Strategy Builder - DEPRECATED: Redirects to Legal Risk Assessment
-app.post('/legal-strategy-builder', async (req, res) => {
-  try {
-    console.log('📥 Legal Strategy Builder (DEPRECATED) - redirecting to Legal Risk Assessment');
-    
-    // Process through the new Legal Risk Assessment endpoint
-    let formData = sanitizeInput(req.body || {});
-    const submissionId = formData.submissionId || `risk-${Date.now()}`;
-    formData = withNormalizedType(formData, 'legal-risk-assessment');
-    const submissionType = formData._normalizedType;
-
-    const leadScore = calculateLeadScore(formData, submissionType);
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    const operations = [];
-    const alertRecipients = [config.notifications.intakeNotifyTo];
-
-    // Internal alert email
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `Legal Risk Assessment — ${formData.name || 'Unknown'} (${formData.email}) [via deprecated endpoint]`,
-        html: generateInternalEmail(formData, leadScore, submissionType),
-        priority: 'high'
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-
-    // Client confirmation email
-    if (formData.email) {
-      operations.push(
-        sendEnhancedEmail({
-          to: [formData.email],
-          subject: `Your Legal Risk Assessment Results — ${formData.name?.split(' ')[0] || 'there'}`,
-          html: generateClientEmail(formData, leadScore, submissionType)
-        }).catch(e => console.error('❌ Client email failed:', e.message))
-      );
-    }
-
-    // Clio CRM integration
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-    
-    // Follow-up automation
-    try {
-      scheduleSmartFollowUps(leadId, leadScore, submissionType, formData);
-    } catch (e) {
-      console.error('❌ Follow-up automation failed:', e.message);
-    }
-
-    await Promise.all(operations);
-
-    res.json({ 
-      success: true, 
-      submissionId,
-      message: 'Processed via Legal Risk Assessment (Legal Strategy Builder is deprecated)'
-    });
-  } catch (error) {
-    console.error('❌ Legal strategy builder (deprecated) error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Unsubscribe endpoint - CAN-SPAM compliance
-app.get('/unsubscribe/:email/:token?', async (req, res) => {
-  try {
-    const email = decodeURIComponent(req.params.email);
-    const token = req.params.token;
-    
-    // TODO: Verify token for security (should match email hash)
-    
-    // Add to unsubscribe list
-    leadDb.unsubscribeEmail(email);
-    
-    // Remove from Kit/ConvertKit
-    try {
-      const { removeFromKit } = await import('./src/services/kitIntegration.js');
-      await removeFromKit(email);
-    } catch (e) {
-      console.warn('Kit unsubscribe failed:', e.message);
-    }
-    
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Unsubscribed - Jacobs Counsel</title>
-        <style>
-          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
-          .success { color: #4caf50; font-size: 24px; margin-bottom: 20px; }
-        </style>
-      </head>
-      <body>
-        <div class="success">✅ Successfully Unsubscribed</div>
-        <h2>You have been unsubscribed from Jacobs Counsel emails</h2>
-        <p><strong>Email:</strong> ${email}</p>
-        <p>You will no longer receive marketing emails from us.</p>
-        <p>Note: You may still receive transactional emails related to any active legal matters.</p>
-        <hr>
-        <p><small>If you unsubscribed by mistake, you can <a href="/resubscribe/${encodeURIComponent(email)}">resubscribe here</a></small></p>
-      </body>
-      </html>
-    `);
-    
-    console.log(`✅ Unsubscribed: ${email}`);
-  } catch (error) {
-    console.error('Unsubscribe error:', error);
-    res.status(500).send('Error processing unsubscribe request');
-  }
-});
-
-// Email preferences endpoint
-app.get('/preferences/:email/:token?', async (req, res) => {
-  try {
-    const email = decodeURIComponent(req.params.email);
-    
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Email Preferences - Jacobs Counsel</title>
-        <style>
-          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-          .form-group { margin: 20px 0; }
-          label { display: block; margin: 10px 0 5px 0; font-weight: bold; }
-          input[type="checkbox"] { margin-right: 10px; }
-          button { background: #000; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-          button:hover { background: #333; }
-        </style>
-      </head>
-      <body>
-        <h2>📧 Email Preferences for ${email}</h2>
-        <form action="/preferences/${encodeURIComponent(email)}" method="POST">
-          <div class="form-group">
-            <label><input type="checkbox" name="newsletter" checked> Weekly Newsletter (Thursdays)</label>
-            <label><input type="checkbox" name="follow_ups" checked> Follow-up Communications</label>
-            <label><input type="checkbox" name="resources" checked> Resource & Guide Notifications</label>
-            <label><input type="checkbox" name="consultations" checked> Consultation Reminders</label>
-          </div>
-          <button type="submit">Update Preferences</button>
-        </form>
-        <hr>
-        <p><small><a href="/unsubscribe/${encodeURIComponent(email)}">Unsubscribe from all emails</a></small></p>
-      </body>
-      </html>
-    `);
-  } catch (error) {
-    console.error('Preferences error:', error);
-    res.status(500).send('Error loading preferences');
-  }
-});
-
-// Update preferences
-app.post('/preferences/:email', async (req, res) => {
-  try {
-    const email = decodeURIComponent(req.params.email);
-    const preferences = req.body;
-    
-    // Update email preferences in database
-    leadDb.updateEmailPreferences(email, preferences);
-    
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head><title>Preferences Updated - Jacobs Counsel</title></head>
-      <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center;">
-        <h2>✅ Preferences Updated Successfully</h2>
-        <p>Your email preferences for <strong>${email}</strong> have been updated.</p>
-        <p><a href="/preferences/${encodeURIComponent(email)}">← Back to Preferences</a></p>
-      </body>
-      </html>
-    `);
-    
-    console.log(`Updated preferences for: ${email}`, preferences);
-  } catch (error) {
-    console.error('Update preferences error:', error);
-    res.status(500).send('Error updating preferences');
-  }
-});
-
-// Newsletter signup (enhanced)
-app.post('/newsletter-signup', async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    formData = withNormalizedType(formData, 'newsletter');
-    const submissionType = formData._normalizedType;
-    const submissionId = `newsletter-${Date.now()}`;
-    
-    console.log(`📥 New ${submissionType} submission:`, formData.email);
-    
-    const leadScore = calculateLeadScore(formData, submissionType);
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    
-    if (mixpanel) {
-      mixpanel.track('Newsletter Signup', {
-        distinct_id: formData.email,
-        source: formData.source || 'newsletter'
-      });
-    }
-    
-    const operations = [];
-    
-    if (formData.email) {
-      const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
-      
-      operations.push(
-        sendEnhancedEmail({
-          to: [formData.email],
-          subject: 'Welcome to Jacobs Counsel Newsletter',
-          html: welcomeEmailHtml
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'welcome_email' });
-        }).catch(e => console.error('❌ Welcome email failed:', e.message))
-      );
-      
-      operations.push(
-        sendEnhancedEmail({
-          to: [config.notifications.highValueNotifyTo],
-          subject: 'New Newsletter Subscriber',
-          html: `
-            <h2>New Newsletter Subscriber</h2>
-            <p><strong>Name:</strong> ${formData.firstName || 'Not provided'}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Source:</strong> ${formData.source || 'Website'}</p>
-          `
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_notification' });
-        }).catch(e => console.error('❌ Internal newsletter notification failed:', e.message))
-      );
-    }
-    
-    // Custom Email Automation + Kit Newsletter
-    operations.push(
-      processCustomEmailAutomation(formData, leadScore, submissionType)
-        .then((result) => {
-          if (leadId && result.success) {
-            leadDb.logInteraction(leadId, 'custom_automation_started', {
-              automation_id: result.automation_id,
-              pathway: result.pathway,
-              emails_scheduled: result.emails_scheduled
-            });
-          }
-          log.info('✅ Custom email automation started', { 
-            email: formData.email, 
-            pathway: result.pathway,
-            emails_scheduled: result.emails_scheduled 
-          });
-        })
-        .catch(e => console.error('❌ Custom email automation failed:', e.message))
-    );
-    
-    await processIntakeOperations(operations);
-    
-    // Simple newsletter subscription response
-    res.json({
-      success: true,
-      submissionId,
-      status: 'subscribed',
-      message: 'Thanks for subscribing to the Jacobs Counsel newsletter.',
-      nextDelivery: 'You\'ll receive legal insights every Thursday at 8 AM EST.',
-      unsubscribeNote: 'You can unsubscribe at any time from any email.'
-    });
-  } catch (error) {
-    console.error('💥 Newsletter error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-// Outside Counsel (enhanced)
-app.post('/outside-counsel', async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body);
-    const submissionId = formData.submissionId || `OC-${Date.now()}`;
-    formData = withNormalizedType(formData, 'outside-counsel');
-    const submissionType = formData._normalizedType;
-
-    console.log(`📥 New ${submissionType} submission:`, formData.email);
-
-    const leadScore = calculateLeadScore(formData, submissionType);
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    const aiAnalysis = await analyzeIntakeWithAI(formData, submissionType, leadScore);
-
-    if (mixpanel) {
-      mixpanel.track('Intake Submitted', {
-        distinct_id: formData.email,
-        service: submissionType,
-        score: leadScore.score
-      });
-    }
-
-    const operations = [];
-    const alertRecipients = leadScore.score >= 70
-      ? [config.notifications.intakeNotifyTo, config.notifications.highValueNotifyTo]
-      : [config.notifications.intakeNotifyTo];
-
-    operations.push(
-      sendEnhancedEmail({
-        to: alertRecipients,
-        subject: `${leadScore.score >= 70 ? '🔥 HIGH VALUE' : ''} Outside Counsel — ${formData.companyName || 'New Lead'} (Score: ${leadScore.score})`,
-        html: generateInternalEmail(formData, leadScore, submissionType),
-        priority: leadScore.score >= 70 ? 'high' : 'normal'
-      }).then(() => {
-        if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_alert' });
-      }).catch(e => console.error('❌ Internal email failed:', e.message))
-    );
-
-    // Custom Email Automation + Kit Newsletter
-    operations.push(
-      processCustomEmailAutomation(formData, leadScore, submissionType)
-        .then((result) => {
-          if (leadId && result.success) {
-            leadDb.logInteraction(leadId, 'custom_automation_started', {
-              automation_id: result.automation_id,
-              pathway: result.pathway,
-              emails_scheduled: result.emails_scheduled
-            });
-          }
-          log.info('✅ Custom email automation started', { 
-            email: formData.email, 
-            pathway: result.pathway,
-            emails_scheduled: result.emails_scheduled 
-          });
-        })
-        .catch(e => console.error('❌ Custom email automation failed:', e.message))
-    );
-
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-
-    if (formData.email) {
-      const clientEmailHtml = generateClientEmail(formData, leadScore, submissionType);
-      if (clientEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'Jacobs Counsel — Your Outside Counsel Request & Next Steps',
-            html: clientEmailHtml
-          }).then(() => {
-            if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'client_confirmation' });
-          }).catch(e => console.error('❌ Client email failed:', e.message))
-        );
-      }
-    }
-
-    await processIntakeOperations(operations);
-
-    res.json({
-      success: true,
-      submissionId: submissionId,
-      leadScore: leadScore.score,
-      aiAnalysisAvailable: !!aiAnalysis?.analysis
-    });
-  } catch (error) {
-    console.error('💥 Outside counsel error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to process outside counsel request'
-    });
-  }
-});
-
-// Resource guide download (enhanced)
-app.post('/resource-guide-download', async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    formData = withNormalizedType(formData, 'resource-guide');
-    const submissionType = formData._normalizedType;
-    const submissionId = `guide-${Date.now()}`;
-    
-    console.log(`📥 New ${submissionType} submission:`, formData.email);
-    
-    const leadScore = calculateLeadScore(formData, submissionType);
-    const leadId = await processIntakeWithDatabase(formData, submissionType, leadScore, submissionId);
-    
-    if (mixpanel) {
-      mixpanel.track('Resource Guide Download', {
-        distinct_id: formData.email,
-        source: formData.source || 'resource-guide'
-      });
-    }
-    
-    const operations = [];
-    
-    if (formData.email) {
-      const thankYouEmailHtml = generateResourceThankYouEmail(formData, config.resources.guideUrl);
-      if (thankYouEmailHtml) {
-        operations.push(
-          sendEnhancedEmail({
-            to: [formData.email],
-            subject: 'Your Legal Resource Guide - Jacobs Counsel',
-            html: thankYouEmailHtml
-          }).then(() => {
-            if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'thank_you_email' });
-          }).catch(e => console.error('❌ Thank you email failed:', e.message))
-        );
-      }
-      
-      // Internal notification
-      operations.push(
-        sendEnhancedEmail({
-          to: [config.notifications.intakeNotifyTo],
-          subject: 'Resource Guide Download',
-          html: `
-            <h2>New Resource Guide Download</h2>
-            <p><strong>Name:</strong> ${formData.firstName || 'Not provided'}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Lead Score:</strong> ${leadScore.score}/100</p>
-            <p><strong>Source:</strong> ${formData.source || 'Website'}</p>
-            <p><strong>Action Needed:</strong> Add to nurture sequence for guide downloaders</p>
-          `
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_notification' });
-        }).catch(e => console.error('❌ Internal notification failed:', e.message))
-      );
-    }
-    
-    // Custom Email Automation + Kit Newsletter
-    operations.push(
-      processCustomEmailAutomation(formData, leadScore, submissionType)
-        .then((result) => {
-          if (leadId && result.success) {
-            leadDb.logInteraction(leadId, 'custom_automation_started', {
-              automation_id: result.automation_id,
-              pathway: result.pathway,
-              emails_scheduled: result.emails_scheduled
-            });
-          }
-          log.info('✅ Custom email automation started', { 
-            email: formData.email, 
-            pathway: result.pathway,
-            emails_scheduled: result.emails_scheduled 
-          });
-        })
-        .catch(e => console.error('❌ Custom email automation failed:', e.message))
-    );
-    
-    operations.push(
-      createClioLead(formData, submissionType, leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-    
-    await processIntakeOperations(operations);
-    
-    res.json({
-      ok: true,
-      submissionId,
-      downloadLink: config.resources.guideUrl,
-      message: 'Guide ready for download'
-    });
-  } catch (error) {
-    console.error('💥 Resource guide error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-// Legacy add-subscriber endpoint (enhanced)
-app.post('/add-subscriber', async (req, res) => {
-  try {
-    const { email, firstName = '', source = 'newsletter' } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ ok: false, error: 'Email required' });
-    }
-
-    const leadScore = { score: 30, factors: ['Newsletter signup'] };
-    const formData = { email, firstName, source };
-    const submissionId = `legacy-${Date.now()}`;
-    const submissionType = 'newsletter';
-
-    const leadId = await processIntakeWithDatabase(
-      { ...formData, submissionType }, 
-      submissionType, 
-      leadScore, 
-      submissionId
-    );
-
-    // Send welcome email using simple template
-    if (formData.email) {
-      const welcomeEmailHtml = generateNewsletterWelcomeEmail(formData);
-      
-      await sendEnhancedEmail({
-        to: [formData.email],
-        subject: 'Welcome to Jacobs Counsel Newsletter',
-        html: welcomeEmailHtml
-      }).then(() => {
-        if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'welcome_email' });
-      });
-      
-      // Send internal notification
-      await sendEnhancedEmail({
-        to: [config.notifications.highValueNotifyTo],
-        subject: 'New Newsletter Subscriber',
-        html: `
-          <h2>New Newsletter Subscriber</h2>
-          <p><strong>Name:</strong> ${firstName || 'Not provided'}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Source:</strong> ${source}</p>
-        `
-      }).then(() => {
-        if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_notification' });
-      });
-    }
-
-    // Add to Kit (ConvertKit) for newsletter automation
-    await addToKitWithAutomation(formData, leadScore, 'newsletter');
-
-    if (mixpanel) {
-      mixpanel.track('Newsletter Signup', {
-        distinct_id: email,
-        source: source
-      });
-    }
-
-    res.json({ ok: true, message: 'Subscriber added successfully' });
-  } catch (error) {
-    console.error('Newsletter error:', error);
-    res.status(500).json({ ok: false, error: 'Subscription failed' });
-  }
-});
-
-// Additional guide downloads (NEW)
-app.post('/business-guide-download', async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    formData.guideType = 'business-guide';
-    const submissionType = 'resource-guide';
-    const submissionId = `business-guide-${Date.now()}`;
-    
-    console.log(`📥 New business guide download:`, formData.email);
-    
-    const leadScore = { score: 35, factors: ['Business guide download'], priority: 'STANDARD' };
-    const leadId = await processIntakeWithDatabase(
-      { ...formData, submissionType }, 
-      submissionType, 
-      leadScore, 
-      submissionId
-    );
-    
-    const operations = [];
-    
-    if (formData.email) {
-      // Client thank you email
-      operations.push(
-        sendEnhancedEmail({
-          to: [formData.email],
-          subject: 'Your Business Formation Guide - Jacobs Counsel',
-          html: generateResourceThankYouEmail(formData, 'https://jacobscounsellaw.com/s/The-VC-Ready-Business-Formation-Blueprint.pdf')
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'thank_you_email' });
-        }).catch(e => console.error('❌ Thank you email failed:', e.message))
-      );
-      
-      // Internal notification
-      operations.push(
-        sendEnhancedEmail({
-          to: [config.notifications.intakeNotifyTo],
-          subject: 'Business Guide Download',
-          html: `
-            <h2>Business Formation Guide Downloaded</h2>
-            <p><strong>Name:</strong> ${formData.firstName || 'Not provided'}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Action:</strong> Follow up with business formation consultation offer</p>
-            <p><strong>Calendly:</strong> <a href="${config.calendlyLinks['business-formation']}">Book Business Consultation</a></p>
-          `
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_notification' });
-        }).catch(e => console.error('❌ Internal notification failed:', e.message))
-      );
-    }
-    
-    // Add to Kit newsletter with business-focused tags
-    const customFormData = { ...formData, tags: ['business-guide-download', 'trigger-business-sequence'] };
-    operations.push(
-      addToKitWithAutomation(customFormData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'kit_added', { tags: ['business-guide'] });
-        })
-        .catch(e => console.error('❌ Kit newsletter failed:', e.message))
-    );
-    
-    operations.push(
-      createClioLead(customFormData, 'business-guide-download', leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-    
-    await processIntakeOperations(operations);
-    
-    res.json({
-      ok: true,
-      submissionId,
-      downloadLink: 'https://jacobscounsellaw.com/s/The-VC-Ready-Business-Formation-Blueprint.pdf',
-      message: 'Business guide ready for download'
-    });
-  } catch (error) {
-    console.error('💥 Business guide error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-app.post('/brand-guide-download', async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    formData.guideType = 'brand-guide';
-    const submissionType = 'resource-guide';
-    const submissionId = `brand-guide-${Date.now()}`;
-    
-    console.log(`📥 New brand guide download:`, formData.email);
-    
-    const leadScore = { score: 32, factors: ['Brand protection guide download'], priority: 'STANDARD' };
-    const leadId = await processIntakeWithDatabase(
-      { ...formData, submissionType }, 
-      submissionType, 
-      leadScore, 
-      submissionId
-    );
-    
-    const operations = [];
-    
-    if (formData.email) {
-      operations.push(
-        sendEnhancedEmail({
-          to: [formData.email],
-          subject: 'Your Brand Protection Guide - Jacobs Counsel',
-          html: generateResourceThankYouEmail(formData, 'https://jacobscounsellaw.com/s/Emergency-Brand-Protection-Playbook.pdf')
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'thank_you_email' });
-        }).catch(e => console.error('❌ Thank you email failed:', e.message))
-      );
-      
-      operations.push(
-        sendEnhancedEmail({
-          to: [config.notifications.intakeNotifyTo],
-          subject: 'Brand Protection Guide Download',
-          html: `
-            <h2>Brand Protection Guide Downloaded</h2>
-            <p><strong>Name:</strong> ${formData.firstName || 'Not provided'}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Action:</strong> Follow up with trademark consultation offer</p>
-            <p><strong>Calendly:</strong> <a href="${config.calendlyLinks['brand-protection']}">Book Brand Consultation</a></p>
-          `
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_notification' });
-        }).catch(e => console.error('❌ Internal notification failed:', e.message))
-      );
-    }
-    
-    const customFormData = { ...formData, tags: ['brand-guide-download', 'trigger-brand-sequence'] };
-    operations.push(
-      addToKitWithAutomation(customFormData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'kit_added', { tags: ['brand-guide'] });
-        })
-        .catch(e => console.error('❌ Kit newsletter failed:', e.message))
-    );
-    
-    operations.push(
-      createClioLead(customFormData, 'brand-guide-download', leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-    
-    await processIntakeOperations(operations);
-    
-    res.json({
-      ok: true,
-      submissionId,
-      downloadLink: 'https://jacobscounsellaw.com/s/Emergency-Brand-Protection-Playbook.pdf',
-      message: 'Brand protection guide ready for download'
-    });
-  } catch (error) {
-    console.error('💥 Brand guide error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-app.post('/estate-guide-download', async (req, res) => {
-  try {
-    let formData = sanitizeInput(req.body || {});
-    formData.guideType = 'estate-guide';
-    const submissionType = 'resource-guide';
-    const submissionId = `estate-guide-${Date.now()}`;
-    
-    console.log(`📥 New estate guide download:`, formData.email);
-    
-    const leadScore = { score: 40, factors: ['Estate planning guide download'], priority: 'STANDARD' };
-    const leadId = await processIntakeWithDatabase(
-      { ...formData, submissionType }, 
-      submissionType, 
-      leadScore, 
-      submissionId
-    );
-    
-    const operations = [];
-    
-    if (formData.email) {
-      operations.push(
-        sendEnhancedEmail({
-          to: [formData.email],
-          subject: 'Your Estate Planning Guide - Jacobs Counsel',
-          html: generateResourceThankYouEmail(formData, 'https://jacobscounsellaw.com/s/Estate-Planning-for-High-Achievers.pdf')
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'thank_you_email' });
-        }).catch(e => console.error('❌ Thank you email failed:', e.message))
-      );
-      
-      operations.push(
-        sendEnhancedEmail({
-          to: [config.notifications.intakeNotifyTo],
-          subject: 'Estate Planning Guide Download',
-          html: `
-            <h2>Estate Planning Guide Downloaded</h2>
-            <p><strong>Name:</strong> ${formData.firstName || 'Not provided'}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Action:</strong> High-value prospect - follow up with estate consultation offer</p>
-            <p><strong>Calendly:</strong> <a href="${config.calendlyLinks['estate-planning']}">Book Estate Consultation</a></p>
-          `
-        }).then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'email_sent', { type: 'internal_notification' });
-        }).catch(e => console.error('❌ Internal notification failed:', e.message))
-      );
-    }
-    
-    const customFormData = { ...formData, tags: ['estate-guide-download', 'trigger-estate-sequence'] };
-    operations.push(
-      addToKitWithAutomation(customFormData, leadScore, submissionType)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'kit_added', { tags: ['estate-guide'] });
-        })
-        .catch(e => console.error('❌ Kit newsletter failed:', e.message))
-    );
-    
-    operations.push(
-      createClioLead(customFormData, 'estate-guide-download', leadScore)
-        .then(() => {
-          if (leadId) leadDb.logInteraction(leadId, 'clio_created', {});
-        })
-        .catch(e => console.error('❌ Clio failed:', e.message))
-    );
-    
-    await processIntakeOperations(operations);
-    
-    res.json({
-      ok: true,
-      submissionId,
-      downloadLink: 'https://jacobscounsellaw.com/s/Estate-Planning-for-High-Achievers.pdf',
-      message: 'Estate planning guide ready for download'
-    });
-  } catch (error) {
-    console.error('💥 Estate guide error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-// Calendly webhook (enhanced with database tracking)
-app.post('/webhook/calendly', async (req, res) => {
-  try {
-    console.log('Calendly webhook received:', JSON.stringify(req.body));
-
-    const { event, payload } = req.body;
-
-    if (event === 'invitee.created') {
-      const invitee = payload.invitee || {};
-      const scheduled_event = payload.scheduled_event || {};
-      const email = invitee.email;
-      const name = invitee.name || invitee.first_name || 'Unknown Client';
-
-      // NEW: Update database
-      const lead = leadDb.getLeadByEmail(email);
-      if (lead) {
-        leadDb.logInteraction(lead.id, 'calendly_booked', {
-          event_name: scheduled_event.name,
-          start_time: scheduled_event.start_time
-        });
-      }
-
-      console.log(`📅 Meeting booked: ${email}`);
-
-      // CRITICAL: Pause email automation for this lead
-      try {
-        const automationResult = await consultationHandler.handleConsultationBooking({
-          body: {
-            email: email,
-            bookingType: scheduled_event.name,
-            bookingData: {
-              name: name,
-              start_time: scheduled_event.start_time,
-              event_uri: scheduled_event.uri,
-              calendly_event: 'invitee.created'
-            }
-          }
-        });
-        console.log(`✅ Email automation paused for ${email}:`, automationResult.success);
-        
-        // CUSTOMER EXPERIENCE ENHANCEMENT: Send consultation preparation email
-        try {
-          const { CustomEmailAutomation } = await import('./src/services/customEmailAutomation.js');
-          const emailService = new CustomEmailAutomation();
-          const prepEmail = emailService.generateEmailHTML('consultation_preparation', name.split(' ')[0] || 'Valued Client', {
-            submissionType: 'consultation-booking'
-          });
-          
-          // Send preparation email immediately
-          const emailResult = await sendEmail({
-            to: email,
-            subject: `Preparing for Your Consultation - ${name.split(' ')[0] || 'Valued Client'}`,
-            html: prepEmail,
-            from: process.env.FROM_EMAIL || 'noreply@jacobscounsellaw.com'
-          });
-          
-          console.log(`📧 Consultation preparation email sent to ${email}:`, emailResult.success);
-        } catch (prepError) {
-          console.error(`❌ Failed to send preparation email to ${email}:`, prepError.message);
-        }
-      } catch (automationError) {
-        console.error(`❌ Failed to pause automation for ${email}:`, automationError.message);
-      }
-
-      if (mixpanel) {
-        mixpanel.track('Consultation Booked', {
-          distinct_id: email,
-          event_name: scheduled_event.name,
-          start_time: scheduled_event.start_time
-        });
-      }
-    }
-
-    if (event === 'invitee.canceled') {
-      const invitee = payload.invitee || {};
-      const email = invitee.email;
-
-      // NEW: Update database
-      const lead = leadDb.getLeadByEmail(email);
-      if (lead) {
-        leadDb.logInteraction(lead.id, 'calendly_canceled', {});
-      }
-
-      console.log(`❌ Meeting canceled: ${email}`);
-      // Rest of existing logic...
-    }
-
-    res.json({ received: true }); // SAME response format
-  } catch (error) {
-    console.error('Calendly webhook error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Kit Automation Builder Endpoint
-app.post('/admin/build-kit-automations', async (req, res) => {
-  try {
-    const { buildKitAutomations, testKitConnection } = await import('./src/services/kitAutomationBuilder.js');
-    
-    console.log('🚀 Building Kit automation architecture...');
-    
-    // Test connection first
-    const testResult = await testKitConnection();
-    if (!testResult.success) {
-      return res.status(400).json({
-        ok: false,
-        error: 'Kit connection failed',
-        details: testResult.error
-      });
-    }
-    
-    // Build automation architecture
-    const results = await buildKitAutomations();
-    
-    res.json({
-      ok: true,
-      message: 'Kit automation architecture built successfully',
-      results: {
-        sequences: results.sequences.length,
-        tags: results.tags.length,
-        automations: results.automations.length,
-        errors: results.errors
-      }
-    });
-    
-  } catch (error) {
-    console.error('Kit build error:', error);
-    res.status(500).json({
-      ok: false,
-      error: 'Failed to build Kit automation architecture',
-      details: error.message
-    });
-  }
-});
-
-
-// Health Check (enhanced with database status)
-app.get('/health', async (req, res) => {
-  const envStatus = validateEnvironment();
-  
-  res.json({
-    status: 'operational',
-    timestamp: new Date().toISOString(),
-    services: {
-      ...envStatus.status,
-      database: 'active', // NEW
-      calendly: 'webhook active'
-    },
-    database: {
-      totalLeads: db.prepare('SELECT COUNT(*) as count FROM leads').get().count,
-      highValueLeads: db.prepare('SELECT COUNT(*) as count FROM leads WHERE lead_score >= 70').get().count,
-      last24Hours: db.prepare("SELECT COUNT(*) as count FROM leads WHERE created_at >= datetime('now', '-24 hours')").get().count
-    }
-  });
-});
-
-// Root endpoint (same)
+app.use(limiter);
+
+// Helper functions
+const getClientSubject = (submissionType) => {
+  const subjects = {
+    'estate-intake': 'Estate Planning Intake Received',
+    'business-formation': 'Business Formation Intake Received',
+    'brand-protection': 'Brand Protection Intake Received',
+    'gaming-legal-intake': 'Gaming Legal Consultation Request Received',
+    'legal-risk-assessment': 'Legal Risk Assessment Complete',
+    'newsletter-signup': 'Welcome to Strategic Legal Insights',
+    'resource-guide': 'Your Legal Resource Guide',
+    'business-guide': 'Your Business Formation Guide',
+    'brand-guide': 'Your Brand Protection Guide',
+    'estate-guide': 'Your Estate Planning Guide'
+  };
+  return subjects[submissionType] || 'Submission Received';
+};
+
+const getServiceName = (submissionType) => {
+  const names = {
+    'estate-intake': 'Estate Planning',
+    'business-formation': 'Business Formation',
+    'brand-protection': 'Brand Protection',
+    'gaming-legal-intake': 'Gaming & Interactive Entertainment Legal',
+    'legal-risk-assessment': 'Legal Risk Assessment',
+    'newsletter-signup': 'Newsletter Signup',
+    'resource-guide': 'Resource Guide',
+    'business-guide': 'Business Guide',
+    'brand-guide': 'Brand Guide',
+    'estate-guide': 'Estate Guide'
+  };
+  return names[submissionType] || 'Legal Intake';
+};
+
+// 🏠 Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    ok: true,
-    service: 'jacobs-counsel-unified-intake',
-    version: '3.1.0-ENHANCED', // Updated version
+    status: 'active',
+    system: 'Jacobs Counsel Legal Intake & Intelligent Automation',
+    version: '2.1.0',
+    features: ['3-Part Email Flow', 'Kit Intelligent Tagging', 'Clio Integration', 'Lead Scoring'],
     endpoints: [
       '/estate-intake',
       '/business-formation-intake', 
       '/brand-protection-intake',
-      '/outside-counsel',
+      '/gaming-legal-intake',
       '/legal-risk-assessment',
-      '/newsletter-signup',
-      '/resource-guide-download',
-      '/business-guide-download',
-      '/brand-guide-download', 
-      '/estate-guide-download',
-      '/add-subscriber',
-      '/webhook/calendly',
-      '/health',
-      '/api/analytics/dashboard',
-      '/api/analytics/lead-intelligence',
-      '/api/analytics/followup-recommendations',
-      '/admin/build-kit-sequences',
-      '/admin/build-kit-automations'
-    ],
-    features: ['Lead Scoring', 'Kit Newsletter', 'Calendly', 'Clio', 'Email Notifications', 'Analytics Dashboard'] // Added analytics
+      '/newsletter-signup'
+    ]
   });
 });
 
-// Error handling (enhanced logging)
-app.use((err, req, res, next) => {
-  log.error('Unhandled error', { 
-    error: err.message, 
-    stack: err.stack,
-    url: req.url,
-    method: req.method
+// 1. ESTATE INTAKE ENDPOINT
+app.post('/estate-intake', upload.array('documents'), async (req, res) => {
+  try {
+    const formData = sanitizeInput(req.body || {});
+    const submissionId = formData.submissionId || `estate-${Date.now()}`;
+    const submissionType = 'estate-intake';
+    
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+    console.log(`📊 Lead score: ${leadScore.score}/100 (${leadScore.priority})`);
+
+    // Store in database
+    const leadId = leadDb.insertLead({
+      ...formData,
+      submission_type: submissionType,
+      lead_score: leadScore.score,
+      priority: leadScore.priority,
+      submission_id: submissionId
+    }).lastInsertRowid;
+
+    // 3-PART EMAIL FLOW
+    
+    // 1. CLIENT CONFIRMATION EMAIL
+    const clientEmail = generateClientEmail(formData, submissionType);
+    await sendEnhancedEmail({
+      to: [formData.email],
+      subject: getClientSubject(submissionType) + ' - Next Steps',
+      html: clientEmail
+    }).catch(e => console.error('❌ Client email failed:', e.message));
+
+    // 2. INTERNAL ALERT EMAIL
+    const internalEmail = generateInternalEmail(formData, leadScore, submissionType);
+    const alertRecipients = leadScore.score >= 80 
+      ? ['drew@jacobscounsel.com', 'intake@jacobscounsel.com']
+      : ['drew@jacobscounsel.com'];
+    
+    await sendEnhancedEmail({
+      to: alertRecipients,
+      subject: `${leadScore.score >= 80 ? '🔥 HIGH VALUE' : '📋'} ${getServiceName(submissionType)} — ${formData.email} (Score: ${leadScore.score})`,
+      html: internalEmail,
+      priority: leadScore.score >= 80 ? 'high' : 'normal'
+    }).catch(e => console.error('❌ Internal email failed:', e.message));
+
+    // 3. CLIO GROW INTEGRATION
+    await createClioLead(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          leadDb.logInteraction(leadId, 'clio_lead_created', { clioId: result.clioId });
+          console.log('✅ Clio lead created:', result.clioId);
+        }
+      })
+      .catch(e => console.error('❌ Clio integration failed:', e.message));
+
+    // 4. KIT INTELLIGENT TAGGING
+    await addToKitWithIntelligentTagging(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          console.log(`✅ Kit tagging applied: ${result.tags?.length || 0} tags`);
+        }
+      })
+      .catch(e => console.error('❌ Kit tagging failed:', e.message));
+
+    // Log interaction
+    leadDb.logInteraction(leadId, 'form_submitted', { 
+      type: submissionType,
+      score: leadScore.score,
+      priority: leadScore.priority
+    });
+
+    res.json({ 
+      success: true, 
+      message: `${getServiceName(submissionType)} submission received successfully. Check your email for next steps.`,
+      submissionId
+    });
+
+  } catch (error) {
+    console.error(`❌ ${submissionType} error:`, error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error. Please try again.',
+      submissionId: req.body?.submissionId || `error-${Date.now()}`
+    });
+  }
+});
+
+// 2. BUSINESS FORMATION ENDPOINT
+app.post('/business-formation-intake', upload.array('documents'), async (req, res) => {
+  try {
+    const formData = sanitizeInput(req.body || {});
+    const submissionId = formData.submissionId || `business-${Date.now()}`;
+    const submissionType = 'business-formation';
+    
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+    console.log(`📊 Lead score: ${leadScore.score}/100 (${leadScore.priority})`);
+
+    const leadId = leadDb.insertLead({
+      ...formData,
+      submission_type: submissionType,
+      lead_score: leadScore.score,
+      priority: leadScore.priority,
+      submission_id: submissionId
+    }).lastInsertRowid;
+
+    // 3-PART EMAIL FLOW
+    const clientEmail = generateClientEmail(formData, submissionType);
+    await sendEnhancedEmail({
+      to: [formData.email],
+      subject: getClientSubject(submissionType) + ' - Next Steps',
+      html: clientEmail
+    }).catch(e => console.error('❌ Client email failed:', e.message));
+
+    const internalEmail = generateInternalEmail(formData, leadScore, submissionType);
+    const alertRecipients = leadScore.score >= 80 
+      ? ['drew@jacobscounsel.com', 'intake@jacobscounsel.com']
+      : ['drew@jacobscounsel.com'];
+    
+    await sendEnhancedEmail({
+      to: alertRecipients,
+      subject: `${leadScore.score >= 80 ? '🔥 HIGH VALUE' : '📋'} ${getServiceName(submissionType)} — ${formData.email} (Score: ${leadScore.score})`,
+      html: internalEmail,
+      priority: leadScore.score >= 80 ? 'high' : 'normal'
+    }).catch(e => console.error('❌ Internal email failed:', e.message));
+
+    await createClioLead(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          leadDb.logInteraction(leadId, 'clio_lead_created', { clioId: result.clioId });
+          console.log('✅ Clio lead created:', result.clioId);
+        }
+      })
+      .catch(e => console.error('❌ Clio integration failed:', e.message));
+
+    await addToKitWithIntelligentTagging(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          console.log(`✅ Kit tagging applied: ${result.tags?.length || 0} tags`);
+        }
+      })
+      .catch(e => console.error('❌ Kit tagging failed:', e.message));
+
+    leadDb.logInteraction(leadId, 'form_submitted', { 
+      type: submissionType,
+      score: leadScore.score,
+      priority: leadScore.priority
+    });
+
+    res.json({ 
+      success: true, 
+      message: `${getServiceName(submissionType)} submission received successfully. Check your email for next steps.`,
+      submissionId
+    });
+
+  } catch (error) {
+    console.error(`❌ ${submissionType} error:`, error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error. Please try again.',
+      submissionId: req.body?.submissionId || `error-${Date.now()}`
+    });
+  }
+});
+
+// 3. BRAND PROTECTION ENDPOINT
+app.post('/brand-protection-intake', upload.array('documents'), async (req, res) => {
+  try {
+    const formData = sanitizeInput(req.body || {});
+    const submissionId = formData.submissionId || `brand-${Date.now()}`;
+    const submissionType = 'brand-protection';
+    
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+    console.log(`📊 Lead score: ${leadScore.score}/100 (${leadScore.priority})`);
+
+    const leadId = leadDb.insertLead({
+      ...formData,
+      submission_type: submissionType,
+      lead_score: leadScore.score,
+      priority: leadScore.priority,
+      submission_id: submissionId
+    }).lastInsertRowid;
+
+    // 3-PART EMAIL FLOW
+    const clientEmail = generateClientEmail(formData, submissionType);
+    await sendEnhancedEmail({
+      to: [formData.email],
+      subject: getClientSubject(submissionType) + ' - Next Steps',
+      html: clientEmail
+    }).catch(e => console.error('❌ Client email failed:', e.message));
+
+    const internalEmail = generateInternalEmail(formData, leadScore, submissionType);
+    const alertRecipients = leadScore.score >= 80 
+      ? ['drew@jacobscounsel.com', 'intake@jacobscounsel.com']
+      : ['drew@jacobscounsel.com'];
+    
+    await sendEnhancedEmail({
+      to: alertRecipients,
+      subject: `${leadScore.score >= 80 ? '🔥 HIGH VALUE' : '📋'} ${getServiceName(submissionType)} — ${formData.email} (Score: ${leadScore.score})`,
+      html: internalEmail,
+      priority: leadScore.score >= 80 ? 'high' : 'normal'
+    }).catch(e => console.error('❌ Internal email failed:', e.message));
+
+    await createClioLead(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          leadDb.logInteraction(leadId, 'clio_lead_created', { clioId: result.clioId });
+          console.log('✅ Clio lead created:', result.clioId);
+        }
+      })
+      .catch(e => console.error('❌ Clio integration failed:', e.message));
+
+    await addToKitWithIntelligentTagging(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          console.log(`✅ Kit tagging applied: ${result.tags?.length || 0} tags`);
+        }
+      })
+      .catch(e => console.error('❌ Kit tagging failed:', e.message));
+
+    leadDb.logInteraction(leadId, 'form_submitted', { 
+      type: submissionType,
+      score: leadScore.score,
+      priority: leadScore.priority
+    });
+
+    res.json({ 
+      success: true, 
+      message: `${getServiceName(submissionType)} submission received successfully. Check your email for next steps.`,
+      submissionId
+    });
+
+  } catch (error) {
+    console.error(`❌ ${submissionType} error:`, error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error. Please try again.',
+      submissionId: req.body?.submissionId || `error-${Date.now()}`
+    });
+  }
+});
+
+// 4. GAMING & INTERACTIVE ENTERTAINMENT LEGAL INTAKE ENDPOINT
+app.post('/gaming-legal-intake', upload.array('documents'), async (req, res) => {
+  try {
+    const formData = sanitizeInput(req.body || {});
+    const submissionId = formData.submissionId || `gaming-${Date.now()}`;
+    const submissionType = 'gaming-legal-intake';
+    
+    console.log(`🎮 New ${submissionType} submission:`, formData.email);
+
+    // Gaming-specific lead scoring with high base value
+    let leadScore = 40; // Base score (equalized system)
+    
+    // High-value indicators for gaming legal
+    if (formData.hasRealMoney === true || formData.hasRealMoney === 'true') leadScore += 15;
+    if (formData.isSkillBased === true || formData.isSkillBased === 'true') leadScore += 20; // Highest complexity
+    if (formData.currentStage === 'live' || formData.currentStage === 'scaling') leadScore += 10;
+    if (formData.urgencyLevel === 'immediate') leadScore += 15;
+    if (formData.monthlyRevenue && ['100k-500k', '500k+'].includes(formData.monthlyRevenue)) leadScore += 10;
+    if (formData.specificChallenges && formData.specificChallenges.length > 50) leadScore += 5;
+    
+    // Gaming-specific services boost
+    if (formData.legalServices && Array.isArray(formData.legalServices)) {
+      if (formData.legalServices.includes('compliance-analysis')) leadScore += 5;
+      if (formData.legalServices.includes('legal-opinions')) leadScore += 10;
+      if (formData.legalServices.includes('regulatory-defense')) leadScore += 15;
+    }
+    
+    // Cap the score at 100
+    leadScore = Math.min(leadScore, 100);
+
+    // Determine priority - gaming legal clients are inherently high value
+    let priority = 'high'; // Default high for all gaming legal
+    
+    if (formData.isSkillBased === true || formData.isSkillBased === 'true' || 
+        formData.hasRealMoney === true || formData.hasRealMoney === 'true' || 
+        formData.urgencyLevel === 'immediate' || 
+        leadScore >= 80) {
+      priority = 'critical';
+    }
+
+    const finalLeadScore = { score: leadScore, priority };
+    console.log(`🎯 Gaming legal lead score: ${finalLeadScore.score}/100 (${finalLeadScore.priority})`);
+
+    // Store in database with gaming-specific fields
+    const leadId = leadDb.insertLead({
+      ...formData,
+      submission_type: submissionType,
+      lead_score: finalLeadScore.score,
+      priority: finalLeadScore.priority,
+      submission_id: submissionId,
+      practice_area: 'Gaming & Interactive Entertainment Legal',
+      game_type: formData.gameType || 'Not specified',
+      has_real_money: formData.hasRealMoney === true || formData.hasRealMoney === 'true' ? 'Yes' : 'No',
+      is_skill_based: formData.isSkillBased === true || formData.isSkillBased === 'true' ? 'Yes' : 'No',
+      business_value: 'High' // Gaming legal clients are inherently high value
+    }).lastInsertRowid;
+
+    // 3-PART EMAIL FLOW FOR GAMING LEGAL
+    
+    // 1. CLIENT CONFIRMATION EMAIL
+    const clientEmail = generateClientEmail(formData, submissionType);
+    await sendEnhancedEmail({
+      to: [formData.email],
+      subject: getClientSubject(submissionType) + ' - High Priority Response',
+      html: clientEmail
+    }).catch(e => console.error('❌ Gaming client email failed:', e.message));
+
+    // 2. INTERNAL ALERT EMAIL - Always high priority for gaming
+    const internalEmail = generateInternalEmail(formData, finalLeadScore, submissionType);
+    const alertRecipients = ['drew@jacobscounsel.com']; // Always alert Drew for gaming legal
+    
+    const priorityEmoji = finalLeadScore.priority === 'critical' ? '🚨 CRITICAL' : '🎮 HIGH PRIORITY';
+    await sendEnhancedEmail({
+      to: alertRecipients,
+      subject: `${priorityEmoji} Gaming Legal — ${formData.company || formData.firstName} ${formData.lastName} (Score: ${finalLeadScore.score})`,
+      html: internalEmail,
+      priority: 'high' // Always high priority for gaming
+    }).catch(e => console.error('❌ Gaming internal email failed:', e.message));
+
+    // 3. CLIO GROW INTEGRATION
+    await createClioLead(formData, finalLeadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          leadDb.logInteraction(leadId, 'clio_lead_created', { clioId: result.clioId });
+          console.log('✅ Gaming Clio lead created:', result.clioId);
+        }
+      })
+      .catch(e => console.error('❌ Gaming Clio integration failed:', e.message));
+
+    // 4. KIT INTELLIGENT TAGGING FOR GAMING LEGAL
+    await addToKitWithIntelligentTagging(formData, finalLeadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          console.log(`✅ Gaming Kit tagging applied: ${result.tags?.length || 0} tags`);
+        }
+      })
+      .catch(e => console.error('❌ Gaming Kit tagging failed:', e.message));
+
+    // Log the interaction
+    leadDb.logInteraction(leadId, 'gaming_legal_submission', {
+      score: finalLeadScore.score,
+      priority: finalLeadScore.priority,
+      gameType: formData.gameType,
+      hasRealMoney: formData.hasRealMoney,
+      isSkillBased: formData.isSkillBased,
+      urgencyLevel: formData.urgencyLevel
+    });
+
+    // Success response with gaming-specific messaging
+    res.json({ 
+      success: true, 
+      message: `Gaming legal consultation request received with ${finalLeadScore.priority.toUpperCase()} priority status`,
+      submissionId,
+      leadScore: finalLeadScore.score,
+      priority: finalLeadScore.priority,
+      nextSteps: {
+        responseTime: finalLeadScore.priority === 'critical' ? 'Within 2 hours' : 'Within 24 hours',
+        schedulingLink: 'https://calendly.com/jacobscounsel/gaming-consultation',
+        emergencyContact: finalLeadScore.priority === 'critical' ? 'Immediate consultation available' : null
+      },
+      practiceArea: 'Gaming & Interactive Entertainment Legal',
+      estimatedValue: finalLeadScore.score > 80 ? 'Very High' : finalLeadScore.score > 60 ? 'High' : 'Medium'
+    });
+
+  } catch (error) {
+    console.error(`❌ ${submissionType} error:`, error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'An error occurred processing your gaming legal consultation request. Please try again.',
+      submissionId: req.body?.submissionId || `gaming-error-${Date.now()}`
+    });
+  }
+});
+
+// 5. LEGAL RISK ASSESSMENT ENDPOINT (The new premium tool)
+app.post('/legal-risk-assessment', async (req, res) => {
+  try {
+    const formData = sanitizeInput(req.body || {});
+    const submissionId = formData.submissionId || `assessment-${Date.now()}`;
+    const submissionType = 'legal-risk-assessment';
+    
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+    console.log(`📊 Lead score: ${leadScore.score}/100 (${leadScore.priority})`);
+
+    const leadId = leadDb.insertLead({
+      ...formData,
+      submission_type: submissionType,
+      lead_score: leadScore.score,
+      priority: leadScore.priority,
+      submission_id: submissionId
+    }).lastInsertRowid;
+
+    // 3-PART EMAIL FLOW
+    const clientEmail = generateClientEmail(formData, submissionType);
+    await sendEnhancedEmail({
+      to: [formData.email],
+      subject: getClientSubject(submissionType) + ' - Your Results & Next Steps',
+      html: clientEmail
+    }).catch(e => console.error('❌ Client email failed:', e.message));
+
+    const internalEmail = generateInternalEmail(formData, leadScore, submissionType);
+    const alertRecipients = leadScore.score >= 80 
+      ? ['drew@jacobscounsel.com', 'intake@jacobscounsel.com']
+      : ['drew@jacobscounsel.com'];
+    
+    await sendEnhancedEmail({
+      to: alertRecipients,
+      subject: `${leadScore.score >= 80 ? '🔥 HIGH VALUE' : '📋'} ${getServiceName(submissionType)} — ${formData.email} (Score: ${leadScore.score})`,
+      html: internalEmail,
+      priority: leadScore.score >= 80 ? 'high' : 'normal'
+    }).catch(e => console.error('❌ Internal email failed:', e.message));
+
+    await createClioLead(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          leadDb.logInteraction(leadId, 'clio_lead_created', { clioId: result.clioId });
+          console.log('✅ Clio lead created:', result.clioId);
+        }
+      })
+      .catch(e => console.error('❌ Clio integration failed:', e.message));
+
+    await addToKitWithIntelligentTagging(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          console.log(`✅ Kit tagging applied: ${result.tags?.length || 0} tags`);
+        }
+      })
+      .catch(e => console.error('❌ Kit tagging failed:', e.message));
+
+    leadDb.logInteraction(leadId, 'form_submitted', { 
+      type: submissionType,
+      score: leadScore.score,
+      priority: leadScore.priority
+    });
+
+    res.json({ 
+      success: true, 
+      message: `${getServiceName(submissionType)} complete. Check your email for detailed results.`,
+      submissionId
+    });
+
+  } catch (error) {
+    console.error(`❌ ${submissionType} error:`, error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error. Please try again.',
+      submissionId: req.body?.submissionId || `error-${Date.now()}`
+    });
+  }
+});
+
+// 5. NEWSLETTER SIGNUP ENDPOINT
+app.post('/newsletter-signup', async (req, res) => {
+  try {
+    const formData = sanitizeInput(req.body || {});
+    const submissionId = formData.submissionId || `newsletter-${Date.now()}`;
+    const submissionType = 'newsletter-signup';
+    
+    console.log(`📥 New ${submissionType} submission:`, formData.email);
+
+    const leadScore = calculateLeadScore(formData, submissionType);
+    console.log(`📊 Lead score: ${leadScore.score}/100 (${leadScore.priority})`);
+
+    const leadId = leadDb.insertLead({
+      ...formData,
+      submission_type: submissionType,
+      lead_score: leadScore.score,
+      priority: leadScore.priority,
+      submission_id: submissionId
+    }).lastInsertRowid;
+
+    // 3-PART EMAIL FLOW
+    const clientEmail = generateNewsletterWelcomeEmail(formData, submissionType);
+    await sendEnhancedEmail({
+      to: [formData.email],
+      subject: getClientSubject(submissionType),
+      html: clientEmail
+    }).catch(e => console.error('❌ Client email failed:', e.message));
+
+    const internalEmail = generateInternalEmail(formData, leadScore, submissionType);
+    await sendEnhancedEmail({
+      to: ['drew@jacobscounsel.com'],
+      subject: `📧 ${getServiceName(submissionType)} — ${formData.email} (Score: ${leadScore.score})`,
+      html: internalEmail
+    }).catch(e => console.error('❌ Internal email failed:', e.message));
+
+    await createClioLead(formData, leadScore, submissionType)
+      .catch(e => console.error('❌ Clio integration failed:', e.message));
+
+    await addToKitWithIntelligentTagging(formData, leadScore, submissionType)
+      .then(result => {
+        if (result.success) {
+          console.log(`✅ Kit tagging applied: ${result.tags?.length || 0} tags`);
+        }
+      })
+      .catch(e => console.error('❌ Kit tagging failed:', e.message));
+
+    leadDb.logInteraction(leadId, 'newsletter_signup', { 
+      score: leadScore.score,
+      priority: leadScore.priority
+    });
+
+    res.json({ 
+      success: true, 
+      message: 'Successfully subscribed to newsletter. Check your email for confirmation.',
+      submissionId
+    });
+
+  } catch (error) {
+    console.error(`❌ Newsletter signup error:`, error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error. Please try again.',
+      submissionId: req.body?.submissionId || `error-${Date.now()}`
+    });
+  }
+});
+
+// 6-9. RESOURCE GUIDE DOWNLOAD ENDPOINTS
+const resourceEndpoints = [
+  { path: '/resource-guide-download', type: 'resource-guide' },
+  { path: '/business-guide-download', type: 'business-guide' },
+  { path: '/brand-guide-download', type: 'brand-guide' },
+  { path: '/estate-guide-download', type: 'estate-guide' }
+];
+
+resourceEndpoints.forEach(({ path, type }) => {
+  app.post(path, async (req, res) => {
+    try {
+      const formData = sanitizeInput(req.body || {});
+      const submissionId = formData.submissionId || `${type}-${Date.now()}`;
+      const submissionType = type;
+      
+      console.log(`📥 New ${submissionType} download:`, formData.email);
+
+      const leadScore = calculateLeadScore(formData, submissionType);
+      console.log(`📊 Lead score: ${leadScore.score}/100 (${leadScore.priority})`);
+
+      const leadId = leadDb.insertLead({
+        ...formData,
+        submission_type: submissionType,
+        lead_score: leadScore.score,
+        priority: leadScore.priority,
+        submission_id: submissionId
+      }).lastInsertRowid;
+
+      // 3-PART EMAIL FLOW
+      const clientEmail = generateResourceThankYouEmail(formData, submissionType);
+      await sendEnhancedEmail({
+        to: [formData.email],
+        subject: getClientSubject(submissionType),
+        html: clientEmail
+      }).catch(e => console.error('❌ Client email failed:', e.message));
+
+      const internalEmail = generateInternalEmail(formData, leadScore, submissionType);
+      await sendEnhancedEmail({
+        to: ['drew@jacobscounsel.com'],
+        subject: `📚 ${getServiceName(submissionType)} Download — ${formData.email} (Score: ${leadScore.score})`,
+        html: internalEmail
+      }).catch(e => console.error('❌ Internal email failed:', e.message));
+
+      await createClioLead(formData, leadScore, submissionType)
+        .catch(e => console.error('❌ Clio integration failed:', e.message));
+
+      await addToKitWithIntelligentTagging(formData, leadScore, submissionType)
+        .then(result => {
+          if (result.success) {
+            console.log(`✅ Kit tagging applied: ${result.tags?.length || 0} tags`);
+          }
+        })
+        .catch(e => console.error('❌ Kit tagging failed:', e.message));
+
+      leadDb.logInteraction(leadId, 'resource_download', { 
+        resource: submissionType,
+        score: leadScore.score,
+        priority: leadScore.priority
+      });
+
+      res.json({ 
+        success: true, 
+        message: `${getServiceName(submissionType)} sent to your email. Check your inbox!`,
+        submissionId
+      });
+
+    } catch (error) {
+      console.error(`❌ ${type} download error:`, error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Internal server error. Please try again.',
+        submissionId: req.body?.submissionId || `error-${Date.now()}`
+      });
+    }
   });
-  res.status(500).json({
-    ok: false,
-    error: 'Server error. Please try again or contact us directly.'
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    system: 'Jacobs Counsel Clean Backend',
+    features: {
+      emailFlow: '3-part (Client + Internal + Clio)',
+      kitTagging: 'Intelligent 50+ tags',
+      clioIntegration: 'Active',
+      leadScoring: '0-100 scale'
+    }
   });
 });
 
 // Start server
-app.listen(config.port, () => {
-  try {
-    const envStatus = validateEnvironment();
-    console.log(`🚀 Jacobs Counsel System running on port ${config.port}`);
-    console.log(`📊 Features: Lead Scoring, Analytics Dashboard, Custom Email Automation, Calendly, Clio`);
-    console.log(`🗄️ Database: SQLite with lead tracking and analytics`);
-    
-    // Start the email automation processor
-    emailProcessor.start();
-    console.log(`📧 Email Automation System: ACTIVE`);
-    console.log(`✅ Backwards compatible - all existing endpoints preserved`);
-    console.log(`📈 New analytics available at /api/analytics/dashboard`);
-    console.log(`📅 Calendly webhook active at /webhook/calendly`);
-  } catch (error) {
-    console.error('❌ Startup failed:', error.message);
-    process.exit(1);
-  }
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Jacobs Counsel Clean System running on port ${PORT}`);
+  console.log(`📧 3-Part Email Flow: Active`);
+  console.log(`🏷️ Kit Intelligent Tagging: Active`); 
+  console.log(`📊 Clio Grow Integration: Active`);
+  console.log(`✅ All endpoints cleaned and operational`);
 });
-
-export default app;

@@ -444,7 +444,7 @@
       <a href="https://calendly.com/jacobscounsel/general-consultation" class="btn-primary">
         📅 Book Free Strategy Call
       </a>
-      <a href="/legal-strategy-builder.html" class="btn-secondary">
+      <a href="https://www.jacobscounsellaw.com/legal-strategy-builder" class="btn-secondary">
         🎯 Assess Your Legal Foundation
       </a>
     </div>
@@ -627,7 +627,7 @@
         <a href="https://calendly.com/jacobscounsel/general-consultation" class="btn-primary">
           📅 Book Your Strategy Session
         </a>
-        <a href="/legal-strategy-builder.html" class="btn-secondary">
+        <a href="https://www.jacobscounsellaw.com/legal-strategy-builder" class="btn-secondary">
           🎯 Start Legal Assessment
         </a>
       </div>
@@ -672,17 +672,11 @@ document.querySelectorAll('.service-card').forEach((card, index) => {
 console.log('Jacobs Counsel homepage loaded');
 
 // Debug: Add click tracking for legal strategy builder buttons
-document.querySelectorAll('a[href="/legal-strategy-builder.html"]').forEach((button, index) => {
+document.querySelectorAll('a[href*="legal-strategy-builder"]').forEach((button, index) => {
     console.log(`Found legal strategy builder button ${index + 1}:`, button);
     button.addEventListener('click', function(e) {
         console.log('Legal strategy builder button clicked!', this.href);
-        // Force navigation if normal click doesn't work
-        setTimeout(() => {
-            if (window.location.pathname === '/homepage.html') {
-                console.log('Fallback navigation triggered');
-                window.location.href = this.href;
-            }
-        }, 100);
+        console.log('Navigating to Squarespace form...');
     });
 });
 </script>

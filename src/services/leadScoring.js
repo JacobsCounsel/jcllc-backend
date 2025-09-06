@@ -34,37 +34,23 @@ export function calculateLeadScore(formData, submissionType) {
     'business-formation': 55,     // Increased - recurring client potential  
     'brand-protection': 40,       // Increased - portfolio opportunities
     'outside-counsel': 50,        // Increased - ongoing relationships
-    'legal-strategy-builder': 35, // Assessment leads
-    'legal-risk-assessment': 40,  // Risk assessment leads (higher urgency)
+    'legal-strategy-builder': 40,  // Strategy builder leads (higher urgency)
     'legal-guide-download': 25,   // Educational content
     'resource-guide': 25,         // Educational content
     'newsletter': 20              // Nurture leads
   };
   
-  // Legal Risk Assessment gets special treatment
-  if (submissionType === 'legal-risk-assessment') {
-    const riskScore = parseInt(formData.overallRiskScore) || 0;
-    // Invert risk score for lead scoring (higher risk = higher lead score)
-    score = Math.max(30, 100 - (riskScore * 2)); // Convert 0-30 risk to 40-100 lead score
-    scoreFactors.push(`Risk Assessment Score: +${score} (Risk: ${riskScore})`);
-    
-    // Bonus for high-risk cases (more urgent)
-    if (riskScore > 20) {
-      score += 30;
-      scoreFactors.push('High Risk Priority: +30');
-    } else if (riskScore > 12) {
-      score += 15;
-      scoreFactors.push('Medium Risk: +15');
-    }
-  }
-  // Legal Strategy Builder gets special treatment
-  else if (submissionType === 'legal-strategy-builder') {
-    score = parseInt(formData.assessmentScore) || 0;
-    scoreFactors.push(`Frontend Assessment Score: +${score}`);
-    
-    if (formData.fromAssessment === 'true' || formData.source === 'legal-strategy-builder-conversion') {
-      score += 25; // Increased bonus for assessment completion
-      scoreFactors.push('Strategy Builder conversion: +25');
+  // Legal Strategy Builder gets special treatment  
+  if (submissionType === 'legal-strategy-builder') {
+    // Use the calculated score from the frontend form
+    const frontendScore = parseInt(formData.legalFoundationScore) || 0;
+    if (frontendScore > 0) {
+      score = frontendScore;
+      scoreFactors.push(`Legal Foundation Score: ${score}`);
+    } else {
+      // Fallback scoring if frontend score not available
+      score = baseScores[submissionType] || 40;
+      scoreFactors.push(`Base ${submissionType}: +${score}`);
     }
   } else {
     score += baseScores[submissionType] || 30;

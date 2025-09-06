@@ -130,8 +130,8 @@ export class IntelligentKitTagging {
       case 'outside-counsel':
         tags.push('general-counsel', 'strategic-legal', 'ongoing-support');
         break;
-      case 'legal-risk-assessment':
-        tags.push('risk-assessment', 'comprehensive-planning', 'multi-area');
+      case 'legal-strategy-builder':
+        tags.push('strategy-builder', 'comprehensive-planning', 'multi-area');
         break;
     }
     

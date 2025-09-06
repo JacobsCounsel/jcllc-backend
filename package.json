@@ -15,7 +15,7 @@
   },
   "keywords": [
     "legal",
-    "intake", 
+    "intake",
     "automation",
     "convertkit",
     "intelligent-tagging",
@@ -24,18 +24,20 @@
   "author": "Jacobs Counsel LLC",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "helmet": "^7.0.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
-    "node-fetch": "^3.3.1",
-    "node-cache": "^5.1.2",
-    "sqlite3": "^5.1.6",
+    "helmet": "^7.0.0",
     "mixpanel": "^0.17.0",
-    "dotenv": "^16.0.3"
+    "multer": "^2.0.2",
+    "node-cache": "^5.1.2",
+    "node-fetch": "^3.3.1",
+    "sqlite3": "^5.1.6",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^3.1.10"
   },
   "engines": {
     "node": ">=18.0.0"

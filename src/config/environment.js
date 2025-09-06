@@ -37,8 +37,9 @@ export const config = {
   
   // Kit (ConvertKit)
   kit: {
-    apiKey: process.env.KIT_API_KEY || '_asjUkBoW6K8ORx6w2lSpg',
-    apiSecret: process.env.KIT_API_SECRET || 'WfeiRBsWUCmG1K2mTpA4AXfm-orT866YY3-p5A9Oo14'
+    apiKey: process.env.KIT_API_KEY || '',
+    apiSecret: process.env.KIT_API_SECRET || '',
+    formId: process.env.KIT_FORM_ID || ''
   },
   
   // Calendly Links - YOUR ACTUAL LINKS (preserved exactly)

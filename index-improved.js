@@ -47,7 +47,7 @@ const getClientSubject = (submissionType) => {
     'business-formation': 'Business Formation Intake Received',
     'brand-protection': 'Brand Protection Intake Received',
     'gaming-legal-intake': 'Gaming Legal Consultation Request Received',
-    'legal-risk-assessment': 'Legal Risk Assessment Complete',
+    'legal-strategy-builder': 'Legal Strategy Assessment Complete',
     'newsletter-signup': 'Welcome to Strategic Legal Insights',
     'resource-guide': 'Your Legal Resource Guide',
     'business-guide': 'Your Business Formation Guide',
@@ -63,7 +63,7 @@ const getServiceName = (submissionType) => {
     'business-formation': 'Business Formation',
     'brand-protection': 'Brand Protection',
     'gaming-legal-intake': 'Gaming & Interactive Entertainment Legal',
-    'legal-risk-assessment': 'Legal Risk Assessment',
+    'legal-strategy-builder': 'Legal Strategy Builder',
     'newsletter-signup': 'Newsletter Signup',
     'resource-guide': 'Resource Guide',
     'business-guide': 'Business Guide',
@@ -85,7 +85,7 @@ app.get('/', (req, res) => {
       '/business-formation-intake', 
       '/brand-protection-intake',
       '/gaming-legal-intake',
-      '/legal-risk-assessment',
+      '/legal-strategy-builder',
       '/newsletter-signup'
     ]
   });
@@ -469,12 +469,12 @@ app.post('/gaming-legal-intake', upload.array('documents'), async (req, res) => 
   }
 });
 
-// 5. LEGAL RISK ASSESSMENT ENDPOINT (The new premium tool)
-app.post('/legal-risk-assessment', async (req, res) => {
+// 5. LEGAL STRATEGY BUILDER ENDPOINT (The premium assessment tool)
+app.post('/legal-strategy-builder', async (req, res) => {
   try {
     const formData = sanitizeInput(req.body || {});
-    const submissionId = formData.submissionId || `assessment-${Date.now()}`;
-    const submissionType = 'legal-risk-assessment';
+    const submissionId = formData.submissionId || `strategy-${Date.now()}`;
+    const submissionType = 'legal-strategy-builder';
     
     console.log(`📥 New ${submissionType} submission:`, formData.email);
 

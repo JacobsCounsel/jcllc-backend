@@ -6,6 +6,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { config } from './src/config/environment.js';
 import { leadDb } from './src/models/database-production.js';
 import { calculateLeadScore } from './src/services/leadScoring.js';
@@ -24,6 +26,10 @@ import {
 } from './src/simple-email-templates.js';
 import { log } from './src/utils/logger.js';
 
+// ES modules __dirname setup
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -40,11 +46,31 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Serve static HTML files
-app.use(express.static('.', {
-  extensions: ['html'],
-  index: false
-}));
+// Serve specific HTML files
+
+app.get('/homepage.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'homepage.html'));
+});
+
+app.get('/legal-strategy-builder.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'legal-strategy-builder.html'));
+});
+
+app.get('/estate-planning-intake.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'estate-planning-intake.html'));
+});
+
+app.get('/business-formation-intake.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'business-formation-intake.html'));
+});
+
+app.get('/brand-protection-intake.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'brand-protection-intake.html'));
+});
+
+app.get('/outside-counsel-intake.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'outside-counsel-intake.html'));
+});
 
 // Helper functions
 const getClientSubject = (submissionType) => {

@@ -40,6 +40,12 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Serve static HTML files
+app.use(express.static('.', {
+  extensions: ['html'],
+  index: false
+}));
+
 // Helper functions
 const getClientSubject = (submissionType) => {
   const subjects = {
